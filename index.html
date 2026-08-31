@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐉 Hutan Rimba Ultimate - Video & Gambar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: 
+                radial-gradient(ellipse at bottom, rgba(40, 80, 50, 0.8), transparent),
+                linear-gradient(180deg, #0a1f14 0%, #143a20 50%, #1a4527 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        /* Background Hutan */
+        .forest-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .tree {
+            position: absolute;
+            bottom: 0;
+            width: 120px; height: 200px;
+            background: linear-gradient(180deg, #2d5a27, #1a3d15);
+            border-radius: 10px 10px 0 0;
+            animation: sway 5s ease-in-out infinite;
+        }
+
+        .tree::before {
+            content: '';
+            position: absolute;
+            top: -40px; left: -20px;
+            width: 160px; height: 80px;
+            background: linear-gradient(135deg, #3a7d30, #2d5a27);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .tree:nth-child(1) { left: 10px; }
+        .tree:nth-child(2) { left: 15%; height: 240px; animation-delay: 1s; }
+        .tree:nth-child(3) { right: 10%; height: 180px; animation-delay: 2s; }
+        .tree:nth-child(4) { right: 20px; height: 260px; animation-delay: 3s; }
+        .tree:nth-child(5) { left: 40%; height: 220px; animation-delay: 4s; }
+        .tree:nth-child(6) { right: 40%; height: 200px; animation-delay: 5s; }
+
+        .fireflies {
+            position: absolute;
+            width: 6px; height: 6px;
+            background: #ffe066;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffe066;
+            animation: fly 8s infinite;
+        }
+
+        .fireflies:nth-child(7) { top: 30%; left: 20%; animation-delay: 0s; }
+        .fireflies:nth-child(8) { top: 50%; left: 80%; animation-delay: 2s; }
+        .fireflies:nth-child(9) { top: 70%; left: 50%; animation-delay: 4s; }
+        .fireflies:nth-child(10) { top: 40%; left: 70%; animation-delay: 6s; }
+        .fireflies:nth-child(11) { top: 60%; left: 30%; animation-delay: 1s; }
+        .fireflies:nth-child(12) { top: 20%; left: 60%; animation-delay: 3s; }
+        .fireflies:nth-child(13) { top: 80%; left: 90%; animation-delay: 5s; }
+        .fireflies:nth-child(14) { top: 45%; left: 10%; animation-delay: 7s; }
+
+        .moon {
+            position: absolute;
+            top: 50px; right: 100px;
+            width: 80px; height: 80px;
+            background: radial-gradient(circle, #fff, #f1c40f);
+            border-radius: 50%;
+            box-shadow: 0 0 40px #f1c40f, 0 0 80px rgba(241,196,15,0.3);
+            animation: moonGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        @keyframes fly {
+            0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+            25% { transform: translate(15px, -20px); opacity: 1; }
+            50% { transform: translate(-10px, -35px); opacity: 0.6; }
+            75% { transform: translate(20px, -15px); opacity: 0.8; }
+        }
+
+        @keyframes moonGlow {
+            from { box-shadow: 0 0 40px #f1c40f; }
+            to { box-shadow: 0 0 60px #f1c40f, 0 0 100px rgba(241,196,15,0.5); }
+        }
+
+        /* Container Utama */
+        .game-container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header */
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(90deg, #ffd700, #ff8c00, #ffd700);
+            border-radius: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-header::before {
+            content: '🐉';
+            position: absolute;
+            left: 20px;
+            font-size: 40px;
+            animation: floatDragon 3s ease-in-out infinite;
+        }
+
+        .game-header::after {
+            content: '🐉';
+            position: absolute;
+            right: 20px;
+            font-size: 40px;
+            animation: floatDragon 3s ease-in-out infinite reverse;
+        }
+
+        @keyframes floatDragon {
+            0%, 100% { transform: translateY(0) rotate(-10deg); }
+            50% { transform: translateY(-15px) rotate(10deg); }
+        }
+
+        .game-header h1 {
+            font-size: 2.5em;
+            color: #3d1e00;
+            font-family: 'Papyrus', 'Georgia', serif;
+            letter-spacing: 3px;
+        }
+
+        /* Grid Horizontal */
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 30px;
+            background: radial-gradient(ellipse at center, #3d5a3d, #1a2a1a);
+            border-radius: 20px;
+            border: 3px solid #8b6914;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slot-grid::before {
+            content: '🎰';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 35px;
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border-radius: 50%;
+            width: 55px; height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(255,215,0,0.5);
+            z-index: 2;
+        }
+
+        .reel {
+            aspect-ratio: 1;
+            background: linear-gradient(145deg, #4a3f35, #2a1f15);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 
+                inset 0 4px 15px rgba(0,0,0,0.6),
+                0 4px 10px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            min-height: 120px;
+            cursor: pointer;
+        }
+
+        .reel::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #ffd700, transparent);
+            opacity: 0.5;
+        }
+
+        /* Gaya untuk Gambar, SVG, dan Video di dalam Reel */
+        .reel img, .reel svg, .reel video {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+            border-radius: 10px;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5));
+            transition: transform 0.3s ease;
+        }
+
+        .reel video {
+            background: #000; /* Latar belakang hitam untuk video */
+        }
+
+        .reel:hover img, .reel:hover svg, .reel:hover video {
+            transform: scale(1.1);
+        }
+
+        .reel.spinning-horizontal {
+            animation: spinHorizontal 1.2s ease-in-out;
+        }
+
+        @keyframes spinHorizontal {
+            0% { transform: translateX(0) rotate(0deg); }
+            20% { transform: translateX(-40px) rotate(360deg); }
+            40% { transform: translateX(40px) rotate(720deg); }
+            60% { transform: translateX(-30px) rotate(1080deg); }
+            80% { transform: translateX(30px) rotate(1440deg); }
+            100% { transform: translateX(0) rotate(1800deg); }
+        }
+
+        .reel.spinning-horizontal::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: blurPass 0.3s infinite;
+        }
+
+        @keyframes blurPass {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .reel.win {
+            border: 3px solid #00ff88;
+            box-shadow: 0 0 30px #00ff88, inset 0 0 20px rgba(0,255,136,0.3);
+            animation: winPulse 1s infinite;
+        }
+
+        .reel.dragon-win {
+            border: 3px solid #ff4444;
+            box-shadow: 0 0 40px #ff4444, inset 0 0 30px rgba(255,68,68,0.4);
+            animation: dragonPulse 0.5s infinite;
+        }
+
+        @keyframes winPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes dragonPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px #ff4444; }
+            50% { transform: scale(1.1); box-shadow: 0 0 50px #ff6666; }
+        }
+
+        /* Panel Kontrol */
+        .control-panel {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(145deg, #3a2a15, #2a1a0e);
+            border-radius: 15px;
+            border: 2px solid #8b6914;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            min-width: 120px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-box:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .stat-box label {
+            display: block;
+            font-size: 0.9em;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .stat-box span {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .spin-btn {
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255,215,0,0.4);
+            transition: all 0.3s ease;
+            color: #3d1e00;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spin-btn::before {
+            content: '🎰';
+            margin-right: 8px;
+        }
+
+        .spin-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255,215,0,0.6);
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auto-btn {
+            background: linear-gradient(145deg, #4a9d4a, #2d7a2d);
+            border: none;
+            padding: 12px 20px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 3px 15px rgba(74,157,74,0.4);
+            transition: all 0.3s ease;
+            color: #fff;
+        }
+
+        .auto-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .bet-controls {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .bet-btn {
+            background: #8b6914;
+            border: none;
+            color: #fff;
+            width: 30px; height: 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .bet-btn:hover {
+            background: #a07818;
+        }
+
+        /* Hasil */
+        .result-display {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            font-size: 1.2em;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .result-display.win {
+            background: rgba(0,255,136,0.2);
+            border: 2px solid #00ff88;
+        }
+
+        .result-display.lose {
+            background: rgba(255,102,102,0.2);
+            border: 2px solid #ff6666;
+        }
+
+        .result-display.jackpot {
+            background: rgba(255,68,68,0.3);
+            border: 3px solid #ff4444;
+            animation: jackpotGlow 0.5s infinite;
+        }
+
+        .result-display.big-win {
+            background: linear-gradient(145deg, rgba(255,215,0,0.3), rgba(255,170,0,0.3));
+            border: 3px solid #ffd700;
+            animation: bigWinGlow 0.5s infinite;
+        }
+
+        @keyframes jackpotGlow {
+            0%, 100% { box-shadow: 0 0 20px #ff4444; }
+            50% { box-shadow: 0 0 40px #ff6666; }
+        }
+
+        @keyframes bigWinGlow {
+            0%, 100% { box-shadow: 0 0 20px #ffd700; }
+            50% { box-shadow: 0 0 40px #ffaa00; }
+        }
+
+        /* Paytable */
+        .paytable {
+            margin-top: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .paytable h3 {
+            text-align: center;
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .paytable-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .pay-item {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .pay-item:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+
+        .pay-item .animal-icon {
+            font-size: 1.2em;
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        /* Leaderboard */
+        .leaderboard {
+            margin-top: 20px;
+            background: linear-gradient(145deg, #3a2a15, #2a1a0e);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #8b6914;
+        }
+
+        .leaderboard h3 {
+            text-align: center;
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .leaderboard-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .leaderboard-item.rank-1 {
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            color: #3d1e00;
+            font-weight: bold;
+        }
+
+        .leaderboard-item.rank-2 {
+            background: linear-gradient(145deg, #c0c0c0, #a8a8a8);
+            color: #333;
+        }
+
+        .leaderboard-item.rank-3 {
+            background: linear-gradient(145deg, #cd7f32, #b8860b);
+            color: #333;
+        }
+
+        .leaderboard-name { font-weight: bold; }
+        .leaderboard-score { font-size: 1.2em; font-weight: bold; }
+
+        .name-input {
+            padding: 8px;
+            border-radius: 5px;
+            border: 2px solid #8b6914;
+            background: #1a1208;
+            color: #fff;
+            font-size: 1em;
+            margin-right: 10px;
+            width: 150px;
+        }
+
+        .save-btn {
+            background: #ffd700;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #3d1e00;
+            transition: all 0.3s ease;
+        }
+
+        .save-btn:hover {
+            background: #ffaa00;
+        }
+
+        /* Probabilitas */
+        .probability-display {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .probability-display h4 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .prob-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 10px 0;
+        }
+
+        .prob-bar {
+            flex: 1;
+            height: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .prob-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(255,215,0,0.2);
+            transform: scale(1.1);
+        }
+
+        /* Partikel */
+        .gold-particles {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, #ffd700, #ffaa00);
+            border-radius: 50%;
+            animation: particleFall 3s ease-in-out infinite;
+        }
+
+        @keyframes particleFall {
+            0% { transform: translateY(-100px) scale(1); opacity: 1; }
+            100% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+        }
+
+        /* Big Win Overlay */
+        .big-win-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .big-win-content {
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border-radius: 30px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 50px rgba(255,215,0,0.6);
+            animation: contentPopIn 0.5s ease;
+        }
+
+        .big-win-content h1 {
+            font-size: 2.5em;
+            color: #3d1e00;
+            margin-bottom: 20px;
+        }
+
+        .win-amount {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+        }
+
+        .big-win-content button {
+            background: #3d1e00;
+            color: #ffd700;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .big-win-content button:hover {
+            background: #5a2e00;
+            transform: scale(1.1);
+        }
+
+        @keyframes contentPopIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* Notifikasi Taruhan */
+        .bet-notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s ease;
+            z-index: 999;
+            opacity: 0.95;
+        }
+
+        .bet-notification.danger {
+            background: linear-gradient(145deg, #ff4444, #cc0000);
+            color: #fff;
+            box-shadow: 0 5px 20px rgba(255,68,68,0.5);
+        }
+
+        .bet-notification.normal {
+            background: linear-gradient(145deg, #4a9d4a, #2d7a2d);
+            color: #fff;
+            box-shadow: 0 5px 20px rgba(74,157,74,0.5);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 0.95; }
+        }
+
+        .jackpot-amount {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ff4444;
+            text-shadow: 0 0 20px rgba(255,68,68,0.8);
+        }
+
+        .win-amount {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 15px rgba(255,215,0,0.6);
+        }
+
+        /* Responsif */
+        @media (max-width: 768px) {
+            .game-container {
+                margin: 10px;
+                padding: 10px;
+            }
+
+            .game-header h1 {
+                font-size: 1.5em;
+            }
+
+            .slot-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .reel {
+                min-height: 80px;
+            }
+
+            .control-panel {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="forest-bg">
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="moon"></div>
+    </div>
+
+    <!-- Partikel -->
+    <div class="gold-particles" id="goldParticles"></div>
+
+    <!-- Sound Toggle -->
+    <button class="sound-toggle" onclick="toggleSound()" id="soundBtn">🔊</button>
+
+    <!-- Game Container -->
+    <div class="game-container">
+        <div class="game-header">
+            <h1>🐉 HUTAN RIMBA ULTIMATE 🐉</h1>
+            <p>12 Gulungan Horizontal - Video Harimau & Naga</p>
+        </div>
+
+        <!-- Grid 12 Gulungan (4 baris x 3 kolom) -->
+        <div class="slot-grid" id="slotGrid"></div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="stat-box">
+                <label>💰 Saldo</label>
+                <span id="balance">5000</span>
+            </div>
+            <div class="stat-box">
+                <label>🎲 Taruhan</label>
+                <div class="bet-controls">
+                    <button class="bet-btn" onclick="changeBet(-10)">-</button>
+                    <span id="bet">100</span>
+                    <button class="bet-btn" onclick="changeBet(10)">+</button>
+                </div>
+            </div>
+            <div class="stat-box">
+                <label>🏆 Jackpot</label>
+                <span id="jackpot">50000</span>
+            </div>
+            <button class="spin-btn" id="spinBtn" onclick="spin()">SPIN!</button>
+            <button class="auto-btn" id="autoBtn" onclick="toggleAutoSpin()">🔄 Auto</button>
+        </div>
+
+        <!-- Hasil -->
+        <div class="result-display" id="result">
+            Selamat datang di Hutan Rimba! Klik SPIN untuk mulai!
+        </div>
+
+        <!-- Leaderboard -->
+        <div style="text-align: center; margin: 10px 0;">
+            <input type="text" class="name-input" id="playerName" placeholder="Masukkan nama Anda" maxlength="20">
+            <button class="save-btn" onclick="saveScore()">💾 Simpan Skor</button>
+        </div>
+
+        <div class="leaderboard">
+            <h3>🏆 Leaderboard Pemain</h3>
+            <div class="leaderboard-list" id="leaderboardList"></div>
+        </div>
+
+        <!-- Probabilitas -->
+        <div class="probability-display">
+            <h4>📊 Peluang Menang</h4>
+            <div class="prob-row">
+                <span>🎯 Kecil (≤2000)</span>
+                <div class="prob-bar">
+                    <div class="prob-fill" style="width: 10%; background: #00ff88;"></div>
+                </div>
+                <span>1/10</span>
+            </div>
+            <div class="prob-row">
+                <span>🎯 Sedang (≤2000)</span>
+                <div class="prob-bar">
+                    <div class="prob-fill" style="width: 2%; background: #ffd700;"></div>
+                </div>
+                <span>1/50</span>
+            </div>
+            <div class="prob-row">
+                <span>🎯 Besar (≤2000)</span>
+                <div class="prob-bar">
+                    <div class="prob-fill" style="width: 0.5%; background: #ff8c00;"></div>
+                </div>
+                <span>1/200</span>
+            </div>
+            <div class="prob-row">
+                <span>🐉 Jackpot (≤2000)</span>
+                <div class="prob-bar">
+                    <div class="prob-fill" style="width: 0.1%; background: #ff4444;"></div>
+                </div>
+                <span>1/1000</span>
+            </div>
+            <hr style="border-color: rgba(255,255,255,0.2); margin: 15px 0;">
+            <div class="prob-row">
+                <span>🔥 Kecil (>2000)</span>
+                <div class="prob-bar">
+                    <div class="prob-fill" style="width: 0.5%; background: #ff4444;"></div>
+                </div>
+                <span>1/200</span>
+            </div>
+            <div class="prob-row">
+                <span>🔥 Sedang (>2000)</span>
+                <div class="prob-bar">
+                    <div class="prob-fill" style="width: 0.2%; background: #ff8c00;"></div>
+                </div>
+                <span>1/500</span>
+            </div>
+            <div class="prob-row">
+                <span>🔥 Besar (>2000)</span>
+                <div class="prob-bar">
+                    <div class="prob-fill" style="width: 0.05%; background: #ffd700;"></div>
+                </div>
+                <span>1/2000</span>
+            </div>
+            <div class="prob-row">
+                <span>🐉 Jackpot (>2000)</span>
+                <div class="prob-bar">
+                    <div class="prob-fill" style="width: 0.02%; background: #ff4444;"></div>
+                </div>
+                <span>1/5000</span>
+            </div>
+        </div>
+
+        <!-- Paytable -->
+        <div class="paytable">
+            <h3>📜 Tabel Pembayaran</h3>
+            <div class="paytable-grid" id="paytableGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== DATA HEWAN ==========
+        // 10 hewan dari gambar eksternal + 2 hewan Video (Harimau & Naga)
+        const animals = [
+            { name: "Rubah",    icon: "rubah.png",    pay5: 2000, pay4: 400, pay3: 60, pay2: 5 },
+            { name: "Serigala", icon: "serigala.png", pay5: 3500, pay4: 700, pay3: 120, pay2: 20 },
+            { name: "Panda",    icon: "panda.png",    pay5: 3000, pay4: 600, pay3: 100, pay2: 15 },
+            { name: "Beruang",  icon: "beruang.png",  pay5: 2500, pay4: 500, pay3: 80, pay2: 10 },
+            { name: "Gajah",    icon: "gajah.png",    pay5: 4000, pay4: 800, pay3: 150, pay2: 30 },
+            { name: "Singa",    icon: "singa.png",    pay5: 1500, pay4: 300, pay3: 40, pay2: 0 },
+            { name: "Rusa",     icon: "rusa.png",     pay5: 4000, pay4: 800, pay3: 150, pay2: 30 },
+            { name: "Kucing",   icon: "kucing.png",   pay5: 1000, pay4: 200, pay3: 25, pay2: 0 },
+            { name: "Burung",   icon: "burung.png",   pay5: 600, pay4: 100, pay3: 10, pay2: 0 },
+            { name: "Kelinci",  icon: "kelinci.png",  pay5: 800, pay4: 150, pay3: 15, pay2: 0 },
+            
+            // 2 Hewan Video (Harimau & Naga)
+            { 
+                name: "Harimau", 
+                icon: `<video src="harimau.mp4" autoplay loop muted playsinline></video>`, 
+                pay5: 5000, pay4: 1000, pay3: 200, pay2: 50 
+            },
+            { 
+                name: "Naga", 
+                icon: `<video src="naga.mp4" autoplay loop muted playsinline></video>`, 
+                pay5: 50000, pay4: 10000, pay3: 1000, pay2: 100 
+            }
+        ];
+
+        // ========== KONFIGURASI PROBABILITAS ==========
+        const BET_THRESHOLD = 2000;
+        
+        const winProbability = {
+            smallBet: {
+                smallWin: 1/10,     // 3 simbol
+                mediumWin: 1/50,    // 4 simbol
+                bigWin: 1/200,      // 5 simbol
+                jackpot: 1/1000     // 5 Naga
+            },
+            bigBet: {
+                smallWin: 1/200,    // 3 simbol
+                mediumWin: 1/500,   // 4 simbol
+                bigWin: 1/2000,     // 5 simbol
+                jackpot: 1/5000     // 5 Naga
+            }
+        };
+
+        const bigBetMultiplier = {
+            smallWin: 5,     // x5
+            mediumWin: 10,   // x10
+            bigWin: 25,      // x25
+            jackpot: 50      // x50
+        };
+
+        const symbolWeights = {
+            "Naga": 1, "Harimau": 2, "Rusa": 3, "Serigala": 4, "Gajah": 5, "Beruang": 6,
+            "Rubah": 7, "Singa": 8, "Kucing": 9, "Panda": 10, "Burung": 11, "Kelinci": 12
+        };
+
+        const totalWeight = Object.values(symbolWeights).reduce((a, b) => a + b, 0);
+
+        // ========== STATE GAME ==========
+        let balance = 5000;
+        let currentBet = 100;
+        let isSpinning = false;
+        let isAutoSpin = false;
+        let autoSpinInterval = null;
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        // ========== AUDIO ==========
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playSpinSound() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.5);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+        }
+
+        function playWinSound() {
+            if (!soundEnabled || !audioCtx) return;
+            [523.25, 659.25, 783.99].forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                }, i * 100);
+            });
+        }
+
+        function playJackpotSound() {
+            if (!soundEnabled || !audioCtx) return;
+            [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98].forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    osc.type = 'triangle';
+                    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+                }, i * 150);
+            });
+        }
+
+        function playBigWinSound() {
+            if (!soundEnabled || !audioCtx) return;
+            [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50].forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    osc.type = 'sawtooth';
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+                }, i * 200);
+            });
+        }
+
+        function playLoseSound() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.4);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundBtn');
+            btn.textContent = soundEnabled ? '🔊' : '🔇';
+            if (soundEnabled) initAudio();
+        }
+
+        // ========== GENERATE GULUNGAN ==========
+        function generateReels() {
+            const grid = document.getElementById('slotGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < 12; i++) {
+                const reel = document.createElement('div');
+                reel.className = 'reel';
+                reel.id = `reel-${i}`;
+                
+                const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
+                
+                // Cek apakah icon berupa video atau gambar
+                if (randomAnimal.icon.startsWith('<video')) {
+                    reel.innerHTML = randomAnimal.icon;
+                } else {
+                    reel.innerHTML = `<img src="${randomAnimal.icon}" alt="${randomAnimal.name}" onerror="this.style.display='none'; this.parentElement.textContent='❓'">`;
+                }
+                
+                reel.dataset.animal = randomAnimal.name;
+                
+                grid.appendChild(reel);
+            }
+        }
+
+        // ========== FUNGSI PROBABILITAS ==========
+        function getWeightedSymbol() {
+            let random = Math.random() * totalWeight;
+            for (const [name, weight] of Object.entries(symbolWeights)) {
+                if (random < weight) return name;
+                random -= weight;
+            }
+            return "Kelinci";
+        }
+
+        function getWinProbability(level) {
+            const isBigBet = currentBet > BET_THRESHOLD;
+            const probConfig = isBigBet ? winProbability.bigBet : winProbability.smallBet;
+            
+            switch(level) {
+                case "small": return probConfig.smallWin;
+                case "medium": return probConfig.mediumWin;
+                case "big": return probConfig.bigWin;
+                case "jackpot": return probConfig.jackpot;
+                default: return 0;
+            }
+        }
+
+        function getMultiplier(level) {
+            const isBigBet = currentBet > BET_THRESHOLD;
+            
+            if (!isBigBet) return 1;
+            
+            switch(level) {
+                case "small": return bigBetMultiplier.smallWin;
+                case "medium": return bigBetMultiplier.mediumWin;
+                case "big": return bigBetMultiplier.bigWin;
+                case "jackpot": return bigBetMultiplier.jackpot;
+                default: return 1;
+            }
+        }
+
+        // ========== GENERATE HASIL ==========
+        function generateResult() {
+            const MAX_RETRY = 100;
+            let retries = 0;
+            const isBigBet = currentBet > BET_THRESHOLD;
+            
+            while (retries < MAX_RETRY) {
+                const reels = [];
+                for (let i = 0; i < 12; i++) {
+                    const symbolName = getWeightedSymbol();
+                    reels.push(animals.find(a => a.name === symbolName));
+                }
+                
+                const counts = {};
+                reels.forEach(r => counts[r.name] = (counts[r.name] || 0) + 1);
+                
+                let maxCount = 0;
+                let maxSymbol = "";
+                Object.keys(counts).forEach(symbolName => {
+                    if (counts[symbolName] > maxCount) {
+                        maxCount = counts[symbolName];
+                        maxSymbol = symbolName;
+                    }
+                });
+                
+                const animalData = animals.find(a => a.name === maxSymbol);
+                
+                let winLevel = "none";
+                if (maxCount >= 5 && animalData) {
+                    winLevel = "big";
+                } else if (maxCount === 4 && animalData) {
+                    winLevel = "medium";
+                } else if (maxCount === 3 && animalData) {
+                    winLevel = "small";
+                }
+                
+                const nagaCount = reels.filter(r => r.name === 'Naga').length;
+                if (nagaCount >= 5) {
+                    winLevel = "jackpot";
+                }
+                
+                if (winLevel === "none") {
+                    if (Math.random() < 0.8) {
+                        return { reels, winLevel: "none", winAmount: 0, multiplier: 1, isJackpot: false, isBigBet: isBigBet };
+                    }
+                    retries++;
+                    continue;
+                }
+                
+                const prob = getWinProbability(winLevel);
+                
+                if (Math.random() < prob) {
+                    const multiplier = getMultiplier(winLevel);
+                    const animalData2 = animals.find(a => a.name === maxSymbol);
+                    
+                    let winAmount = 0;
+                    switch(winLevel) {
+                        case "small": winAmount = animalData2.pay3 * multiplier; break;
+                        case "medium": winAmount = animalData2.pay4 * multiplier; break;
+                        case "big": winAmount = animalData2.pay5 * multiplier; break;
+                        case "jackpot": winAmount = animalData2.pay5 * multiplier; break;
+                    }
+                    
+                    return { 
+                        reels, 
+                        winLevel, 
+                        winAmount,
+                        multiplier,
+                        isJackpot: winLevel === "jackpot",
+                        isBigBet: isBigBet
+                    };
+                }
+                
+                retries++;
+            }
+            
+            const reels = [];
+            for (let i = 0; i < 12; i++) {
+                const symbolName = getWeightedSymbol();
+                reels.push(animals.find(a => a.name === symbolName));
+            }
+            
+            return { 
+                reels, 
+                winLevel: "none", 
+                winAmount: 0,
+                multiplier: 1,
+                isJackpot: false,
+                isBigBet: isBigBet
+            };
+        }
+
+        // ========== FUNGSI SPIN ==========
+        function spin() {
+            if (isSpinning) return;
+            if (balance < currentBet) {
+                document.getElementById('result').innerHTML = '❌ Saldo tidak cukup!';
+                return;
+            }
+
+            isSpinning = true;
+            balance -= currentBet;
+            document.getElementById('balance').textContent = balance;
+            
+            const spinBtn = document.getElementById('spinBtn');
+            spinBtn.disabled = true;
+
+            const result = generateResult();
+            
+            playSpinSound();
+
+            const reels = document.querySelectorAll('.reel');
+            reels.forEach(reel => {
+                reel.classList.remove('win', 'dragon-win', 'spinning-horizontal');
+            });
+
+            reels.forEach((reel, index) => {
+                reel.classList.add('spinning-horizontal');
+                
+                const interval = setInterval(() => {
+                    const randomSymbol = animals[Math.floor(Math.random() * animals.length)];
+                    
+                    // Cek apakah SVG/gambar/video
+                    if (randomSymbol.icon.startsWith('<video')) {
+                        reel.innerHTML = randomSymbol.icon;
+                        // Play video yang baru dimasukkan
+                        const vid = reel.querySelector('video');
+                        if (vid) {
+                            vid.currentTime = 0;
+                            vid.play().catch(() => {});
+                        }
+                    } else {
+                        reel.innerHTML = `<img src="${randomSymbol.icon}" alt="${randomSymbol.name}">`;
+                    }
+                }, 60);
+
+                setTimeout(() => {
+                    clearInterval(interval);
+                    reel.classList.remove('spinning-horizontal');
+                    
+                    // Set hasil final
+                    const finalAnimal = result.reels[index];
+                    if (finalAnimal.icon.startsWith('<video')) {
+                        reel.innerHTML = finalAnimal.icon;
+                        // Play video yang baru dimasukkan
+                        const vid = reel.querySelector('video');
+                        if (vid) {
+                            vid.currentTime = 0;
+                            vid.play().catch(() => {});
+                        }
+                    } else {
+                        reel.innerHTML = `<img src="${finalAnimal.icon}" alt="${finalAnimal.name}">`;
+                    }
+                    reel.dataset.animal = finalAnimal.name;
+                    
+                    if (result.winAmount > 0) {
+                        const counts = {};
+                        result.reels.forEach(r => counts[r.name] = (counts[r.name] || 0) + 1);
+                        const winningSymbol = result.reels[index].name;
+                        
+                        if (counts[winningSymbol] >= 3) {
+                            if (winningSymbol === 'Naga') {
+                                reel.classList.add('dragon-win');
+                            } else {
+                                reel.classList.add('win');
+                            }
+                        }
+                    }
+                    
+                    if (index === reels.length - 1) {
+                        showWinMessage(result);
+                        spinBtn.disabled = false;
+                        isSpinning = false;
+                    }
+                }, 800 + (index * 150));
+            });
+        }
+
+        // ========== TAMPILKAN PESAN KEMENANGAN ==========
+        function showWinMessage(result) {
+            const resultDiv = document.getElementById('result');
+            
+            if (result.winAmount > 0) {
+                balance += result.winAmount;
+                document.getElementById('balance').textContent = balance;
+                
+                const isBigBet = result.isBigBet;
+                const multiplier = result.multiplier;
+                
+                if (result.isJackpot) {
+                    if (isBigBet) {
+                        resultDiv.innerHTML = `
+                            <h2>🐉🎉 MEGA JACKPOT! 🎉🐉</h2>
+                            <p class="jackpot-amount">${result.winAmount}</p>
+                            <small>Taruhan ${currentBet} > 2000 → Jackpot x${multiplier}!</small>
+                            <small>🔥 Sangat Langka!</small>
+                        `;
+                        resultDiv.className = 'result-display jackpot';
+                        playJackpotSound();
+                        generateGoldParticles();
+                        showBigWinAnimation(result.winAmount, "MEGA JACKPOT");
+                    } else {
+                        resultDiv.innerHTML = `
+                            <h2>🐉🎉 JACKPOT! 🎉🐉</h2>
+                            <p class="jackpot-amount">${result.winAmount}</p>
+                            <small>Taruhan ${currentBet} ≤ 2000 → Jackpot x1</small>
+                        `;
+                        resultDiv.className = 'result-display jackpot';
+                        playJackpotSound();
+                        generateGoldParticles();
+                    }
+                } else if (result.winLevel === "big") {
+                    if (isBigBet) {
+                        resultDiv.innerHTML = `
+                            <h2>🌟 MEGA BIG WIN! 🌟</h2>
+                            <p class="win-amount">${result.winAmount}</p>
+                            <small>Taruhan ${currentBet} > 2000 → Kemenangan x${multiplier}!</small>
+                            <small>🔥 Langka!</small>
+                        `;
+                        resultDiv.className = 'result-display big-win';
+                        playBigWinSound();
+                        generateGoldParticles();
+                        showBigWinAnimation(result.winAmount, "MEGA BIG WIN");
+                    } else {
+                        resultDiv.innerHTML = `
+                            <h3>🌟 Kemenangan Besar!</h3>
+                            <p class="win-amount">${result.winAmount}</p>
+                            <small>Taruhan ${currentBet} ≤ 2000 → Kemenangan x1</small>
+                        `;
+                        resultDiv.className = 'result-display win';
+                        playWinSound();
+                    }
+                } else if (result.winLevel === "medium") {
+                    resultDiv.innerHTML = `
+                        <p>🎉 Kemenangan Sedang!</p>
+                        <p>${result.winAmount}</p>
+                        <small>${result.isBigBet ? `Taruhan ${currentBet} > 2000 → Kemenangan x${multiplier}!` : `Taruhan ${currentBet} ≤ 2000 → Kemenangan x1`}</small>
+                    `;
+                    resultDiv.className = 'result-display win';
+                    playWinSound();
+                } else if (result.winLevel === "small") {
+                    resultDiv.innerHTML = `
+                        <p>🎉 Kemenangan Kecil!</p>
+                        <p>${result.winAmount}</p>
+                        <small>${result.isBigBet ? `Taruhan ${currentBet} > 2000 → Kemenangan x${multiplier}!` : `Taruhan ${currentBet} ≤ 2000 → Kemenangan x1`}</small>
+                    `;
+                    resultDiv.className = 'result-display win';
+                    playWinSound();
+                }
+            } else {
+                resultDiv.innerHTML = "Belum beruntung, coba lagi!";
+                resultDiv.className = 'result-display lose';
+                playLoseSound();
+            }
+        }
+
+        // ========== ANIMASI BIG WIN ==========
+        function showBigWinAnimation(amount, title) {
+            const overlay = document.createElement('div');
+            overlay.className = 'big-win-overlay';
+            overlay.innerHTML = `
+                <div class="big-win-content">
+                    <h1>${title}</h1>
+                    <p class="win-amount">💰 ${amount}</p>
+                    <button onclick="this.parentElement.parentElement.remove()">Lanjutkan</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            
+            setTimeout(() => overlay.style.opacity = '1', 100);
+        }
+
+        // ========== GENERATE PARTIKEL EMAS ==========
+        function generateGoldParticles() {
+            const container = document.getElementById('goldParticles');
+            container.innerHTML = '';
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.width = (Math.random() * 15 + 5) + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                particle.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // ========== UBAT TARUHAN ==========
+        function changeBet(delta) {
+            const oldBet = currentBet;
+            currentBet = Math.max(10, Math.min(5000, currentBet + delta));
+            document.getElementById('bet').textContent = currentBet;
+            
+            if (oldBet <= BET_THRESHOLD && currentBet > BET_THRESHOLD) {
+                showBetNotification('🔥 Mode Taruhan Besar! Menang Jarang, Hadiah Besar!', 'danger');
+            } else if (oldBet > BET_THRESHOLD && currentBet <= BET_THRESHOLD) {
+                showBetNotification('🎯 Mode Taruhan Normal! Menang Sering, Hadiah Kecil', 'normal');
+            }
+        }
+
+        function showBetNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `bet-notification ${type}`;
+            notification.innerHTML = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // ========== AUTO SPIN ==========
+        function toggleAutoSpin() {
+            isAutoSpin = !isAutoSpin;
+            const btn = document.getElementById('autoBtn');
+            btn.style.background = isAutoSpin ? 'linear-gradient(145deg, #ff4444, #cc0000)' : 'linear-gradient(145deg, #4a9d4a, #2d7a2d)';
+            btn.textContent = isAutoSpin ? '⏹ Stop' : '🔄 Auto';
+            
+            if (isAutoSpin) {
+                startAutoSpin();
+            } else {
+                stopAutoSpin();
+            }
+        }
+
+        function startAutoSpin() {
+            if (balance < currentBet) {
+                alert('Saldo tidak cukup!');
+                toggleAutoSpin();
+                return;
+            }
+            spin();
+            autoSpinInterval = setInterval(() => {
+                if (!isAutoSpin || balance < currentBet) {
+                    toggleAutoSpin();
+                    return;
+                }
+                spin();
+            }, 3000);
+        }
+
+        function stopAutoSpin() {
+            if (autoSpinInterval) {
+                clearInterval(autoSpinInterval);
+                autoSpinInterval = null;
+            }
+        }
+
+        // ========== LEADERBOARD ==========
+        function loadLeaderboard() {
+            const saved = localStorage.getItem('forestLeaderboard');
+            return saved ? JSON.parse(saved) : [];
+        }
+
+        function saveLeaderboard(data) {
+            localStorage.setItem('forestLeaderboard', JSON.stringify(data));
+        }
+
+        function displayLeaderboard() {
+            const leaderboard = loadLeaderboard();
+            const listEl = document.getElementById('leaderboardList');
+            listEl.innerHTML = '';
+            
+            if (leaderboard.length === 0) {
+                listEl.innerHTML = '<p style="text-align: center;">Belum ada pemain. Jadilah yang pertama!</p>';
+                return;
+            }
+
+            leaderboard.slice(0, 10).forEach((player, index) => {
+                const item = document.createElement('div');
+                item.className = `leaderboard-item rank-${index + 1}`;
+                item.innerHTML = `
+                    <span class="leaderboard-name">${index + 1}. ${player.name}</span>
+                    <span class="leaderboard-score">💰 ${player.score}</span>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        function saveScore() {
+            const nameInput = document.getElementById('playerName');
+            const playerName = nameInput.value.trim();
+            
+            if (!playerName) {
+                alert('Mohon masukkan nama Anda!');
+                return;
+            }
+
+            const leaderboard = loadLeaderboard();
+            leaderboard.push({
+                name: playerName,
+                score: balance,
+                timestamp: Date.now()
+            });
+
+            leaderboard.sort((a, b) => b.score - a.score);
+            const top10 = leaderboard.slice(0, 10);
+
+            saveLeaderboard(top10);
+            displayLeaderboard();
+            
+            nameInput.value = '';
+            alert('Skor Anda berhasil disimpan! 🎉');
+        }
+
+        // ========== PAYTABLE ==========
+        function generatePaytable() {
+            const paytable = document.getElementById('paytableGrid');
+            paytable.innerHTML = '';
+            
+            animals.forEach(animal => {
+                const payItem = document.createElement('div');
+                payItem.className = 'pay-item';
+                payItem.innerHTML = `
+                    <div class="animal-icon">${animal.name}</div>
+                    <div style="font-size: 0.8em;">x5: ${animal.pay5}</div>
+                    <div style="font-size: 0.8em;">x4: ${animal.pay4}</div>
+                    <div style="font-size: 0.8em;">x3: ${animal.pay3}</div>
+                `;
+                paytable.appendChild(payItem);
+            });
+        }
+
+        // ========== INISIALISASI ==========
+        function init() {
+            document.addEventListener('click', function initAudioOnce() {
+                initAudio();
+                document.removeEventListener('click', initAudioOnce);
+            });
+
+            generateReels();
+            generatePaytable();
+            displayLeaderboard();
+        }
+
+        init();
+    </script>
+</body>
+</html>
