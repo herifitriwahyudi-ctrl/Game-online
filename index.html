@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐾 Tebak Gambar Berikutnya - 20 Ronde + Bonus</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: 
+                radial-gradient(ellipse at bottom, rgba(40, 80, 50, 0.8), transparent),
+                linear-gradient(180deg, #0a1f14 0%, #143a20 50%, #1a4527 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        /* Background Hutan */
+        .forest-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .tree {
+            position: absolute;
+            bottom: 0;
+            width: 120px; height: 200px;
+            background: linear-gradient(180deg, #2d5a27, #1a3d15);
+            border-radius: 10px 10px 0 0;
+            animation: sway 5s ease-in-out infinite;
+        }
+
+        .tree::before {
+            content: '';
+            position: absolute;
+            top: -40px; left: -20px;
+            width: 160px; height: 80px;
+            background: linear-gradient(135deg, #3a7d30, #2d5a27);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .tree:nth-child(1) { left: 10px; }
+        .tree:nth-child(2) { left: 15%; height: 240px; animation-delay: 1s; }
+        .tree:nth-child(3) { right: 10%; height: 180px; animation-delay: 2s; }
+        .tree:nth-child(4) { right: 20px; height: 260px; animation-delay: 3s; }
+        .tree:nth-child(5) { left: 40%; height: 220px; animation-delay: 4s; }
+        .tree:nth-child(6) { right: 40%; height: 200px; animation-delay: 5s; }
+
+        .fireflies {
+            position: absolute;
+            width: 6px; height: 6px;
+            background: #ffe066;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffe066;
+            animation: fly 8s infinite;
+        }
+
+        .fireflies:nth-child(7) { top: 30%; left: 20%; animation-delay: 0s; }
+        .fireflies:nth-child(8) { top: 50%; left: 80%; animation-delay: 2s; }
+        .fireflies:nth-child(9) { top: 70%; left: 50%; animation-delay: 4s; }
+        .fireflies:nth-child(10) { top: 40%; left: 70%; animation-delay: 6s; }
+        .fireflies:nth-child(11) { top: 60%; left: 30%; animation-delay: 1s; }
+        .fireflies:nth-child(12) { top: 20%; left: 60%; animation-delay: 3s; }
+        .fireflies:nth-child(13) { top: 80%; left: 90%; animation-delay: 5s; }
+        .fireflies:nth-child(14) { top: 45%; left: 10%; animation-delay: 7s; }
+
+        .moon {
+            position: absolute;
+            top: 50px; right: 100px;
+            width: 80px; height: 80px;
+            background: radial-gradient(circle, #fff, #f1c40f);
+            border-radius: 50%;
+            box-shadow: 0 0 40px #f1c40f, 0 0 80px rgba(241,196,15,0.3);
+            animation: moonGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        @keyframes fly {
+            0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+            25% { transform: translate(15px, -20px); opacity: 1; }
+            50% { transform: translate(-10px, -35px); opacity: 0.6; }
+            75% { transform: translate(20px, -15px); opacity: 0.8; }
+        }
+
+        @keyframes moonGlow {
+            from { box-shadow: 0 0 40px #f1c40f; }
+            to { box-shadow: 0 0 60px #f1c40f, 0 0 100px rgba(241,196,15,0.5); }
+        }
+
+        /* Container Utama */
+        .game-container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header */
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(90deg, #ffd700, #ff8c00, #ffd700);
+            border-radius: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .game-header h1 {
+            font-size: 2.5em;
+            color: #3d1e00;
+            font-family: 'Papyrus', 'Georgia', serif;
+            letter-spacing: 3px;
+        }
+
+        .game-header p {
+            font-size: 1.2em;
+            color: #3d1e00;
+            margin-top: 10px;
+        }
+
+        /* Info Panel */
+        .info-panel {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 15px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .info-box {
+            text-align: center;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        .info-box label {
+            display: block;
+            font-size: 0.9em;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .info-box span {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Area Gambar Hewan */
+        .animal-area {
+            text-align: center;
+            padding: 20px;
+            background: radial-gradient(ellipse, #3d5a3d, #1a2a1a);
+            border-radius: 20px;
+            border: 3px solid #8b6914;
+            margin-bottom: 20px;
+            min-height: 250px;
+            position: relative;
+        }
+
+        .current-animal {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            min-height: 180px;
+        }
+
+        .animal-card {
+            text-align: center;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+            transition: all 0.3s ease;
+        }
+
+        .animal-card img, .animal-card video {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .animal-card .label {
+            font-size: 0.8em;
+            color: #ffd700;
+            margin-top: 5px;
+        }
+
+        .animal-card.hidden-card {
+            opacity: 0;
+            animation: disappear 0.5s forwards;
+        }
+
+        .animal-card.new-card {
+            opacity: 0;
+            animation: appear 0.5s forwards;
+        }
+
+        @keyframes disappear {
+            to { opacity: 0; transform: scale(0.8); }
+        }
+
+        @keyframes appear {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Tombol Next */
+        .next-btn {
+            display: none;
+            margin: 20px auto;
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255,215,0,0.4);
+            transition: all 0.3s ease;
+            color: #3d1e00;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255,215,0,0.6);
+        }
+
+        /* Pilihan Jawaban (11 tombol) */
+        .answer-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .answer-btn {
+            background: linear-gradient(145deg, #4a3f35, #2a1f15);
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #fff;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .answer-btn:hover {
+            background: linear-gradient(145deg, #5a4f45, #3a2f25);
+            transform: translateY(-3px);
+            border-color: #ffd700;
+        }
+
+        .answer-btn.correct {
+            background: linear-gradient(145deg, #00ff88, #00cc66);
+            border-color: #00ff88;
+            color: #000;
+            animation: correctPulse 0.5s;
+        }
+
+        .answer-btn.wrong {
+            background: linear-gradient(145deg, #ff4444, #cc0000);
+            border-color: #ff4444;
+            animation: wrongShake 0.5s;
+        }
+
+        .answer-btn.bonus-btn {
+            background: linear-gradient(145deg, #ff4444, #cc0000);
+            border-color: #ffd700;
+        }
+
+        .answer-btn.bonus-btn:hover {
+            background: linear-gradient(145deg, #ff6666, #dd2222);
+            border-color: #ffaa00;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Hasil */
+        .result-display {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            font-size: 1.2em;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-display.correct {
+            color: #00ff88;
+        }
+
+        .result-display.wrong {
+            color: #ff4444;
+        }
+
+        .result-display.bonus {
+            color: #ffd700;
+            font-size: 1.4em;
+            animation: bonusGlow 0.5s infinite;
+        }
+
+        @keyframes bonusGlow {
+            0%, 100% { text-shadow: 0 0 10px #ffd700; }
+            50% { text-shadow: 0 0 20px #ffaa00; }
+        }
+
+        /* Leaderboard */
+        .leaderboard {
+            margin-top: 20px;
+            background: linear-gradient(145deg, #3a2a15, #2a1a0e);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #8b6914;
+        }
+
+        .leaderboard h3 {
+            text-align: center;
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .leaderboard-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .leaderboard-item.rank-1 {
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            color: #3d1e00;
+            font-weight: bold;
+        }
+
+        .leaderboard-item.rank-2 {
+            background: linear-gradient(145deg, #c0c0c0, #a8a8a8);
+            color: #333;
+        }
+
+        .leaderboard-item.rank-3 {
+            background: linear-gradient(145deg, #cd7f32, #b8860b);
+            color: #333;
+        }
+
+        .leaderboard-name { font-weight: bold; }
+        .leaderboard-score { font-size: 1.2em; font-weight: bold; }
+
+        .name-input {
+            padding: 8px;
+            border-radius: 5px;
+            border: 2px solid #8b6914;
+            background: #1a1208;
+            color: #fff;
+            font-size: 1em;
+            margin-right: 10px;
+            width: 150px;
+        }
+
+        .save-btn {
+            background: #ffd700;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #3d1e00;
+            transition: all 0.3s ease;
+        }
+
+        .save-btn:hover {
+            background: #ffaa00;
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(255,215,0,0.2);
+            transform: scale(1.1);
+        }
+
+        /* Responsif */
+        @media (max-width: 768px) {
+            .game-container {
+                margin: 10px;
+                padding: 10px;
+            }
+
+            .game-header h1 {
+                font-size: 1.8em;
+            }
+
+            .animal-area {
+                min-height: 200px;
+            }
+
+            .answer-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="forest-bg">
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="moon"></div>
+    </div>
+
+    <!-- Sound Toggle -->
+    <button class="sound-toggle" onclick="toggleSound()" id="soundBtn">🔊</button>
+
+    <!-- Game Container -->
+    <div class="game-container">
+        <div class="game-header">
+            <h1>🐾 TEBAK GAMBAR BERIKUTNYA 🐾</h1>
+            <p>20 Gambar Muncul - Tebak Hewan Apa Selanjutnya!</p>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-panel">
+            <div class="info-box">
+                <label>Gambar ke-</label>
+                <span id="round">1</span>
+                <span>/20</span>
+            </div>
+            <div class="info-box">
+                <label>Skor</label>
+                <span id="score">0</span>
+            </div>
+            <div class="info-box">
+                <label>Benar</label>
+                <span id="correct">0</span>
+            </div>
+            <div class="info-box">
+                <label>Salah</label>
+                <span id="wrong">0</span>
+            </div>
+        </div>
+
+        <!-- Area Gambar (2 kartu) -->
+        <div class="animal-area">
+            <h3 style="color: #ffd700; margin-bottom: 10px;">👀 Perhatikan Gambar!</h3>
+            <div class="current-animal" id="currentAnimal">
+                <!-- Kartu Kiri (Hewan Sebelumnya) -->
+                <div class="animal-card" id="prevCard">
+                    <div class="label">Sebelumnya</div>
+                </div>
+                
+                <!-- Kartu Kanan (Hewan Baru/Untuk Ditebak) -->
+                <div class="animal-card" id="newCard">
+                    <div class="label">Hewan Baru</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tombol Next -->
+        <button class="next-btn" id="nextBtn" onclick="nextRound()">Gambar Berikutnya ➡️</button>
+
+        <!-- Pilihan Jawaban (11 tombol) -->
+        <h3 style="text-align: center; color: #ffd700; margin: 20px 0 10px;">🐾 Pilih Hewan yang Muncul!</h3>
+        <div class="answer-options" id="answerOptions">
+            <!-- Akan digenerate oleh JS -->
+        </div>
+
+        <!-- Hasil -->
+        <div class="result-display" id="result"></div>
+
+        <!-- Leaderboard -->
+        <div style="text-align: center; margin: 10px 0;">
+            <input type="text" class="name-input" id="playerName" placeholder="Masukkan nama Anda" maxlength="20">
+            <button class="save-btn" onclick="saveScore()">💾 Simpan Skor</button>
+        </div>
+
+        <div class="leaderboard">
+            <h3>🏆 Leaderboard Pemain</h3>
+            <div class="leaderboard-list" id="leaderboardList"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== DATA HEWAN ==========
+        // 10 hewan biasa
+        const normalAnimals = [
+            { name: "Rubah",    icon: "rubah.png",    bonus: false },
+            { name: "Serigala", icon: "serigala.png", bonus: false },
+            { name: "Panda",    icon: "panda.png",    bonus: false },
+            { name: "Beruang",  icon: "beruang.png",  bonus: false },
+            { name: "Gajah",    icon: "gajah.png",    bonus: false },
+            { name: "Singa",    icon: "singa.png",    bonus: false },
+            { name: "Rusa",     icon: "rusa.png",     bonus: false },
+            { name: "Kucing",   icon: "kucing.png",   bonus: false },
+            { name: "Burung",   icon: "burung.png",   bonus: false },
+            { name: "Kelinci",  icon: "kelinci.png",  bonus: false }
+        ];
+
+        // 2 hewan bonus (video)
+        const bonusAnimals = [
+            { name: "Harimau", icon: "harimau.mp4", bonus: true },
+            { name: "Naga",    icon: "naga.mp4",    bonus: true }
+        ];
+
+        // Gabungan untuk pilihan jawaban (10 + 1 pilihan bonus)
+        const allAnimals = [
+            ...normalAnimals,
+            { name: "Naga/Harimau", icon: "bonus.mp4", bonus: true, isBonusOption: true }
+        ];
+
+        // ========== STATE GAME ==========
+        let currentRound = 1;
+        const totalRounds = 20;
+        let score = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let previousAnimal = null;
+        let currentAnimal = null;
+        let isAnswering = false;
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        // ========== AUDIO ==========
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playCorrectSound() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function playBonusSound() {
+            if (!soundEnabled || !audioCtx) return;
+            [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    osc.type = 'triangle';
+                    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                }, i * 100);
+            });
+        }
+
+        function playWrongSound() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundBtn');
+            btn.textContent = soundEnabled ? '🔊' : '🔇';
+            if (soundEnabled) initAudio();
+        }
+
+        // ========== FUNGSI TAMPILKAN HEWAN ==========
+        function displayAnimal(animal, cardElement, isNew = false) {
+            if (animal.bonus && !animal.isBonusOption) {
+                // Tampilkan video untuk Naga/Harimau
+                cardElement.innerHTML = `
+                    <video src="${animal.icon}" autoplay loop muted playsinline></video>
+                    <div class="label">${animal.name}</div>
+                `;
+            } else {
+                // Tampilkan gambar
+                cardElement.innerHTML = `
+                    <img src="${animal.icon}" alt="${animal.name}">
+                    <div class="label">${animal.name}</div>
+                `;
+            }
+            
+            if (isNew) {
+                cardElement.classList.add('new-card');
+                setTimeout(() => cardElement.classList.remove('new-card'), 500);
+            }
+        }
+
+        // ========== GENERATE ROUND ==========
+        function generateRound() {
+            // Pilih hewan baru (90% hewan biasa, 10% bonus)
+            let animalPool;
+            const randomBonus = Math.random();
+            
+            // 10% kesempatan muncul bonus (Naga/Harimau)
+            if (randomBonus < 0.1) {
+                animalPool = bonusAnimals;
+            } else {
+                animalPool = normalAnimals;
+            }
+
+            // Pilih hewan acak dari pool
+            const randomIndex = Math.floor(Math.random() * animalPool.length);
+            currentAnimal = animalPool[randomIndex];
+
+            // Tampilkan kartu kiri (hewan sebelumnya)
+            const prevCard = document.getElementById('prevCard');
+            if (previousAnimal) {
+                displayAnimal(previousAnimal, prevCard);
+            } else {
+                prevCard.innerHTML = '<div class="label">?</div>';
+            }
+
+            // Tampilkan kartu kanan (hewan baru - untuk ditebak)
+            const newCard = document.getElementById('newCard');
+            displayAnimal(currentAnimal, newCard, true);
+
+            // Generate 11 pilihan jawaban (10 hewan + 1 bonus)
+            const answerOptions = document.getElementById('answerOptions');
+            answerOptions.innerHTML = '';
+            
+            // Buat array jawaban
+            const options = [...allAnimals];
+            
+            // Acak urutan
+            options.sort(() => Math.random() - 0.5);
+
+            // Tampilkan tombol jawaban
+            options.forEach((animal) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                if (animal.isBonusOption) {
+                    btn.classList.add('bonus-btn');
+                }
+                btn.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+                        <span>${animal.name}</span>
+                    </div>
+                `;
+                btn.dataset.animal = animal.name;
+                btn.onclick = () => checkAnswer(animal, btn);
+                answerOptions.appendChild(btn);
+            });
+
+            // Reset UI
+            document.getElementById('result').textContent = '';
+            document.getElementById('result').className = 'result-display';
+            document.getElementById('nextBtn').style.display = 'none';
+            isAnswering = false;
+        }
+
+        // ========== CEK JAWABAN ==========
+        function checkAnswer(selectedAnimal, btn) {
+            if (isAnswering) return;
+            isAnswering = true;
+
+            const resultDiv = document.getElementById('result');
+            const allButtons = document.querySelectorAll('.answer-btn');
+
+            // Nonaktifkan semua tombol
+            allButtons.forEach(button => {
+                button.disabled = true;
+                button.style.cursor = 'not-allowed';
+            });
+
+            // Cek jawaban
+            let isCorrect = false;
+            
+            // Jika memilih bonus (Naga/Harimau)
+            if (selectedAnimal.isBonusOption) {
+                // Benar jika hewan yang muncul adalah Naga atau Harimau
+                isCorrect = currentAnimal.bonus;
+            } else {
+                // Benar jika nama hewan sama
+                isCorrect = selectedAnimal.name === currentAnimal.name;
+            }
+
+            if (isCorrect) {
+                // Benar!
+                btn.classList.add('correct');
+                
+                if (currentAnimal.bonus) {
+                    // Bonus Naga/Harimau = +50 poin
+                    score += 50;
+                    correctCount++;
+                    resultDiv.textContent = `🔥 BONUS! ${currentAnimal.name}! +50 poin`;
+                    resultDiv.className = 'result-display bonus';
+                    playBonusSound();
+                } else {
+                    // Hewan biasa = +10 poin
+                    score += 10;
+                    correctCount++;
+                    resultDiv.textContent = '✅ BENAR! +10 poin';
+                    resultDiv.className = 'result-display correct';
+                    playCorrectSound();
+                }
+            } else {
+                // Salah!
+                btn.classList.add('wrong');
+                wrongCount++;
+                resultDiv.textContent = `❌ SALAH! Jawaban: ${currentAnimal.name}`;
+                resultDiv.className = 'result-display wrong';
+                playWrongSound();
+
+                // Tampilkan jawaban yang benar
+                allButtons.forEach(button => {
+                    if (button.dataset.animal === currentAnimal.name || 
+                        (currentAnimal.bonus && button.dataset.animal === 'Naga/Harimau')) {
+                        button.classList.add('correct');
+                    }
+                });
+            }
+
+            // Update skor
+            document.getElementById('score').textContent = score;
+            document.getElementById('correct').textContent = correctCount;
+            document.getElementById('wrong').textContent = wrongCount;
+
+            // Tampilkan tombol next
+            if (currentRound < totalRounds) {
+                document.getElementById('nextBtn').style.display = 'block';
+            } else {
+                // Game selesai
+                resultDiv.textContent = `🏆 GAME SELESAI! Skor Anda: ${score}`;
+                resultDiv.className = 'result-display';
+                document.getElementById('nextBtn').textContent = 'Main Lagi 🔄';
+                document.getElementById('nextBtn').style.display = 'block';
+                document.getElementById('nextBtn').onclick = resetGame;
+            }
+        }
+
+        // ========== NEXT ROUND ==========
+        function nextRound() {
+            // Simpan hewan saat ini sebagai hewan sebelumnya
+            previousAnimal = currentAnimal;
+            
+            currentRound++;
+            document.getElementById('round').textContent = currentRound;
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('nextBtn').onclick = nextRound;
+            generateRound();
+        }
+
+        // ========== RESET GAME ==========
+        function resetGame() {
+            currentRound = 1;
+            score = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            previousAnimal = null;
+            
+            document.getElementById('round').textContent = 1;
+            document.getElementById('score').textContent = 0;
+            document.getElementById('correct').textContent = 0;
+            document.getElementById('wrong').textContent = 0;
+            
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('nextBtn').textContent = 'Gambar Berikutnya ➡️';
+            document.getElementById('nextBtn').onclick = nextRound;
+            
+            generateRound();
+        }
+
+        // ========== LEADERBOARD ==========
+        function loadLeaderboard() {
+            const saved = localStorage.getItem('tebakHewanLeaderboard');
+            return saved ? JSON.parse(saved) : [];
+        }
+
+        function saveLeaderboard(data) {
+            localStorage.setItem('tebakHewanLeaderboard', JSON.stringify(data));
+        }
+
+        function displayLeaderboard() {
+            const leaderboard = loadLeaderboard();
+            const listEl = document.getElementById('leaderboardList');
+            listEl.innerHTML = '';
+            
+            if (leaderboard.length === 0) {
+                listEl.innerHTML = '<p style="text-align: center;">Belum ada pemain. Jadilah yang pertama!</p>';
+                return;
+            }
+
+            leaderboard.slice(0, 10).forEach((player, index) => {
+                const item = document.createElement('div');
+                item.className = `leaderboard-item rank-${index + 1}`;
+                item.innerHTML = `
+                    <span class="leaderboard-name">${index + 1}. ${player.name}</span>
+                    <span class="leaderboard-score">🏆 ${player.score}</span>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        function saveScore() {
+            const nameInput = document.getElementById('playerName');
+            const playerName = nameInput.value.trim();
+            
+            if (!playerName) {
+                alert('Mohon masukkan nama Anda!');
+                return;
+            }
+
+            const leaderboard = loadLeaderboard();
+            leaderboard.push({
+                name: playerName,
+                score: score,
+                timestamp: Date.now()
+            });
+
+            leaderboard.sort((a, b) => b.score - a.score);
+            const top10 = leaderboard.slice(0, 10);
+
+            saveLeaderboard(top10);
+            displayLeaderboard();
+            
+            nameInput.value = '';
+            alert('Skor Anda berhasil disimpan! 🎉');
+        }
+
+        // ========== INISIALISASI ==========
+        function init() {
+            document.addEventListener('click', function initAudioOnce() {
+                initAudio();
+                document.removeEventListener('click', initAudioOnce);
+            });
+
+            generateRound();
+            displayLeaderboard();
+        }
+
+        init();
+    </script>
+</body>
+                  </html>
