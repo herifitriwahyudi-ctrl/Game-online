@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐉 Dragons Hunter</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: 
+                radial-gradient(ellipse at bottom, rgba(40, 80, 50, 0.8), transparent),
+                linear-gradient(180deg, #0a1f14 0%, #143a20 50%, #1a4527 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        /* Background Hutan */
+        .forest-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .tree {
+            position: absolute;
+            bottom: 0;
+            width: 120px; height: 200px;
+            background: linear-gradient(180deg, #2d5a27, #1a3d15);
+            border-radius: 10px 10px 0 0;
+            animation: sway 5s ease-in-out infinite;
+        }
+
+        .tree::before {
+            content: '';
+            position: absolute;
+            top: -40px; left: -20px;
+            width: 160px; height: 80px;
+            background: linear-gradient(135deg, #3a7d30, #2d5a27);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .tree:nth-child(1) { left: 10px; }
+        .tree:nth-child(2) { left: 15%; height: 240px; animation-delay: 1s; }
+        .tree:nth-child(3) { right: 10%; height: 180px; animation-delay: 2s; }
+        .tree:nth-child(4) { right: 20px; height: 260px; animation-delay: 3s; }
+        .tree:nth-child(5) { left: 40%; height: 220px; animation-delay: 4s; }
+        .tree:nth-child(6) { right: 40%; height: 200px; animation-delay: 5s; }
+
+        .fireflies {
+            position: absolute;
+            width: 6px; height: 6px;
+            background: #ffe066;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffe066;
+            animation: fly 8s infinite;
+        }
+
+        .fireflies:nth-child(7) { top: 30%; left: 20%; animation-delay: 0s; }
+        .fireflies:nth-child(8) { top: 50%; left: 80%; animation-delay: 2s; }
+        .fireflies:nth-child(9) { top: 70%; left: 50%; animation-delay: 4s; }
+        .fireflies:nth-child(10) { top: 40%; left: 70%; animation-delay: 6s; }
+        .fireflies:nth-child(11) { top: 60%; left: 30%; animation-delay: 1s; }
+        .fireflies:nth-child(12) { top: 20%; left: 60%; animation-delay: 3s; }
+        .fireflies:nth-child(13) { top: 80%; left: 90%; animation-delay: 5s; }
+        .fireflies:nth-child(14) { top: 45%; left: 10%; animation-delay: 7s; }
+
+        .moon {
+            position: absolute;
+            top: 50px; right: 100px;
+            width: 80px; height: 80px;
+            background: radial-gradient(circle, #fff, #f1c40f);
+            border-radius: 50%;
+            box-shadow: 0 0 40px #f1c40f, 0 0 80px rgba(241,196,15,0.3);
+            animation: moonGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        @keyframes fly {
+            0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+            25% { transform: translate(15px, -20px); opacity: 1; }
+            50% { transform: translate(-10px, -35px); opacity: 0.6; }
+            75% { transform: translate(20px, -15px); opacity: 0.8; }
+        }
+
+        @keyframes moonGlow {
+            from { box-shadow: 0 0 40px #f1c40f; }
+            to { box-shadow: 0 0 60px #f1c40f, 0 0 100px rgba(241,196,15,0.5); }
+        }
+
+        /* Container Utama */
+        .game-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Banner Full Width */
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 0;
+            background: transparent;
+            border-radius: 0;
+            margin-left: -20px;
+            margin-right: -20px;
+        }
+
+        .game-header img {
+            width: 100%;
+            height: auto;
+            max-height: 180px;
+            object-fit: contain; /* Tidak terpotong */
+            border-radius: 26px 26px 0 0;
+            border-bottom: 4px solid #8b6914;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Info Panel - Saldo Satu Baris Kecil */
+        .info-panel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 5px 15px;
+            background: linear-gradient(145deg, #3a2a15, #2a1a0e);
+            border-radius: 50px;
+            border: 2px solid #8b6914;
+            margin: 10px auto 20px;
+            max-width: 400px;
+            gap: 10px;
+        }
+
+        .info-box {
+            text-align: center;
+            padding: 5px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-box label {
+            font-size: 0.85em;
+            color: #ffd700;
+            margin-bottom: 0;
+        }
+
+        .info-box span {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Tombol Top Up */
+        .topup-btn {
+            background: linear-gradient(145deg, #00ff88, #00cc66);
+            border: none;
+            padding: 8px 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0,255,136,0.4);
+            transition: all 0.3s ease;
+            color: #1a1a1a;
+        }
+
+        .topup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,255,136,0.6);
+        }
+
+        /* Halaman Top Up */
+        .topup-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .topup-modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .topup-content {
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+        }
+
+        .topup-content h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .topup-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .topup-option {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #fff;
+        }
+
+        .topup-option:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+            border-color: #ffd700;
+        }
+
+        .topup-option.selected {
+            border-color: #ffd700;
+            background: rgba(255,215,0,0.2);
+            box-shadow: 0 0 15px rgba(255,215,0,0.5);
+        }
+
+        .topup-option .amount {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .topup-option .bonus {
+            font-size: 0.8em;
+            color: #00ff88;
+            margin-top: 5px;
+        }
+
+        /* Tombol Pembayaran */
+        .pay-btn {
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255,215,0,0.4);
+            transition: all 0.3s ease;
+            color: #3d1e00;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .pay-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,215,0,0.6);
+        }
+
+        .close-btn {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #ff4444;
+            color: #ff4444;
+            padding: 10px 30px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,68,68,0.2);
+        }
+
+        /* Form Taruhan - 2 Kolom Sejajar */
+        .bet-form {
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .bet-form h3 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        /* Layout: Dropdown & Nominal Sejajar */
+        .bet-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            align-items: start;
+        }
+
+        .bet-column {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .bet-column h4 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .form-row label {
+            font-size: 0.85em;
+            color: #ffd700;
+            min-width: 60px;
+        }
+
+        .form-row select {
+            flex: 1;
+            background: #1a1208;
+            border: 2px solid #8b6914;
+            border-radius: 8px;
+            padding: 8px;
+            color: #fff;
+            font-size: 0.9em;
+        }
+
+        .form-row select:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        .form-row select option {
+            background: #1a1208;
+            color: #fff;
+        }
+
+        /* Tombol +/- dan Input Nominal */
+        .bet-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+        }
+
+        .bet-btn {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none;
+            border-radius: 8px;
+            color: #3d1e00;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .bet-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 3px 10px rgba(255,215,0,0.5);
+        }
+
+        .bet-input {
+            width: 80px;
+            text-align: center;
+            background: #1a1208;
+            border: 2px solid #8b6914;
+            border-radius: 8px;
+            padding: 6px;
+            color: #fff;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .bet-input:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        /* Tombol Pasang */
+        .bet-submit {
+            display: block;
+            margin: 15px auto 0;
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none;
+            padding: 12px 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255,215,0,0.4);
+            transition: all 0.3s ease;
+            color: #3d1e00;
+        }
+
+        .bet-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,215,0,0.6);
+        }
+
+        .bet-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Kartu "?" Utama (Zoom) */
+        .main-card-area {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .main-card {
+            width: 200px;
+            height: 260px;
+            margin: 0 auto;
+            background: linear-gradient(145deg, #4a3f35, #2a1f15);
+            border-radius: 20px;
+            border: 4px solid #ffd700;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-card.hidden-card {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            cursor: pointer;
+        }
+
+        .main-card.hidden-card::after {
+            content: '?';
+            font-size: 80px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255,215,0,0.5);
+            animation: pulseQuestion 1s infinite alternate;
+        }
+
+        @keyframes pulseQuestion {
+            from { transform: scale(0.9); opacity: 0.7; }
+            to { transform: scale(1.1); opacity: 1; }
+        }
+
+        /* PERBAIKAN: Gambar pas memenuhi kotak */
+        .main-card.revealed-card img,
+        .main-card.revealed-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .main-card.win {
+            border-color: #00ff88;
+            box-shadow: 0 0 30px #00ff88;
+        }
+
+        .main-card.lose {
+            border-color: #ff4444;
+            box-shadow: 0 0 30px #ff4444;
+        }
+
+        /* Papan Hasil Rolling (4 baris x 5 kolom) */
+        .roll-section {
+            margin-bottom: 20px;
+        }
+
+        .roll-section h3 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .roll-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
+            border: 3px solid #8b6914;
+            transition: all 0.3s ease;
+        }
+
+        .roll-item {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            background: linear-gradient(145deg, #4a3f35, #2a1f15);
+            border: 2px solid #8b6914;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        /* PERBAIKAN: Gambar pas memenuhi kotak roll */
+        .roll-item img,
+        .roll-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .roll-item.win {
+            border-color: #00ff88;
+            box-shadow: 0 0 15px #00ff88;
+        }
+
+        .roll-item.lose {
+            border-color: #ff4444;
+            box-shadow: 0 0 15px #ff4444;
+        }
+
+        .roll-item.hidden-item {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            color: #ffd700;
+            font-size: 30px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .roll-item.new-item {
+            animation: slideInFromLeft 0.5s ease;
+        }
+
+        @keyframes slideInFromLeft {
+            from { transform: translateX(-50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .roll-item.removed-item {
+            animation: slideOutToRight 0.5s ease;
+        }
+
+        @keyframes slideOutToRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(50px); opacity: 0; }
+        }
+
+        /* Hasil */
+        .result-display {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            font-size: 1.2em;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-display.win {
+            color: #00ff88;
+            font-size: 1.5em;
+            animation: blinkEffect 0.8s infinite;
+        }
+
+        .result-display.lose {
+            color: #ff6666;
+        }
+
+        @keyframes blinkEffect {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Efek Kembang Api */
+        .fireworks-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .firework {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: explosion 1.5s ease-out forwards;
+        }
+
+        @keyframes explosion {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(30); opacity: 0; }
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(255,215,0,0.2);
+            transform: scale(1.1);
+        }
+
+        /* Responsif */
+        @media (max-width: 768px) {
+            .game-container {
+                margin: 10px;
+                padding: 10px;
+            }
+
+            .game-header {
+                margin-left: -10px;
+                margin-right: -10px;
+            }
+
+            .game-header img {
+                max-height: 140px;
+            }
+
+            .info-panel {
+                max-width: 350px;
+            }
+
+            .main-card {
+                width: 160px;
+                height: 210px;
+            }
+
+            .bet-columns {
+                grid-template-columns: 1fr;
+            }
+
+            .roll-container {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(5, 1fr);
+            }
+
+            .form-row {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .form-row label {
+                min-width: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="forest-bg">
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="moon"></div>
+    </div>
+
+    <!-- Sound Toggle -->
+    <button class="sound-toggle" onclick="toggleSound()" id="soundBtn">🔊</button>
+
+    <!-- Game Container -->
+    <div class="game-container">
+        <!-- Banner Full Width -->
+        <div class="game-header">
+            <img src="header-dragon.png" alt="Dragons Hunter">
+        </div>
+
+        <!-- Info Panel - Saldo + Top Up -->
+        <div class="info-panel">
+            <div class="info-box">
+                <label>💰 Saldo Deposit</label>
+                <span id="balance">10000</span>
+            </div>
+            <button class="topup-btn" onclick="openTopUp()">💳 Top Up</button>
+        </div>
+
+        <!-- Form Taruhan 2 Kolom Sejajar -->
+        <div class="bet-form">
+            <h3>🐾 Pilih Hewan atau Naga/Harimau</h3>
+            
+            <div class="bet-columns">
+                <!-- Kolom Kiri: Hewan -->
+                <div class="bet-column">
+                    <h4>🐾 Hewan</h4>
+                    <div class="form-row">
+                        <label>Pilih:</label>
+                        <select id="animalSelect">
+                            <option value="">-- Pilih --</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Nominal:</label>
+                        <div class="bet-controls">
+                            <button class="bet-btn" onclick="changeAnimalBet(-100)">-</button>
+                            <input type="number" id="animalBet" class="bet-input" min="100" value="100" readonly>
+                            <button class="bet-btn" onclick="changeAnimalBet(100)">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kolom Kanan: Naga/Harimau -->
+                <div class="bet-column">
+                    <h4>🐉 Naga/Harimau</h4>
+                    <div class="form-row">
+                        <label>Pilih:</label>
+                        <select id="bonusSelect">
+                            <option value="">-- Pilih --</option>
+                            <option value="Naga">🐉 Naga (x100)</option>
+                            <option value="Harimau">🐯 Harimau (x30)</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Nominal:</label>
+                        <div class="bet-controls">
+                            <button class="bet-btn" onclick="changeBonusBet(-100)">-</button>
+                            <input type="number" id="bonusBet" class="bet-input" min="100" value="100" readonly>
+                            <button class="bet-btn" onclick="changeBonusBet(100)">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tombol Pasang -->
+            <button class="bet-submit" onclick="placeBet()">Pasang</button>
+        </div>
+
+        <!-- Kartu "?" Utama (Zoom) -->
+        <div class="main-card-area">
+            <div class="main-card hidden-card" id="mainCard">
+                <!-- Akan diisi oleh JS -->
+            </div>
+        </div>
+
+        <!-- Papan Hasil Rolling (4 baris x 5 kolom) -->
+        <div class="roll-section">
+            <h3>📊 Hasil Roll</h3>
+            <div class="roll-container" id="rollContainer">
+                <!-- Akan diisi oleh JS -->
+            </div>
+        </div>
+
+        <!-- Hasil -->
+        <div class="result-display" id="result"></div>
+    </div>
+
+    <!-- Modal Top Up -->
+    <div class="topup-modal" id="topupModal">
+        <div class="topup-content">
+            <h2>💳 Top Up Deposit</h2>
+            
+            <div class="topup-options" id="topupOptions">
+                <div class="topup-option" onclick="selectTopUp(20000)">
+                    <div class="amount">Rp 20.000</div>
+                    <div class="bonus">+0%</div>
+                </div>
+                <div class="topup-option" onclick="selectTopUp(50000)">
+                    <div class="amount">Rp 50.000</div>
+                    <div class="bonus">+10%</div>
+                </div>
+                <div class="topup-option" onclick="selectTopUp(100000)">
+                    <div class="amount">Rp 100.000</div>
+                    <div class="bonus">+20%</div>
+                </div>
+                <div class="topup-option" onclick="selectTopUp(200000)">
+                    <div class="amount">Rp 200.000</div>
+                    <div class="bonus">+30%</div>
+                </div>
+            </div>
+
+            <button class="pay-btn" onclick="processPayment()">💳 Bayar</button>
+            <button class="close-btn" onclick="closeTopUp()">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        // ========== DATA HEWAN ==========
+        const normalAnimals = [
+            { name: "Rubah", icon: "rubah.png" },
+            { name: "Serigala", icon: "serigala.png" },
+            { name: "Panda", icon: "panda.png" },
+            { name: "Beruang", icon: "beruang.png" },
+            { name: "Gajah", icon: "gajah.png" },
+            { name: "Singa", icon: "singa.png" },
+            { name: "Rusa", icon: "rusa.png" },
+            { name: "Kucing", icon: "kucing.png" },
+            { name: "Burung", icon: "burung.png" },
+            { name: "Kelinci", icon: "kelinci.png" }
+        ];
+
+        const bonusAnimals = [
+            { name: "Naga", icon: "naga.mp4", type: "Naga", multiplier: 100 },
+            { name: "Harimau", icon: "harimau.mp4", type: "Harimau", multiplier: 30 }
+        ];
+
+        const allAnimals = [...normalAnimals, ...bonusAnimals];
+
+        // ========== STATE GAME ==========
+        let balance = parseInt(localStorage.getItem('dragonsHunterBalance')) || 10000;
+        let history = JSON.parse(localStorage.getItem('dragonsHunterHistory')) || [];
+        let selectedTopUp = 0;
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        // ========== AUDIO ==========
+        function initAudio() {
+            if (!audioCtx) audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playCorrectSound() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function playWrongSound() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundBtn');
+            btn.textContent = soundEnabled ? '🔊' : '🔇';
+            if (soundEnabled) initAudio();
+        }
+
+        // ========== GENERATE DROPDOWNS ==========
+        function generateDropdowns() {
+            const animalSelect = document.getElementById('animalSelect');
+            animalSelect.innerHTML = '<option value="">-- Pilih --</option>';
+            normalAnimals.forEach(animal => {
+                const opt = document.createElement('option');
+                opt.value = animal.name;
+                opt.textContent = animal.name;
+                animalSelect.appendChild(opt);
+            });
+        }
+
+        // ========== FUNGSI UBAH NOMINAL ==========
+        function changeAnimalBet(delta) {
+            const animalBet = document.getElementById('animalBet');
+            let currentValue = parseInt(animalBet.value) || 100;
+            let newValue = currentValue + delta;
+            
+            if (newValue < 100) newValue = 100;
+            if (newValue > balance) newValue = balance;
+            
+            animalBet.value = newValue;
+        }
+
+        function changeBonusBet(delta) {
+            const bonusBet = document.getElementById('bonusBet');
+            let currentValue = parseInt(bonusBet.value) || 100;
+            let newValue = currentValue + delta;
+            
+            if (newValue < 100) newValue = 100;
+            if (newValue > balance) newValue = balance;
+            
+            bonusBet.value = newValue;
+        }
+
+        // ========== TOP UP ==========
+        function openTopUp() {
+            document.getElementById('topupModal').classList.add('show');
+        }
+
+        function closeTopUp() {
+            document.getElementById('topupModal').classList.remove('show');
+        }
+
+        function selectTopUp(amount) {
+            selectedTopUp = amount;
+            const options = document.querySelectorAll('.topup-option');
+            options.forEach(option => {
+                option.classList.remove('selected');
+                if (option.querySelector('.amount').textContent.includes(amount.toLocaleString('id-ID'))) {
+                    option.classList.add('selected');
+                }
+            });
+        }
+
+        function processPayment() {
+            if (selectedTopUp === 0) {
+                alert('Pilih nominal top up terlebih dahulu!');
+                return;
+            }
+
+            // Hitung bonus
+            let bonus = 0;
+            if (selectedTopUp >= 200000) bonus = 30;
+            else if (selectedTopUp >= 100000) bonus = 20;
+            else if (selectedTopUp >= 50000) bonus = 10;
+
+            const totalDeposit = selectedTopUp + (selectedTopUp * bonus / 100);
+            
+            // Tambahkan saldo
+            balance += totalDeposit;
+            
+            // Simpan ke localStorage
+            localStorage.setItem('dragonsHunterBalance', balance);
+            
+            // Update UI
+            document.getElementById('balance').textContent = balance;
+            
+            // Tampilkan pesan sukses
+            alert(`✅ Top up berhasil! Saldo Anda: ${balance}`);
+            
+            // Tutup modal
+            closeTopUp();
+        }
+
+        // ========== BUAT DATA AWAL (20 GAMBAR) ==========
+        function generateInitialHistory() {
+            const shuffledAnimals = [...normalAnimals].sort(() => Math.random() - 0.5);
+            
+            const randomBonus = bonusAnimals[Math.floor(Math.random() * bonusAnimals.length)];
+            shuffledAnimals.splice(Math.floor(Math.random() * (shuffledAnimals.length + 1)), 0, randomBonus);
+            
+            while (shuffledAnimals.length < 20) {
+                shuffledAnimals.push(normalAnimals[Math.floor(Math.random() * normalAnimals.length)]);
+            }
+            
+            return shuffledAnimals;
+        }
+
+        // ========== GENERATE PAPAN HASIL ==========
+        function generateBoard() {
+            const rollContainer = document.getElementById('rollContainer');
+            rollContainer.innerHTML = '';
+            
+            // Jika tidak ada history tersimpan, buat data awal baru
+            if (history.length === 0) {
+                history = generateInitialHistory();
+                localStorage.setItem('dragonsHunterHistory', JSON.stringify(history));
+            }
+            
+            // Tampilkan history (maksimal 20)
+            for (let i = 0; i < 20; i++) {
+                const item = document.createElement('div');
+                item.className = 'roll-item';
+                item.id = `roll-${i}`;
+                
+                const animal = history[i] || generateInitialHistory()[i];
+                if (animal.name === 'Naga' || animal.name === 'Harimau') {
+                    item.innerHTML = `<video src="${animal.icon}" autoplay loop muted playsinline></video>`;
+                } else {
+                    item.innerHTML = `<img src="${animal.icon}" alt="${animal.name}">`;
+                }
+                
+                rollContainer.appendChild(item);
+            }
+        }
+
+        // ========== FUNGSI GESER GAMBAR (ROLLING) ==========
+        function shiftHistory(newAnimal) {
+            const lastItem = document.getElementById('roll-19');
+            if (lastItem) {
+                lastItem.classList.add('removed-item');
+                setTimeout(() => lastItem.remove(), 500);
+            }
+            
+            for (let i = 18; i >= 0; i--) {
+                const currentItem = document.getElementById(`roll-${i}`);
+                const nextItem = document.getElementById(`roll-${i + 1}`);
+                
+                if (currentItem && nextItem) {
+                    nextItem.innerHTML = currentItem.innerHTML;
+                    nextItem.className = currentItem.className;
+                    nextItem.id = `roll-${i + 1}`;
+                }
+            }
+            
+            const firstItem = document.getElementById('roll-0');
+            if (firstItem) {
+                if (newAnimal.name === 'Naga' || newAnimal.name === 'Harimau') {
+                    firstItem.innerHTML = `<video src="${newAnimal.icon}" autoplay loop muted playsinline></video>`;
+                } else {
+                    firstItem.innerHTML = `<img src="${newAnimal.icon}" alt="${newAnimal.name}">`;
+                }
+                firstItem.className = 'roll-item new-item';
+                firstItem.id = 'roll-0';
+            }
+            
+            // Update history & simpan ke localStorage
+            history.unshift(newAnimal);
+            history = history.slice(0, 20); // Maksimal 20
+            localStorage.setItem('dragonsHunterHistory', JSON.stringify(history));
+        }
+
+        // ========== FUNGSI KEMBANG API ==========
+        function showFireworks() {
+            const container = document.createElement('div');
+            container.className = 'fireworks-container';
+            document.body.appendChild(container);
+            
+            const colors = ['#ff4444', '#ffd700', '#00ff88', '#ff69b4', '#00bfff', '#ff8c00'];
+            
+            for (let i = 0; i < 30; i++) {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.left = Math.random() * 100 + '%';
+                firework.style.top = Math.random() * 100 + '%';
+                firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                firework.style.animationDelay = Math.random() * 0.5 + 's';
+                firework.style.animationDuration = (Math.random() * 1 + 0.5) + 's';
+                container.appendChild(firework);
+            }
+            
+            setTimeout(() => container.remove(), 2000);
+        }
+
+        // ========== FUNGSI PASANG (SATU TOMBOL) ==========
+        function placeBet() {
+            const animalSelect = document.getElementById('animalSelect');
+            const bonusSelect = document.getElementById('bonusSelect');
+            const animalBetInput = document.getElementById('animalBet');
+            const bonusBetInput = document.getElementById('bonusBet');
+            
+            const selectedAnimal = animalSelect.value;
+            const selectedBonus = bonusSelect.value;
+            const animalBetAmount = parseInt(animalBetInput.value);
+            const bonusBetAmount = parseInt(bonusBetInput.value);
+
+            // ===== VALIDASI =====
+            if (!selectedAnimal && !selectedBonus) {
+                alert('Pilih hewan atau Naga/Harimau terlebih dahulu!');
+                return;
+            }
+
+            let betAmount = 0;
+            let multiplier = 0;
+            let tebakan = "";
+
+            if (selectedAnimal && !selectedBonus) {
+                betAmount = animalBetAmount;
+                multiplier = 2;
+                tebakan = selectedAnimal;
+                
+                if (betAmount < 100 || betAmount > balance) {
+                    alert('Jumlah taruhan hewan tidak valid!');
+                    return;
+                }
+            }
+            
+            if (!selectedAnimal && selectedBonus) {
+                betAmount = bonusBetAmount;
+                multiplier = selectedBonus === 'Naga' ? 100 : 30;
+                tebakan = selectedBonus;
+                
+                if (betAmount < 100 || betAmount > balance) {
+                    alert('Jumlah taruhan Naga/Harimau tidak valid!');
+                    return;
+                }
+            }
+
+            if (selectedAnimal && selectedBonus) {
+                betAmount = animalBetAmount + bonusBetAmount;
+                multiplier = 3;
+                
+                if (betAmount < 100 || betAmount > balance) {
+                    alert('Jumlah taruhan gabungan tidak valid!');
+                    return;
+                }
+            }
+
+            // ===== PROSES TARUHAN =====
+            balance -= betAmount;
+            document.getElementById('balance').textContent = balance;
+            localStorage.setItem('dragonsHunterBalance', balance);
+
+            // Tentukan hasil acak
+            const randomIndex = Math.floor(Math.random() * allAnimals.length);
+            const result = allAnimals[randomIndex];
+
+            // Tampilkan di Kartu Utama (dari "?" ke hasil)
+            const mainCard = document.getElementById('mainCard');
+            mainCard.classList.remove('hidden-card');
+            mainCard.classList.remove('win', 'lose');
+            
+            if (result.name === 'Naga' || result.name === 'Harimau') {
+                mainCard.innerHTML = `<video src="${result.icon}" autoplay loop muted playsinline></video>`;
+            } else {
+                mainCard.innerHTML = `<img src="${result.icon}" alt="${result.name}">`;
+            }
+
+            // ===== CEK KEMENANGAN =====
+            let isWin = false;
+            let winAmount = 0;
+
+            if (selectedAnimal && !selectedBonus) {
+                isWin = result.name === selectedAnimal;
+                multiplier = 2;
+            }
+            
+            if (!selectedAnimal && selectedBonus) {
+                isWin = result.name === selectedBonus;
+                multiplier = selectedBonus === 'Naga' ? 100 : 30;
+            }
+
+            if (selectedAnimal && selectedBonus) {
+                isWin = (result.name === selectedAnimal) || (result.name === selectedBonus);
+                multiplier = 3;
+            }
+
+            // Hitung total kemenangan sesuai payline
+            winAmount = betAmount * multiplier;
+
+            if (isWin) {
+                mainCard.classList.add('win');
+                balance += winAmount;
+                localStorage.setItem('dragonsHunterBalance', balance);
+                playCorrectSound();
+                document.getElementById('result').textContent = `✨ Selamat anda mendapat ${winAmount} ✨`;
+                document.getElementById('result').className = 'result-display win';
+                
+                // Tampilkan kembang api
+                showFireworks();
+            } else {
+                mainCard.classList.add('lose');
+                playWrongSound();
+                document.getElementById('result').textContent = "❌ Anda belum beruntung silahkan coba lagi";
+                document.getElementById('result').className = 'result-display lose';
+            }
+
+            // ===== GESER PAPAN (ROLLING) =====
+            shiftHistory(result);
+
+            // ===== RESET FORM =====
+            animalSelect.value = '';
+            bonusSelect.value = '';
+            animalBetInput.value = 100;
+            bonusBetInput.value = 100;
+
+            // Setelah 3 detik, kembalikan kartu ke "?"
+            setTimeout(() => {
+                mainCard.classList.add('hidden-card');
+                mainCard.innerHTML = '';
+                mainCard.classList.remove('win', 'lose');
+            }, 3000);
+        }
+
+        // ========== INISIALISASI ==========
+        function init() {
+            document.addEventListener('click', function initAudioOnce() {
+                initAudio();
+                document.removeEventListener('click', initAudioOnce);
+            });
+
+            // Muat saldo dari localStorage
+            document.getElementById('balance').textContent = balance;
+            
+            generateDropdowns();
+            generateBoard();
+        }
+
+        init();
+    </script>
+</body>
+  </html>
