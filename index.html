@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐉 Hutan Rimba Ultimate - 12 Gulungan</title>
+    <title>🐉 Hutan Rimba - Slot Horizontal</title>
     <style>
         * {
             margin: 0;
@@ -19,10 +19,9 @@
             min-height: 100vh;
             overflow-x: hidden;
             color: #fff;
-            position: relative;
         }
 
-        /* Background Hutan Animasi */
+        /* Background Hutan */
         .forest-bg {
             position: fixed;
             top: 0;
@@ -80,16 +79,6 @@
         .fireflies:nth-child(13) { top: 80%; left: 90%; animation-delay: 5s; }
         .fireflies:nth-child(14) { top: 45%; left: 10%; animation-delay: 7s; }
 
-        .fog {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 100px;
-            background: linear-gradient(180deg, transparent, rgba(255,255,255,0.1));
-            animation: fogMove 10s ease-in-out infinite alternate;
-            z-index: -0.5;
-        }
-
         .moon {
             position: absolute;
             top: 50px;
@@ -114,17 +103,12 @@
             75% { transform: translate(20px, -15px); opacity: 0.8; }
         }
 
-        @keyframes fogMove {
-            from { transform: translateX(0); }
-            to { transform: translateX(-50px); }
-        }
-
         @keyframes moonGlow {
             from { box-shadow: 0 0 40px #f1c40f; }
             to { box-shadow: 0 0 60px #f1c40f, 0 0 100px rgba(241,196,15,0.5); }
         }
 
-        /* Container utama */
+        /* Container Utama */
         .game-container {
             max-width: 1400px;
             margin: 20px auto;
@@ -137,7 +121,7 @@
             z-index: 10;
         }
 
-        /* Header game */
+        /* Header */
         .game-header {
             text-align: center;
             margin-bottom: 20px;
@@ -171,42 +155,37 @@
         }
 
         .game-header h1 {
-            font-size: 2.8em;
+            font-size: 2.5em;
             color: #3d1e00;
             font-family: 'Papyrus', 'Georgia', serif;
             letter-spacing: 3px;
-            text-shadow: 2px 2px 4px rgba(255,255,255,0.3);
         }
 
-        .game-header p {
-            font-size: 1.2em;
-            color: #3d1e00;
-        }
-
-        /* Grid 12 Gulungan */
+        /* Grid Horizontal (4 baris x 3 kolom) */
         .slot-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            padding: 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 30px;
             background: radial-gradient(ellipse at center, #3d5a3d, #1a2a1a);
             border-radius: 20px;
             border: 3px solid #8b6914;
             margin-bottom: 20px;
             position: relative;
+            overflow: hidden;
         }
 
         .slot-grid::before {
-            content: '🏆';
+            content: '🎰';
             position: absolute;
-            top: -20px;
+            top: -15px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 40px;
+            font-size: 35px;
             background: linear-gradient(145deg, #ffd700, #ffaa00);
             border-radius: 50%;
-            width: 60px;
-            height: 60px;
+            width: 55px;
+            height: 55px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -214,6 +193,7 @@
             z-index: 2;
         }
 
+        /* Reel dengan animasi horizontal */
         .reel {
             aspect-ratio: 1;
             background: linear-gradient(145deg, #4a3f35, #2a1f15);
@@ -227,17 +207,18 @@
                 0 4px 10px rgba(0,0,0,0.4);
             transition: all 0.3s ease;
             overflow: hidden;
-            min-height: 100px;
+            min-height: 120px;
+            cursor: pointer;
         }
 
         .reel::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 50%;
-            width: 2px;
-            height: 100%;
-            background: linear-gradient(180deg, #ffd700, transparent);
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #ffd700, transparent);
             opacity: 0.5;
         }
 
@@ -252,16 +233,35 @@
             transform: scale(1.1);
         }
 
-        .reel.spinning {
-            animation: spinReel 0.8s ease-in-out;
+        /* Animasi putaran horizontal */
+        .reel.spinning-horizontal {
+            animation: spinHorizontal 1.2s ease-in-out;
         }
 
-        @keyframes spinReel {
-            0% { transform: scale(1.2) rotate(0deg); }
-            25% { transform: scale(0.8) rotate(180deg); }
-            50% { transform: scale(1.3) rotate(360deg); }
-            75% { transform: scale(0.9) rotate(540deg); }
-            100% { transform: scale(1) rotate(720deg); }
+        @keyframes spinHorizontal {
+            0% { transform: translateX(0) rotate(0deg); }
+            20% { transform: translateX(-40px) rotate(360deg); }
+            40% { transform: translateX(40px) rotate(720deg); }
+            60% { transform: translateX(-30px) rotate(1080deg); }
+            80% { transform: translateX(30px) rotate(1440deg); }
+            100% { transform: translateX(0) rotate(1800deg); }
+        }
+
+        /* Animasi blur saat berputar */
+        .reel.spinning-horizontal::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: blurPass 0.3s infinite;
+        }
+
+        @keyframes blurPass {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         .reel.win {
@@ -561,7 +561,42 @@
             background: #ffaa00;
         }
 
-        /* Efek suara */
+        /* Probabilitas */
+        .probability-display {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .probability-display h4 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .prob-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 10px 0;
+        }
+
+        .prob-bar {
+            flex: 1;
+            height: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .prob-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        /* Sound Toggle */
         .sound-toggle {
             position: fixed;
             top: 20px;
@@ -582,7 +617,7 @@
             transform: scale(1.1);
         }
 
-        /* Partikel Emas */
+        /* Partikel */
         .gold-particles {
             position: fixed;
             top: 0;
@@ -614,31 +649,26 @@
             }
 
             .game-header h1 {
-                font-size: 1.8em;
+                font-size: 1.5em;
             }
 
             .slot-grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
-            }
-
-            .control-panel {
-                flex-direction: column;
             }
 
             .reel {
                 min-height: 80px;
             }
 
-            .reel svg {
-                width: 50%;
-                height: 50%;
+            .control-panel {
+                flex-direction: column;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Background Hutan -->
+    <!-- Background -->
     <div class="forest-bg">
         <div class="tree"></div>
         <div class="tree"></div>
@@ -655,23 +685,22 @@
         <div class="fireflies"></div>
         <div class="fireflies"></div>
         <div class="moon"></div>
-        <div class="fog"></div>
     </div>
 
-    <!-- Partikel Emas -->
+    <!-- Partikel -->
     <div class="gold-particles" id="goldParticles"></div>
 
-    <!-- Tombol Suara -->
+    <!-- Sound Toggle -->
     <button class="sound-toggle" onclick="toggleSound()" id="soundBtn">🔊</button>
 
     <!-- Game Container -->
     <div class="game-container">
         <div class="game-header">
-            <h1>🐉 HUTAN RIMBA DONGENG 🐉</h1>
-            <p style="font-size: 1.2em; color: #3d1e00;">Petualangan 12 Gulungan di Jantung Hutan</p>
+            <h1>🐉 HUTAN RIMBA HORIZONTAL 🐉</h1>
+            <p>12 Gulungan Putaran Horizontal</p>
         </div>
 
-        <!-- Grid 12 Gulungan (3x4) -->
+        <!-- Grid 12 Gulungan (4 baris x 3 kolom) -->
         <div class="slot-grid" id="slotGrid">
             <!-- Gulungan akan digenerate oleh JS -->
         </div>
@@ -703,349 +732,413 @@
             Selamat datang di Hutan Rimba! Klik SPIN untuk mulai!
         </div>
 
-        <!-- Input Nama untuk Leaderboard -->
+        <!-- Leaderboard -->
         <div style="text-align: center; margin: 10px 0;">
             <input type="text" class="name-input" id="playerName" placeholder="Masukkan nama Anda" maxlength="20">
             <button class="save-btn" onclick="saveScore()">💾 Simpan Skor</button>
         </div>
 
-        <!-- Leaderboard -->
         <div class="leaderboard">
             <h3>🏆 Leaderboard Pemain</h3>
-            <div class="leaderboard-list" id="leaderboardList">
-                <!-- Akan diisi JS -->
+            <div class="leaderboard-list" id="leaderboardList"></div>
+        </div>
+
+        <!-- Probabilitas -->
+        <div class="probability-display">
+            <h4>📊 Peluang Menang</h4>
+            <div class="prob-row">
+                <span>🎯 Kecil (3 simbol)</span>
+                <div class="prob-bar">
+                    <div class="prob-fill" style="width: 2%; background: #00ff88;"></div>
+                </div>
+                <span>1/50</span>
+            </div>
+            <div class="prob-row">
+                <span>🎯 Sedang (4 simbol)</span>
+                <div class="prob-bar">
+                    <div class="prob-fill" style="width: 0.2%; background: #ffd700;"></div>
+                </div>
+                <span>1/500</span>
+            </div>
+            <div class="prob-row">
+                <span>🎯 Besar (5 simbol)</span>
+                <div class="prob-bar">
+                    <div class="prob-fill" style="width: 0.02%; background: #ff8c00;"></div>
+                </div>
+                <span>1/5000</span>
+            </div>
+            <div class="prob-row">
+                <span>🐉 Jackpot Naga</span>
+                <div class="prob-bar">
+                    <div class="prob-fill" style="width: 0.01%; background: #ff4444;"></div>
+                </div>
+                <span>1/10000</span>
             </div>
         </div>
 
         <!-- Paytable -->
         <div class="paytable">
-            <h3>📜 Tabel Pembayaran Hewan</h3>
-            <div class="paytable-grid" id="paytableGrid">
-                <!-- Akan diisi JS -->
-            </div>
+            <h3>📜 Tabel Pembayaran</h3>
+            <div class="paytable-grid" id="paytableGrid"></div>
         </div>
     </div>
 
     <script>
-        // Data hewan realistis (SVG)
+        // Data hewan (SVG)
         const animals = [
-            {
-                name: "Harimau",
-                icon: `
-                <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="40" r="30" fill="#ff8c00" stroke="#d35400" stroke-width="3"/>
-                    <ellipse cx="30" cy="30" rx="8" ry="6" fill="#fff"/>
-                    <ellipse cx="70" cy="30" rx="8" ry="6" fill="#fff"/>
-                    <circle cx="30" cy="28" r="3" fill="#000"/>
-                    <circle cx="70" cy="28" r="3" fill="#000"/>
-                    <circle cx="50" cy="40" r="6" fill="#ff69b4"/>
-                    <path d="M20,40 L10,30 M20,42 L5,42 M80,40 L90,30 M80,42 L95,42" stroke="#000" stroke-width="3"/>
-                    <path d="M20,60 Q50,80 80,60" fill="#ff8c00" stroke="#d35400" stroke-width="3"/>
-                    <path d="M35,55 L45,60 L35,65" fill="#fff" stroke="#d35400" stroke-width="2"/>
-                </svg>`,
-                pay5: 5000, pay4: 1000, pay3: 200, pay2: 50
-            },
-            {
-                name: "Rusa",
-                icon: `
-                <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="25" fill="#8b6914" stroke="#6b4f12" stroke-width="3"/>
-                    <circle cx="42" cy="45" r="4" fill="#000"/>
-                    <circle cx="58" cy="45" r="4" fill="#000"/>
-                    <path d="M20,40 L5,25 L15,25 L5,15" stroke="#6b4f12" stroke-width="4" fill="none"/>
-                    <path d="M80,40 L95,25 L85,25 L95,15" stroke="#6b4f12" stroke-width="4" fill="none"/>
-                    <circle cx="50" cy="55" r="8" fill="#6b4f12"/>
-                    <path d="M35,65 Q50,75 65,65" fill="#8b6914"/>
-                </svg>`,
-                pay5: 4000, pay4: 800, pay3: 150, pay2: 30
-            },
-            {
-                name: "Serigala",
-                icon: `
-                <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="40" r="28" fill="#7f8c8d" stroke="#5d6d7e" stroke-width="3"/>
-                    <path d="M25,35 L15,20 L35,30" fill="#7f8c8d" stroke="#5d6d7e" stroke-width="2"/>
-                    <path d="M75,35 L85,20 L65,30" fill="#7f8c8d" stroke="#5d6d7e" stroke-width="2"/>
-                    <circle cx="38" cy="35" r="5" fill="#f39c12"/>
-                    <circle cx="38" cy="35" r="2" fill="#000"/>
-                    <circle cx="62" cy="35" r="5" fill="#f39c12"/>
-                    <circle cx="62" cy="35" r="2" fill="#000"/>
-                    <path d="M30,55 Q50,65 70,55" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
-                </svg>`,
-                pay5: 3500, pay4: 700, pay3: 120, pay2: 20
-            },
-            {
-                name: "Elang",
-                icon: `
-                <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="35" r="20" fill="#f39c12" stroke="#e67e22" stroke-width="3"/>
-                    <path d="M25,35 Q10,20 5,40 Q20,35 30,45" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
-                    <path d="M75,35 Q90,20 95,40 Q80,35 70,45" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
-                    <circle cx="42" cy="30" r="4" fill="#000"/>
-                    <circle cx="58" cy="30" r="4" fill="#000"/>
-                    <path d="M45,40 Q50,48 55,40" stroke="#d35400" stroke-width="2" fill="none"/>
-                    <path d="M35,55 Q50,70 65,55" fill="#f39c12" stroke="#e67e22" stroke-width="2"/>
-                </svg>`,
-                pay5: 3000, pay4: 600, pay3: 100, pay2: 15
-            },
-            {
-                name: "Beruang",
-                icon: `
-                <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="45" r="30" fill="#5d4037" stroke="#3e2723" stroke-width="3"/>
-                    <circle cx="35" cy="30" r="15" fill="#5d4037" stroke="#3e2723" stroke-width="2"/>
-                    <circle cx="65" cy="30" r="15" fill="#5d4037" stroke="#3e2723" stroke-width="2"/>
-                    <circle cx="35" cy="30" r="5" fill="#8d6e63"/>
-                    <circle cx="65" cy="30" r="5" fill="#8d6e63"/>
-                    <circle cx="42" cy="40" r="5" fill="#000"/>
-                    <circle cx="58" cy="40" r="5" fill="#000"/>
-                    <circle cx="50" cy="48" r="8" fill="#5d4037"/>
-                    <path d="M30,60 Q50,75 70,60" fill="#8d6e63" stroke="#5d4037" stroke-width="2"/>
-                </svg>`,
-                pay5: 2500, pay4: 500, pay3: 80, pay2: 10
-            },
-            {
-                name: "Rubah",
-                icon: `
-                <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="42" r="25" fill="#e67e22" stroke="#d35400" stroke-width="3"/>
-                    <path d="M25,35 L12,15 L35,28" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
-                    <path d="M75,35 L88,15 L65,28" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
-                    <circle cx="42" cy="38" r="4" fill="#000"/>
-                    <circle cx="58" cy="38" r="4" fill="#000"/>
-                    <path d="M35,55 Q50,65 65,55" fill="#fff" stroke="#d35400" stroke-width="2"/>
-                    <circle cx="50" cy="50" r="3" fill="#e74c3c"/>
-                </svg>`,
-                pay5: 2000, pay4: 400, pay3: 60, pay2: 5
-            },
-            {
-                name: "Singa",
-                icon: `
-                <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="45" r="30" fill="#f1c40f" stroke="#d4ac0d" stroke-width="3"/>
-                    <path d="M20,35 L5,25 M20,45 L3,45 M20,55 L5,65" stroke="#d4ac0d" stroke-width="4" fill="none"/>
-                    <path d="M80,35 L95,25 M80,45 L97,45 M80,55 L95,65" stroke="#d4ac0d" stroke-width="4" fill="none"/>
-                    <circle cx="42" cy="40" r="5" fill="#000"/>
-                    <circle cx="58" cy="40" r="5" fill="#000"/>
-                    <path d="M30,55 Q50,70 70,55" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
-                </svg>`,
-                pay5: 1500, pay4: 300, pay3: 40, pay2: 0
-            },
-            {
-                name: "Kelinci",
-                icon: `
-                <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="55" r="20" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3"/>
-                    <ellipse cx="40" cy="25" rx="8" ry="20" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3"/>
-                    <ellipse cx="60" cy="25" rx="8" ry="20" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3"/>
-                    <circle cx="45" cy="52" r="4" fill="#e74c3c"/>
-                    <circle cx="55" cy="52" r="4" fill="#e74c3c"/>
-                    <path d="M35,65 Q50,75 65,65" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="2"/>
-                </svg>`,
-                pay5: 1000, pay4: 200, pay3: 25, pay2: 0
-            },
-            {
-                name: "Landak",
-                icon: `
-                <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="55" r="20" fill="#95a5a6" stroke="#7f8c8d" stroke-width="3"/>
-                    <path d="M20,50 L10,40 L20,45 M15,55 L5,55 M20,60 L10,70" stroke="#7f8c8d" stroke-width="4" fill="none"/>
-                    <path d="M80,50 L90,40 L80,45 M85,55 L95,55 M80,60 L90,70" stroke="#7f8c8d" stroke-width="4" fill="none"/>
-                    <circle cx="45" cy="52" r="3" fill="#000"/>
-                    <circle cx="55" cy="52" r="3" fill="#000"/>
-                    <circle cx="50" cy="58" r="4" fill="#e74c3c"/>
-                </svg>`,
-                pay5: 800, pay4: 150, pay3: 15, pay2: 0
-            },
-            {
-                name: "Burung Hantu",
-                icon: `
-                <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="45" r="25" fill="#8e44ad" stroke="#6c3483" stroke-width="3"/>
-                    <circle cx="40" cy="38" r="8" fill="#f39c12" stroke="#d4ac0d" stroke-width="2"/>
-                    <circle cx="60" cy="38" r="8" fill="#f39c12" stroke="#d4ac0d" stroke-width="2"/>
-                    <circle cx="40" cy="38" r="4" fill="#000"/>
-                    <circle cx="60" cy="38" r="4" fill="#000"/>
-                    <path d="M25,50 L15,60 M75,50 L85,60" stroke="#6c3483" stroke-width="3" fill="none"/>
-                    <path d="M35,55 Q50,62 65,55" fill="#f39c12"/>
-                </svg>`,
-                pay5: 600, pay4: 100, pay3: 10, pay2: 0
-            },
-            {
-                name: "Ular",
-                icon: `
-                <svg viewBox="0 0 100 100">
-                    <path d="M20,50 Q50,20 80,50 Q95,70 80,85 Q65,95 50,80" fill="#27ae60" stroke="#1e8449" stroke-width="3"/>
-                    <circle cx="20" cy="50" r="8" fill="#27ae60" stroke="#1e8449" stroke-width="2"/>
-                    <circle cx="20" cy="50" r="3" fill="#000"/>
-                    <path d="M15,45 L8,40 M15,55 L8,60" stroke="#1e8449" stroke-width="3" fill="none"/>
-                </svg>`,
-                pay5: 500, pay4: 80, pay3: 5, pay2: 0
-            },
-            {
-                name: "Naga",
-                icon: `
-                <svg viewBox="0 0 100 100">
-                    <path d="M20,50 Q40,20 60,50 Q80,70 70,85" fill="#e74c3c" stroke="#c0392b" stroke-width="3"/>
-                    <path d="M15,45 L5,30 L20,35 M15,55 L5,70 L20,65" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
-                    <circle cx="45" cy="45" r="10" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
-                    <circle cx="45" cy="45" r="4" fill="#f1c40f"/>
-                    <circle cx="45" cy="45" r="2" fill="#000"/>
-                    <path d="M55,50 Q70,40 80,50" fill="none" stroke="#e74c3c" stroke-width="2"/>
-                    <path d="M60,55 Q75,65 85,55" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
-                    <circle cx="65" cy="80" r="15" fill="#f1c40f" stroke="#e67e22" stroke-width="2" opacity="0.5"/>
-                </svg>`,
-                pay5: 50000, pay4: 10000, pay3: 1000, pay2: 100
-            }
+            { name: "Harimau", icon: `<svg viewBox="0 0 100 100"><circle cx="50" cy="40" r="30" fill="#ff8c00" stroke="#d35400" stroke-width="3"/><ellipse cx="30" cy="30" rx="8" ry="6" fill="#fff"/><ellipse cx="70" cy="30" rx="8" ry="6" fill="#fff"/><circle cx="30" cy="28" r="3" fill="#000"/><circle cx="70" cy="28" r="3" fill="#000"/><circle cx="50" cy="40" r="6" fill="#ff69b4"/><path d="M20,40 L10,30 M20,42 L5,42 M80,40 L90,30 M80,42 L95,42" stroke="#000" stroke-width="3"/><path d="M20,60 Q50,80 80,60" fill="#ff8c00" stroke="#d35400" stroke-width="3"/></svg>`, pay5: 5000, pay4: 1000, pay3: 200, pay2: 50 },
+            { name: "Rusa", icon: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="25" fill="#8b6914" stroke="#6b4f12" stroke-width="3"/><circle cx="42" cy="45" r="4" fill="#000"/><circle cx="58" cy="45" r="4" fill="#000"/><path d="M20,40 L5,25 L15,25 L5,15" stroke="#6b4f12" stroke-width="4" fill="none"/><path d="M80,40 L95,25 L85,25 L95,15" stroke="#6b4f12" stroke-width="4" fill="none"/></svg>`, pay5: 4000, pay4: 800, pay3: 150, pay2: 30 },
+            { name: "Serigala", icon: `<svg viewBox="0 0 100 100"><circle cx="50" cy="40" r="28" fill="#7f8c8d" stroke="#5d6d7e" stroke-width="3"/><path d="M25,35 L15,20 L35,30" fill="#7f8c8d" stroke="#5d6d7e" stroke-width="2"/><path d="M75,35 L85,20 L65,30" fill="#7f8c8d" stroke="#5d6d7e" stroke-width="2"/><circle cx="38" cy="35" r="5" fill="#f39c12"/><circle cx="38" cy="35" r="2" fill="#000"/><circle cx="62" cy="35" r="5" fill="#f39c12"/><circle cx="62" cy="35" r="2" fill="#000"/></svg>`, pay5: 3500, pay4: 700, pay3: 120, pay2: 20 },
+            { name: "Elang", icon: `<svg viewBox="0 0 100 100"><circle cx="50" cy="35" r="20" fill="#f39c12" stroke="#e67e22" stroke-width="3"/><path d="M25,35 Q10,20 5,40 Q20,35 30,45" fill="#e67e22" stroke="#d35400" stroke-width="2"/><path d="M75,35 Q90,20 95,40 Q80,35 70,45" fill="#e67e22" stroke="#d35400" stroke-width="2"/><circle cx="42" cy="30" r="4" fill="#000"/><circle cx="58" cy="30" r="4" fill="#000"/></svg>`, pay5: 3000, pay4: 600, pay3: 100, pay2: 15 },
+            { name: "Beruang", icon: `<svg viewBox="0 0 100 100"><circle cx="50" cy="45" r="30" fill="#5d4037" stroke="#3e2723" stroke-width="3"/><circle cx="35" cy="30" r="15" fill="#5d4037" stroke="#3e2723" stroke-width="2"/><circle cx="65" cy="30" r="15" fill="#5d4037" stroke="#3e2723" stroke-width="2"/><circle cx="42" cy="40" r="5" fill="#000"/><circle cx="58" cy="40" r="5" fill="#000"/></svg>`, pay5: 2500, pay4: 500, pay3: 80, pay2: 10 },
+            { name: "Rubah", icon: `<svg viewBox="0 0 100 100"><circle cx="50" cy="42" r="25" fill="#e67e22" stroke="#d35400" stroke-width="3"/><path d="M25,35 L12,15 L35,28" fill="#e67e22" stroke="#d35400" stroke-width="2"/><path d="M75,35 L88,15 L65,28" fill="#e67e22" stroke="#d35400" stroke-width="2"/><circle cx="42" cy="38" r="4" fill="#000"/><circle cx="58" cy="38" r="4" fill="#000"/></svg>`, pay5: 2000, pay4: 400, pay3: 60, pay2: 5 },
+            { name: "Singa", icon: `<svg viewBox="0 0 100 100"><circle cx="50" cy="45" r="30" fill="#f1c40f" stroke="#d4ac0d" stroke-width="3"/><path d="M20,35 L5,25 M20,45 L3,45 M20,55 L5,65" stroke="#d4ac0d" stroke-width="4" fill="none"/><path d="M80,35 L95,25 M80,45 L97,45 M80,55 L95,65" stroke="#d4ac0d" stroke-width="4" fill="none"/><circle cx="42" cy="40" r="5" fill="#000"/><circle cx="58" cy="40" r="5" fill="#000"/></svg>`, pay5: 1500, pay4: 300, pay3: 40, pay2: 0 },
+            { name: "Kelinci", icon: `<svg viewBox="0 0 100 100"><circle cx="50" cy="55" r="20" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3"/><ellipse cx="40" cy="25" rx="8" ry="20" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3"/><ellipse cx="60" cy="25" rx="8" ry="20" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3"/><circle cx="45" cy="52" r="4" fill="#e74c3c"/><circle cx="55" cy="52" r="4" fill="#e74c3c"/></svg>`, pay5: 1000, pay4: 200, pay3: 25, pay2: 0 },
+            { name: "Landak", icon: `<svg viewBox="0 0 100 100"><circle cx="50" cy="55" r="20" fill="#95a5a6" stroke="#7f8c8d" stroke-width="3"/><path d="M20,50 L10,40 L20,45 M15,55 L5,55 M20,60 L10,70" stroke="#7f8c8d" stroke-width="4" fill="none"/><path d="M80,50 L90,40 L80,45 M85,55 L95,55 M80,60 L90,70" stroke="#7f8c8d" stroke-width="4" fill="none"/><circle cx="45" cy="52" r="3" fill="#000"/><circle cx="55" cy="52" r="3" fill="#000"/></svg>`, pay5: 800, pay4: 150, pay3: 15, pay2: 0 },
+            { name: "Burung Hantu", icon: `<svg viewBox="0 0 100 100"><circle cx="50" cy="45" r="25" fill="#8e44ad" stroke="#6c3483" stroke-width="3"/><circle cx="40" cy="38" r="8" fill="#f39c12" stroke="#d4ac0d" stroke-width="2"/><circle cx="60" cy="38" r="8" fill="#f39c12" stroke="#d4ac0d" stroke-width="2"/><circle cx="40" cy="38" r="4" fill="#000"/><circle cx="60" cy="38" r="4" fill="#000"/></svg>`, pay5: 600, pay4: 100, pay3: 10, pay2: 0 },
+            { name: "Ular", icon: `<svg viewBox="0 0 100 100"><path d="M20,50 Q50,20 80,50 Q95,70 80,85 Q65,95 50,80" fill="#27ae60" stroke="#1e8449" stroke-width="3"/><circle cx="20" cy="50" r="8" fill="#27ae60" stroke="#1e8449" stroke-width="2"/><circle cx="20" cy="50" r="3" fill="#000"/></svg>`, pay5: 500, pay4: 80, pay3: 5, pay2: 0 },
+            { name: "Naga", icon: `<svg viewBox="0 0 100 100"><path d="M20,50 Q40,20 60,50 Q80,70 70,85" fill="#e74c3c" stroke="#c0392b" stroke-width="3"/><path d="M15,45 L5,30 L20,35 M15,55 L5,70 L20,65" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/><circle cx="45" cy="45" r="10" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/><circle cx="45" cy="45" r="4" fill="#f1c40f"/><circle cx="45" cy="45" r="2" fill="#000"/></svg>`, pay5: 50000, pay4: 10000, pay3: 1000, pay2: 100 }
         ];
 
-        // State game
+        // Probabilitas bertingkat
+        const winConfig = {
+            "Kecil (3 simbol)": { probability: 1/50, payout: "pay3" },
+            "Sedang (4 simbol)": { probability: 1/500, payout: "pay4" },
+            "Besar (5 simbol)": { probability: 1/5000, payout: "pay5" },
+            "Jackpot Naga": { probability: 1/10000, payout: "jackpot" }
+        };
+
+        const symbolWeights = {
+            "Naga": 1, "Harimau": 2, "Rusa": 3, "Serigala": 4, "Elang": 5, "Beruang": 6,
+            "Rubah": 7, "Singa": 8, "Kelinci": 9, "Landak": 10, "Burung Hantu": 11, "Ular": 12
+        };
+
+        const totalWeight = Object.values(symbolWeights).reduce((a, b) => a + b, 0);
+
+        // State
         let balance = 5000;
         let currentBet = 100;
         let isSpinning = false;
         let isAutoSpin = false;
         let autoSpinInterval = null;
         let soundEnabled = true;
-        let gameResult = {
-            totalWin: 0,
-            isJackpot: false,
-            timestamp: null
-        };
-
-        // Audio Context untuk efek suara
         let audioCtx = null;
 
+        // Audio
         function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playSpinSound() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.5);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+        }
+
+        function playWinSound() {
+            if (!soundEnabled || !audioCtx) return;
+            [523.25, 659.25, 783.99].forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                }, i * 100);
+            });
+        }
+
+        function playJackpotSound() {
+            if (!soundEnabled || !audioCtx) return;
+            [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98].forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    osc.type = 'triangle';
+                    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+                }, i * 150);
+            });
+        }
+
+        function playLoseSound() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.4);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundBtn');
+            btn.textContent = soundEnabled ? '🔊' : '🔇';
+            if (soundEnabled) initAudio();
+        }
+
+        // Generate 12 gulungan horizontal (4 baris x 3 kolom)
+        function generateReels() {
+            const grid = document.getElementById('slotGrid');
+            grid.innerHTML = '';
+            
+            // Layout: 4 baris x 3 kolom
+            for (let i = 0; i < 12; i++) {
+                const reel = document.createElement('div');
+                reel.className = 'reel';
+                reel.id = `reel-${i}`;
+                reel.innerHTML = animals[Math.floor(Math.random() * animals.length)].icon;
+                grid.appendChild(reel);
             }
         }
 
-        // Efek suara spin
-        function playSpinSound() {
-            if (!soundEnabled || !audioCtx) return;
-            
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            oscillator.frequency.setValueAtTime(200, audioCtx.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.5);
-            
-            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.5);
+        // Fungsi pilih simbol berbobot
+        function getWeightedSymbol() {
+            let random = Math.random() * totalWeight;
+            for (const [name, weight] of Object.entries(symbolWeights)) {
+                if (random < weight) return name;
+                random -= weight;
+            }
+            return "Ular";
         }
 
-        // Efek suara menang
-        function playWinSound() {
-            if (!soundEnabled || !audioCtx) return;
+        // Generate hasil dengan probabilitas bertingkat
+        function generateResult() {
+            const MAX_RETRY = 100;
+            let retries = 0;
             
-            const notes = [523.25, 659.25, 783.99];
-            notes.forEach((freq, index) => {
+            while (retries < MAX_RETRY) {
+                const reels = [];
+                for (let i = 0; i < 12; i++) {
+                    const symbolName = getWeightedSymbol();
+                    reels.push(animals.find(a => a.name === symbolName));
+                }
+                
+                // Cek JACKPOT NAGA
+                const nagaCount = reels.filter(r => r.name === 'Naga').length;
+                if (nagaCount >= 5) {
+                    return { reels, winLevel: "jackpot", winAmount: 50000, isJackpot: true };
+                }
+                
+                // Hitung kombinasi
+                const counts = {};
+                reels.forEach(r => counts[r.name] = (counts[r.name] || 0) + 1);
+                
+                let maxCount = 0;
+                let maxSymbol = "";
+                Object.keys(counts).forEach(symbolName => {
+                    if (counts[symbolName] > maxCount) {
+                        maxCount = counts[symbolName];
+                        maxSymbol = symbolName;
+                    }
+                });
+                
+                const animalData = animals.find(a => a.name === maxSymbol);
+                
+                // Tentukan level
+                let winLevel = "none";
+                let winAmount = 0;
+                
+                if (maxCount >= 5 && animalData) {
+                    winLevel = "besar";
+                    winAmount = animalData.pay5;
+                } else if (maxCount === 4 && animalData) {
+                    winLevel = "sedang";
+                    winAmount = animalData.pay4;
+                } else if (maxCount === 3 && animalData) {
+                    winLevel = "kecil";
+                    winAmount = animalData.pay3;
+                }
+                
+                // Cek probabilitas
+                const winProb = winLevel !== "none" ? 1/Math.pow(10, winLevel === "kecil" ? 2 : winLevel === "sedang" ? 3 : 4) : 0;
+                
+                // Jika peluang terlalu tinggi, regenerate
+                if (winLevel !== "none" && winProb > winConfig[winLevel.charAt(0).toUpperCase() + winLevel.slice(1) + " (3 simbol)"].probability) {
+                    retries++;
+                    continue;
+                }
+                
+                return { reels, winLevel, winAmount, isJackpot: false };
+            }
+            
+            // Fallback
+            const reels = [];
+            for (let i = 0; i < 12; i++) {
+                const symbolName = getWeightedSymbol();
+                reels.push(animals.find(a => a.name === symbolName));
+            }
+            return { reels, winLevel: "none", winAmount: 0, isJackpot: false };
+        }
+
+        // Ubah taruhan
+        function changeBet(delta) {
+            currentBet = Math.max(10, Math.min(1000, currentBet + delta));
+            document.getElementById('bet').textContent = currentBet;
+        }
+
+        // Auto spin
+        function toggleAutoSpin() {
+            isAutoSpin = !isAutoSpin;
+            const btn = document.getElementById('autoBtn');
+            btn.style.background = isAutoSpin ? 'linear-gradient(145deg, #ff4444, #cc0000)' : 'linear-gradient(145deg, #4a9d4a, #2d7a2d)';
+            btn.textContent = isAutoSpin ? '⏹ Stop' : '🔄 Auto';
+            
+            if (isAutoSpin) {
+                startAutoSpin();
+            } else {
+                stopAutoSpin();
+            }
+        }
+
+        function startAutoSpin() {
+            if (balance < currentBet) {
+                alert('Saldo tidak cukup!');
+                toggleAutoSpin();
+                return;
+            }
+            spin();
+            autoSpinInterval = setInterval(() => {
+                if (!isAutoSpin || balance < currentBet) {
+                    toggleAutoSpin();
+                    return;
+                }
+                spin();
+            }, 3000);
+        }
+
+        function stopAutoSpin() {
+            if (autoSpinInterval) {
+                clearInterval(autoSpinInterval);
+                autoSpinInterval = null;
+            }
+        }
+
+        // Fungsi spin utama
+        function spin() {
+            if (isSpinning) return;
+            if (balance < currentBet) {
+                document.getElementById('result').innerHTML = '❌ Saldo tidak cukup!';
+                return;
+            }
+
+            isSpinning = true;
+            balance -= currentBet;
+            document.getElementById('balance').textContent = balance;
+            
+            const spinBtn = document.getElementById('spinBtn');
+            spinBtn.disabled = true;
+
+            // Generate hasil
+            const result = generateResult();
+            
+            // Play sound
+            playSpinSound();
+
+            // Animasi horizontal
+            const reels = document.querySelectorAll('.reel');
+            reels.forEach(reel => {
+                reel.classList.remove('win', 'dragon-win', 'spinning-horizontal');
+            });
+
+            // Animasi berputar horizontal dengan hasil akhir
+            reels.forEach((reel, index) => {
+                reel.classList.add('spinning-horizontal');
+                
+                // Animasi acak
+                const interval = setInterval(() => {
+                    const randomSymbol = animals[Math.floor(Math.random() * animals.length)];
+                    reel.innerHTML = randomSymbol.icon;
+                }, 60);
+
+                // Setelah animasi, set hasil final
                 setTimeout(() => {
-                    const oscillator = audioCtx.createOscillator();
-                    const gainNode = audioCtx.createGain();
+                    clearInterval(interval);
+                    reel.classList.remove('spinning-horizontal');
                     
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioCtx.destination);
+                    reel.innerHTML = result.reels[index].icon;
+                    reel.dataset.animal = result.reels[index].name;
                     
-                    oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    // Highlight jika menang
+                    if (result.winLevel !== "none") {
+                        const counts = {};
+                        result.reels.forEach(r => counts[r.name] = (counts[r.name] || 0) + 1);
+                        const winningSymbol = result.reels[index].name;
+                        
+                        if (counts[winningSymbol] >= 3) {
+                            if (winningSymbol === 'Naga') {
+                                reel.classList.add('dragon-win');
+                            } else {
+                                reel.classList.add('win');
+                            }
+                        }
+                    }
                     
-                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                    
-                    oscillator.start();
-                    oscillator.stop(audioCtx.currentTime + 0.3);
-                }, index * 100);
+                    // Cek hasil setelah semua berhenti
+                    if (index === reels.length - 1) {
+                        checkWin(result);
+                        spinBtn.disabled = false;
+                        isSpinning = false;
+                    }
+                }, 800 + (index * 150));
             });
         }
 
-        // Efek suara jackpot
-        function playJackpotSound() {
-            if (!soundEnabled || !audioCtx) return;
+        // Cek kemenangan
+        function checkWin(result) {
+            const resultDiv = document.getElementById('result');
             
-            const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
-            notes.forEach((freq, index) => {
-                setTimeout(() => {
-                    const oscillator = audioCtx.createOscillator();
-                    const gainNode = audioCtx.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioCtx.destination);
-                    
-                    oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                    oscillator.type = 'triangle';
-                    
-                    gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-                    
-                    oscillator.start();
-                    oscillator.stop(audioCtx.currentTime + 0.5);
-                }, index * 150);
-            });
-        }
-
-        // Efek suara kalah
-        function playLoseSound() {
-            if (!soundEnabled || !audioCtx) return;
-            
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.4);
-            
-            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-            
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.4);
-        }
-
-        // Suara burung hutan
-        function playBirdSound() {
-            if (!soundEnabled || !audioCtx) return;
-            
-            // Suara burung acak
-            const randomBird = Math.floor(Math.random() * 3);
-            const freqs = [[880, 1100], [660, 880], [990, 1320]];
-            
-            const [freq1, freq2] = freqs[randomBird];
-            
-            setTimeout(() => {
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
+            if (result.winAmount > 0) {
+                balance += result.winAmount;
+                document.getElementById('balance').textContent = balance;
                 
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                
-                oscillator.frequency.setValueAtTime(freq1, audioCtx.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(freq2, audioCtx.currentTime + 0.1);
-                
-                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-                
-                oscillator.start();
-                oscillator.stop(audioCtx.currentTime + 0.2);
-            }, Math.random() * 3000);
-        }
-
-        // Toggle suara
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            const soundBtn = document.getElementById('soundBtn');
-            soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
-            if (soundEnabled) {
-                initAudio();
-                playBirdSound();
+                let message = "";
+                switch(result.winLevel) {
+                    case "jackpot":
+                        message = `🐉🎉 JACKPOT NAGA! Menang ${result.winAmount}!`;
+                        resultDiv.className = 'result-display jackpot';
+                        playJackpotSound();
+                        generateGoldParticles();
+                        break;
+                    case "besar":
+                        message = `🌟 Kemenangan Besar! Menang ${result.winAmount}!`;
+                        resultDiv.className = 'result-display win';
+                        playWinSound();
+                        break;
+                    case "sedang":
+                        message = `✨ Kemenangan Sedang! Menang ${result.winAmount}!`;
+                        resultDiv.className = 'result-display win';
+                        playWinSound();
+                        break;
+                    case "kecil":
+                        message = `🎉 Kemenangan Kecil! Menang ${result.winAmount}!`;
+                        resultDiv.className = 'result-display win';
+                        playWinSound();
+                        break;
+                    default:
+                        message = `🎉 Menang ${result.winAmount}!`;
+                        resultDiv.className = 'result-display win';
+                        playWinSound();
+                }
+                resultDiv.innerHTML = message;
+            } else {
+                resultDiv.innerHTML = "Belum beruntung, coba lagi!";
+                resultDiv.className = 'result-display lose';
+                playLoseSound();
             }
         }
 
@@ -1053,7 +1146,6 @@
         function generateGoldParticles() {
             const container = document.getElementById('goldParticles');
             container.innerHTML = '';
-            
             for (let i = 0; i < 50; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
@@ -1066,50 +1158,16 @@
             }
         }
 
-        // Generate 12 gulungan (3 baris x 4 kolom)
-        function generateReels() {
-            const grid = document.getElementById('slotGrid');
-            grid.innerHTML = '';
-            
-            for (let i = 0; i < 12; i++) {
-                const reel = document.createElement('div');
-                reel.className = 'reel';
-                reel.id = `reel-${i}`;
-                reel.innerHTML = animals[Math.floor(Math.random() * animals.length)].icon;
-                grid.appendChild(reel);
-            }
-        }
-
-        // Generate paytable
-        function generatePaytable() {
-            const paytable = document.getElementById('paytableGrid');
-            paytable.innerHTML = '';
-            
-            animals.forEach(animal => {
-                const payItem = document.createElement('div');
-                payItem.className = 'pay-item';
-                payItem.innerHTML = `
-                    <div class="animal-icon">${animal.name}</div>
-                    <div style="font-size: 0.8em;">x5: ${animal.pay5}</div>
-                    <div style="font-size: 0.8em;">x4: ${animal.pay4}</div>
-                    <div style="font-size: 0.8em;">x3: ${animal.pay3}</div>
-                `;
-                paytable.appendChild(payItem);
-            });
-        }
-
-        // Load leaderboard dari localStorage
+        // Leaderboard
         function loadLeaderboard() {
             const saved = localStorage.getItem('forestLeaderboard');
             return saved ? JSON.parse(saved) : [];
         }
 
-        // Save leaderboard ke localStorage
         function saveLeaderboard(data) {
             localStorage.setItem('forestLeaderboard', JSON.stringify(data));
         }
 
-        // Display leaderboard
         function displayLeaderboard() {
             const leaderboard = loadLeaderboard();
             const listEl = document.getElementById('leaderboardList');
@@ -1131,7 +1189,6 @@
             });
         }
 
-        // Save skor pemain
         function saveScore() {
             const nameInput = document.getElementById('playerName');
             const playerName = nameInput.value.trim();
@@ -1142,238 +1199,53 @@
             }
 
             const leaderboard = loadLeaderboard();
-            
-            // Tambah skor baru
             leaderboard.push({
                 name: playerName,
                 score: balance,
                 timestamp: Date.now()
             });
 
-            // Sort berdasarkan skor tertinggi
             leaderboard.sort((a, b) => b.score - a.score);
-
-            // Ambil top 10 saja
             const top10 = leaderboard.slice(0, 10);
 
-            // Simpan
             saveLeaderboard(top10);
             displayLeaderboard();
             
-            // Reset input
             nameInput.value = '';
             alert('Skor Anda berhasil disimpan! 🎉');
         }
 
-        // Ubah taruhan
-        function changeBet(delta) {
-            const newBet = Math.max(10, Math.min(1000, currentBet + delta));
-            currentBet = newBet;
-            document.getElementById('bet').textContent = currentBet;
-        }
-
-        // Auto spin toggle
-        function toggleAutoSpin() {
-            isAutoSpin = !isAutoSpin;
-            const autoBtn = document.getElementById('autoBtn');
-            autoBtn.style.background = isAutoSpin ? 'linear-gradient(145deg, #ff4444, #cc0000)' : 'linear-gradient(145deg, #4a9d4a, #2d7a2d)';
+        // Paytable
+        function generatePaytable() {
+            const paytable = document.getElementById('paytableGrid');
+            paytable.innerHTML = '';
             
-            if (isAutoSpin) {
-                autoBtn.textContent = '⏹ Stop';
-                startAutoSpin();
-            } else {
-                autoBtn.textContent = '🔄 Auto';
-                stopAutoSpin();
-            }
-        }
-
-        function startAutoSpin() {
-            if (balance < currentBet) {
-                alert('Saldo tidak cukup untuk autospin!');
-                toggleAutoSpin();
-                return;
-            }
-            spin();
-            autoSpinInterval = setInterval(() => {
-                if (!isAutoSpin || balance < currentBet) {
-                    toggleAutoSpin();
-                    return;
-                }
-                spin();
-            }, 2000);
-        }
-
-        function stopAutoSpin() {
-            if (autoSpinInterval) {
-                clearInterval(autoSpinInterval);
-                autoSpinInterval = null;
-            }
-        }
-
-        // Fungsi spin
-        function spin() {
-            if (isSpinning) return;
-            if (balance < currentBet) {
-                document.getElementById('result').innerHTML = '❌ Saldo tidak cukup!';
-                return;
-            }
-
-            isSpinning = true;
-            balance -= currentBet;
-            document.getElementById('balance').textContent = balance;
-            
-            const spinBtn = document.getElementById('spinBtn');
-            spinBtn.disabled = true;
-
-            // Play sound
-            playSpinSound();
-
-            // Animasi semua gulungan
-            const reels = document.querySelectorAll('.reel');
-            const intervals = [];
-
-            // Reset hasil
-            document.getElementById('result').className = 'result-display';
-
-            reels.forEach((reel, index) => {
-                reel.classList.add('spinning');
-                reel.classList.remove('win', 'dragon-win');
-
-                // Interval untuk mengganti simbol acak
-                const interval = setInterval(() => {
-                    const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
-                    reel.innerHTML = randomAnimal.icon;
-                }, 80);
-
-                intervals.push(interval);
-
-                // Setelah animasi selesai, set hasil akhir
-                setTimeout(() => {
-                    clearInterval(interval);
-                    reel.classList.remove('spinning');
-
-                    // Generate hasil akhir untuk reel ini
-                    const finalAnimal = animals[Math.floor(Math.random() * animals.length)];
-                    reel.innerHTML = finalAnimal.icon;
-                    reel.dataset.animal = finalAnimal.name;
-
-                    // Jika ini gulungan terakhir, cek hasil
-                    if (index === reels.length - 1) {
-                        checkWin();
-                    }
-                }, 800 + (index * 100));
+            animals.forEach(animal => {
+                const payItem = document.createElement('div');
+                payItem.className = 'pay-item';
+                payItem.innerHTML = `
+                    <div class="animal-icon">${animal.name}</div>
+                    <div style="font-size: 0.8em;">x5: ${animal.pay5}</div>
+                    <div style="font-size: 0.8em;">x4: ${animal.pay4}</div>
+                    <div style="font-size: 0.8em;">x3: ${animal.pay3}</div>
+                `;
+                paytable.appendChild(payItem);
             });
-
-            setTimeout(() => {
-                spinBtn.disabled = false;
-                isSpinning = false;
-            }, 800 + (reels.length * 100));
-        }
-
-        // Cek kemenangan
-        function checkWin() {
-            const resultDiv = document.getElementById('result');
-            const reels = document.querySelectorAll('.reel');
-            
-            // Hitung semua hewan
-            const counts = {};
-            reels.forEach(reel => {
-                const animal = reel.dataset.animal;
-                counts[animal] = (counts[animal] || 0) + 1;
-            });
-
-            let totalWin = 0;
-            let winMessages = [];
-            let isJackpot = false;
-
-            // Cek setiap hewan
-            Object.keys(counts).forEach(animalName => {
-                const count = counts[animalName];
-                const animalData = animals.find(a => a.name === animalName);
-
-                if (count >= 5 && animalData.pay5 > 0) {
-                    totalWin += animalData.pay5;
-                    winMessages.push(`${animalName} x${count} = ${animalData.pay5}`);
-                    
-                    // Highlight reel dengan hewan ini
-                    reels.forEach((reel, index) => {
-                        if (reel.dataset.animal === animalName) {
-                            if (animalName === 'Naga') {
-                                reel.classList.add('dragon-win');
-                                isJackpot = true;
-                            } else {
-                                reel.classList.add('win');
-                            }
-                        }
-                    });
-                } else if (count === 4 && animalData.pay4 > 0) {
-                    totalWin += animalData.pay4;
-                    winMessages.push(`${animalName} x4 = ${animalData.pay4}`);
-                    
-                    reels.forEach((reel) => {
-                        if (reel.dataset.animal === animalName) {
-                            reel.classList.add('win');
-                        }
-                    });
-                } else if (count === 3 && animalData.pay3 > 0) {
-                    totalWin += animalData.pay3;
-                    winMessages.push(`${animalName} x3 = ${animalData.pay3}`);
-                    
-                    reels.forEach((reel) => {
-                        if (reel.dataset.animal === animalName) {
-                            reel.classList.add('win');
-                        }
-                    });
-                }
-            });
-
-            if (totalWin > 0) {
-                balance += totalWin;
-                document.getElementById('balance').textContent = balance;
-                
-                gameResult = {
-                    totalWin: totalWin,
-                    isJackpot: isJackpot,
-                    timestamp: Date.now()
-                };
-
-                // Cek apakah Naga menang
-                if (isJackpot) {
-                    resultDiv.innerHTML = `🐉🎉 JACKPOT NAGA! Menang ${totalWin}!`;
-                    resultDiv.className = 'result-display jackpot';
-                    playJackpotSound();
-                    generateGoldParticles();
-                } else {
-                    resultDiv.innerHTML = `🎉 Menang ${totalWin}!<br><small>${winMessages.join(' | ')}</small>`;
-                    resultDiv.className = 'result-display win';
-                    playWinSound();
-                }
-            } else {
-                resultDiv.innerHTML = "Belum beruntung, coba lagi!";
-                resultDiv.className = 'result-display lose';
-                playLoseSound();
-            }
         }
 
         // Inisialisasi
         function init() {
-            // Init audio pada interaksi pertama
             document.addEventListener('click', function initAudioOnce() {
                 initAudio();
-                playBirdSound();
                 document.removeEventListener('click', initAudioOnce);
             });
 
             generateReels();
             generatePaytable();
             displayLeaderboard();
-            
-            // Suara burung berkala
-            setInterval(playBirdSound, 5000);
         }
 
-        // Jalankan inisialisasi
         init();
     </script>
 </body>
-    </html>
+</html>
