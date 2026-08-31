@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐉 Dragons Hunter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background:
+                radial-gradient(ellipse at bottom, rgba(40, 80, 50, 0.8), transparent),
+                linear-gradient(180deg, #0a1f14 0%, #143a20 50%, #1a4527 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        /* Background Hutan */
+        .forest-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .tree {
+            position: absolute;
+            bottom: 0;
+            width: 120px;
+            height: 200px;
+            background: linear-gradient(180deg, #2d5a27, #1a3d15);
+            border-radius: 10px 10px 0 0;
+            animation: sway 5s ease-in-out infinite;
+        }
+
+        .tree::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            left: -20px;
+            width: 160px;
+            height: 80px;
+            background: linear-gradient(135deg, #3a7d30, #2d5a27);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .tree:nth-child(1) {
+            left: 10px;
+        }
+
+        .tree:nth-child(2) {
+            left: 15%;
+            height: 240px;
+            animation-delay: 1s;
+        }
+
+        .tree:nth-child(3) {
+            right: 10%;
+            height: 180px;
+            animation-delay: 2s;
+        }
+
+        .tree:nth-child(4) {
+            right: 20px;
+            height: 260px;
+            animation-delay: 3s;
+        }
+
+        .tree:nth-child(5) {
+            left: 40%;
+            height: 220px;
+            animation-delay: 4s;
+        }
+
+        .tree:nth-child(6) {
+            right: 40%;
+            height: 200px;
+            animation-delay: 5s;
+        }
+
+        .fireflies {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ffe066;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffe066;
+            animation: fly 8s infinite;
+        }
+
+        .fireflies:nth-child(7) {
+            top: 30%;
+            left: 20%;
+            animation-delay: 0s;
+        }
+
+        .fireflies:nth-child(8) {
+            top: 50%;
+            left: 80%;
+            animation-delay: 2s;
+        }
+
+        .fireflies:nth-child(9) {
+            top: 70%;
+            left: 50%;
+            animation-delay: 4s;
+        }
+
+        .fireflies:nth-child(10) {
+            top: 40%;
+            left: 70%;
+            animation-delay: 6s;
+        }
+
+        .fireflies:nth-child(11) {
+            top: 60%;
+            left: 30%;
+            animation-delay: 1s;
+        }
+
+        .fireflies:nth-child(12) {
+            top: 20%;
+            left: 60%;
+            animation-delay: 3s;
+        }
+
+        .fireflies:nth-child(13) {
+            top: 80%;
+            left: 90%;
+            animation-delay: 5s;
+        }
+
+        .fireflies:nth-child(14) {
+            top: 45%;
+            left: 10%;
+            animation-delay: 7s;
+        }
+
+        .moon {
+            position: absolute;
+            top: 50px;
+            right: 100px;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #fff, #f1c40f);
+            border-radius: 50%;
+            box-shadow: 0 0 40px #f1c40f, 0 0 80px rgba(241, 196, 15, 0.3);
+            animation: moonGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes sway {
+            0%,
+            100% {
+                transform: rotate(-2deg);
+            }
+            50% {
+                transform: rotate(2deg);
+            }
+        }
+
+        @keyframes fly {
+            0%,
+            100% {
+                transform: translate(0, 0);
+                opacity: 0.3;
+            }
+            25% {
+                transform: translate(15px, -20px);
+                opacity: 1;
+            }
+            50% {
+                transform: translate(-10px, -35px);
+                opacity: 0.6;
+            }
+            75% {
+                transform: translate(20px, -15px);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes moonGlow {
+            from {
+                box-shadow: 0 0 40px #f1c40f;
+            }
+            to {
+                box-shadow: 0 0 60px #f1c40f, 0 0 100px rgba(241, 196, 15, 0.5);
+            }
+        }
+
+        /* Container Utama */
+        .game-container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8), inset 0 0 50px rgba(139, 105, 20, 0.3);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header Gambar */
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 0;
+            background: transparent;
+            border-radius: 15px;
+        }
+
+        .game-header img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Info Panel */
+        .info-panel {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .info-box {
+            text-align: center;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .info-box label {
+            display: block;
+            font-size: 0.9em;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .info-box span {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Papan Hasil (4 kolom x 5 baris) */
+        .board-section {
+            margin-bottom: 20px;
+        }
+
+        .board-section h3 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            border: 3px solid #8b6914;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: linear-gradient(145deg, #4a3f35, #2a1f15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            font-size: 2em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .cell img,
+        .cell video {
+            width: 90%;
+            height: 90%;
+            object-fit: contain;
+        }
+
+        .cell.hidden {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            color: #ffd700;
+            cursor: pointer;
+        }
+
+        .cell.revealed {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .cell.win {
+            border: 3px solid #00ff88;
+            animation: winPulse 0.5s infinite;
+        }
+
+        .cell.lose {
+            border: 3px solid #ff4444;
+            animation: losePulse 0.5s infinite;
+        }
+
+        @keyframes winPulse {
+            0%,
+            100% {
+                box-shadow: 0 0 10px #00ff88;
+            }
+            50% {
+                box-shadow: 0 0 20px #00ff88;
+            }
+        }
+
+        @keyframes losePulse {
+            0%,
+            100% {
+                box-shadow: 0 0 10px #ff4444;
+            }
+            50% {
+                box-shadow: 0 0 20px #ff4444;
+            }
+        }
+
+        /* Form Taruhan */
+        .bet-form {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .bet-form h3 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-group label {
+            font-size: 1em;
+            color: #ffd700;
+            min-width: 120px;
+        }
+
+        .form-group select,
+        .form-group input {
+            flex: 1;
+            background: #1a1208;
+            border: 2px solid #8b6914;
+            border-radius: 8px;
+            padding: 10px;
+            color: #fff;
+            font-size: 1em;
+            min-width: 150px;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        .form-group select option {
+            background: #1a1208;
+            color: #fff;
+            padding: 10px;
+        }
+
+        .bet-submit {
+            display: block;
+            margin: 20px auto;
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none;
+            padding: 15px 50px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+            transition: all 0.3s ease;
+            color: #3d1e00;
+        }
+
+        .bet-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.6);
+        }
+
+        .bet-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Hasil */
+        .result-display {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            font-size: 1.2em;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-display.win {
+            color: #00ff88;
+        }
+
+        .result-display.lose {
+            color: #ff4444;
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* Responsif */
+        @media (max-width: 768px) {
+            .game-container {
+                margin: 10px;
+                padding: 10px;
+            }
+
+            .game-header img {
+                max-height: 200px;
+            }
+
+            .game-board {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .form-group label {
+                min-width: auto;
+            }
+
+            .form-group select,
+            .form-group input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="forest-bg">
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="moon"></div>
+    </div>
+
+    <!-- Sound Toggle -->
+    <button class="sound-toggle" onclick="toggleSound()" id="soundBtn">🔊</button>
+
+    <!-- Game Container -->
+    <div class="game-container">
+        <!-- Header Gambar -->
+        <div class="game-header">
+            <img src="header-dragon.png" alt="Dragons Hunter">
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-panel">
+            <div class="info-box">
+                <label>💰 Saldo Deposit</label>
+                <span id="balance">10000</span>
+            </div>
+        </div>
+
+        <!-- Papan Hasil (4 kolom x 5 baris) -->
+        <div class="board-section">
+            <h3>📊 Hasil Permainan</h3>
+            <div class="game-board" id="gameBoard"></div>
+        </div>
+
+        <!-- Form Taruhan Hewan -->
+        <div class="bet-form">
+            <h3>🐾 Taruhan Hewan</h3>
+            <div class="form-group">
+                <label>Pilih Hewan:</label>
+                <select id="animalSelect">
+                    <option value="">-- Pilih Hewan --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Jumlah Taruhan:</label>
+                <input type="number" id="animalBet" min="100" max="10000" value="100" placeholder="100">
+            </div>
+            <button class="bet-submit" id="btnBetHewan" onclick="betAnimal()">🐾 Pasang Taruhan Hewan</button>
+        </div>
+
+        <!-- Form Taruhan Naga/Harimau -->
+        <div class="bet-form">
+            <h3>🐉 Taruhan Naga/Harimau</h3>
+            <div class="form-group">
+                <label>Pilih Taruhan:</label>
+                <select id="bonusSelect">
+                    <option value="">-- Pilih --</option>
+                    <option value="Naga">🐉 Naga</option>
+                    <option value="Harimau">🐯 Harimau</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Jumlah Taruhan:</label>
+                <input type="number" id="bonusBet" min="100" max="10000" value="100" placeholder="100">
+            </div>
+            <button class="bet-submit" id="btnBetBonus" onclick="betBonus()">🐉 Pasang Taruhan Naga/Harimau</button>
+        </div>
+
+        <!-- Hasil -->
+        <div class="result-display" id="result"></div>
+    </div>
+
+    <script>
+        // ========== DATA HEWAN ==========
+        const normalAnimals = [
+            { name: "Rubah", icon: "rubah.png" },
+            { name: "Serigala", icon: "serigala.png" },
+            { name: "Panda", icon: "panda.png" },
+            { name: "Beruang", icon: "beruang.png" },
+            { name: "Gajah", icon: "gajah.png" },
+            { name: "Singa", icon: "singa.png" },
+            { name: "Rusa", icon: "rusa.png" },
+            { name: "Kucing", icon: "kucing.png" },
+            { name: "Burung", icon: "burung.png" },
+            { name: "Kelinci", icon: "kelinci.png" }
+        ];
+
+        const bonusAnimals = [
+            { name: "Naga", icon: "naga.mp4", type: "Naga" },
+            { name: "Harimau", icon: "harimau.mp4", type: "Harimau" }
+        ];
+
+        // Gabungan untuk hasil acak
+        const allAnimals = [...normalAnimals, ...bonusAnimals];
+
+        // ========== STATE GAME ==========
+        let balance = 10000;
+        let history = [];
+        let isSpinning = false;
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        // ========== AUDIO ==========
+        function initAudio() {
+            if (!audioCtx) audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playCorrectSound() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function playWrongSound() {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundBtn');
+            btn.textContent = soundEnabled ? '🔊' : '🔇';
+            if (soundEnabled) initAudio();
+        }
+
+        // ========== GENERATE DROPDOWN HEWAN ==========
+        function generateAnimalDropdown() {
+            const select = document.getElementById('animalSelect');
+            select.innerHTML = '<option value="">-- Pilih Hewan --</option>';
+
+            normalAnimals.forEach(animal => {
+                const option = document.createElement('option');
+                option.value = animal.name;
+                option.textContent = animal.name;
+                select.appendChild(option);
+            });
+        }
+
+        // ========== GENERATE BOARD (4x5) ==========
+        function generateBoard() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
+
+            // 4 kolom x 5 baris = 20 sel
+            for (let i = 0; i < 20; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell hidden';
+                cell.id = `cell-${i}`;
+                cell.textContent = '?';
+                board.appendChild(cell);
+            }
+        }
+
+        // ========== FUNGSI TARUHAN HEWAN ==========
+        function betAnimal() {
+            const animalSelect = document.getElementById('animalSelect');
+            const animalBetInput = document.getElementById('animalBet');
+
+            const selectedAnimal = animalSelect.value;
+            const betAmount = parseInt(animalBetInput.value);
+
+            if (!selectedAnimal) {
+                alert('Pilih hewan terlebih dahulu!');
+                return;
+            }
+
+            if (betAmount < 100 || betAmount > balance) {
+                alert('Jumlah taruhan tidak valid!');
+                return;
+            }
+
+            // Kurangi saldo
+            balance -= betAmount;
+            document.getElementById('balance').textContent = balance;
+
+            // Tentukan hasil acak
+            const randomIndex = Math.floor(Math.random() * allAnimals.length);
+            const result = allAnimals[randomIndex];
+
+            // Tentukan sel berikutnya
+            const historyIndex = history.length;
+            if (historyIndex >= 20) {
+                alert('Papan sudah penuh! Klik "Main Lagi" untuk reset.');
+                return;
+            }
+
+            const cell = document.getElementById(`cell-${historyIndex}`);
+
+            // Tampilkan hasil
+            if (result.name === 'Naga' || result.name === 'Harimau') {
+                cell.innerHTML = `<video src="${result.icon}" autoplay loop muted playsinline></video>`;
+            } else {
+                cell.innerHTML = `<img src="${result.icon}" alt="${result.name}">`;
+            }
+
+            cell.classList.remove('hidden');
+            cell.classList.add('revealed');
+
+            // Cek kemenangan
+            const isWin = result.name === selectedAnimal;
+
+            if (isWin) {
+                cell.classList.add('win');
+                balance += betAmount * 2; // Kembali + menang
+                playCorrectSound();
+                document.getElementById('result').textContent = `✅ BENAR! ${result.name} keluar! Anda menang ${betAmount * 2}!`;
+                document.getElementById('result').className = 'result-display win';
+            } else {
+                cell.classList.add('lose');
+                playWrongSound();
+                document.getElementById('result').textContent = `❌ SALAH! ${result.name} keluar! Anda kalah ${betAmount}!`;
+                document.getElementById('result').className = 'result-display lose';
+            }
+
+            // Simpan history
+            history.push({
+                result: result.name,
+                betType: 'hewan',
+                selected: selectedAnimal,
+                betAmount: betAmount,
+                isWin: isWin
+            });
+
+            // Reset form
+            animalSelect.value = '';
+            animalBetInput.value = 100;
+
+            // Update saldo
+            document.getElementById('balance').textContent = balance;
+        }
+
+        // ========== FUNGSI TARUHAN NAGA/HARIMAU ==========
+        function betBonus() {
+            const bonusSelect = document.getElementById('bonusSelect');
+            const bonusBetInput = document.getElementById('bonusBet');
+
+            const selectedBonus = bonusSelect.value;
+            const betAmount = parseInt(bonusBetInput.value);
+
+            if (!selectedBonus) {
+                alert('Pilih Naga atau Harimau terlebih dahulu!');
+                return;
+            }
+
+            if (betAmount < 100 || betAmount > balance) {
+                alert('Jumlah taruhan tidak valid!');
+                return;
+            }
+
+            // Kurangi saldo
+            balance -= betAmount;
+            document.getElementById('balance').textContent = balance;
+
+            // Tentukan hasil acak
+            const randomIndex = Math.floor(Math.random() * allAnimals.length);
+            const result = allAnimals[randomIndex];
+
+            // Tentukan sel berikutnya
+            const historyIndex = history.length;
+            if (historyIndex >= 20) {
+                alert('Papan sudah penuh! Klik "Main Lagi" untuk reset.');
+                return;
+            }
+
+            const cell = document.getElementById(`cell-${historyIndex}`);
+
+            // Tampilkan hasil
+            if (result.name === 'Naga' || result.name === 'Harimau') {
+                cell.innerHTML = `<video src="${result.icon}" autoplay loop muted playsinline></video>`;
+            } else {
+                cell.innerHTML = `<img src="${result.icon}" alt="${result.name}">`;
+            }
+
+            cell.classList.remove('hidden');
+            cell.classList.add('revealed');
+
+            // Cek kemenangan
+            const isWin = result.name === selectedBonus;
+
+            if (isWin) {
+                cell.classList.add('win');
+                balance += betAmount * 5; // Pembayaran lebih tinggi untuk Naga/Harimau
+                playCorrectSound();
+                document.getElementById('result').textContent = `✅ BENAR! ${result.name} keluar! Anda menang ${betAmount * 5}!`;
+                document.getElementById('result').className = 'result-display win';
+            } else {
+                cell.classList.add('lose');
+                playWrongSound();
+                document.getElementById('result').textContent = `❌ SALAH! ${result.name} keluar! Anda kalah ${betAmount}!`;
+                document.getElementById('result').className = 'result-display lose';
+            }
+
+            // Simpan history
+            history.push({
+                result: result.name,
+                betType: 'bonus',
+                selected: selectedBonus,
+                betAmount: betAmount,
+                isWin: isWin
+            });
+
+            // Reset form
+            bonusSelect.value = '';
+            bonusBetInput.value = 100;
+
+            // Update saldo
+            document.getElementById('balance').textContent = balance;
+        }
+
+        // ========== RESET GAME ==========
+        function resetGame() {
+            balance = 10000;
+            history = [];
+
+            document.getElementById('balance').textContent = balance;
+            document.getElementById('result').textContent = '';
+            document.getElementById('result').className = 'result-display';
+
+            generateBoard();
+        }
+
+        // ========== INISIALISASI ==========
+        function init() {
+            document.addEventListener('click', function initAudioOnce() {
+                initAudio();
+                document.removeEventListener('click', initAudioOnce);
+            });
+
+            generateAnimalDropdown();
+            generateBoard();
+        }
+
+        init();
+    </script>
+</body>
+          </html>
