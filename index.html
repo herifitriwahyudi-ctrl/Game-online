@@ -3,103 +3,351 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slot Binatang - 5 Gulungan</title>
+    <title>🐉 Hutan Rimba Ultimate - 12 Gulungan</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            text-align: center;
-            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-            color: white;
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: 
+                radial-gradient(ellipse at bottom, rgba(40, 80, 50, 0.8), transparent),
+                linear-gradient(180deg, #0a1f14 0%, #143a20 50%, #1a4527 100%);
             min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+            position: relative;
         }
 
-        h1 {
-            font-size: 2.5em;
+        /* Background Hutan Animasi */
+        .forest-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .tree {
+            position: absolute;
+            bottom: 0;
+            width: 120px;
+            height: 200px;
+            background: linear-gradient(180deg, #2d5a27, #1a3d15);
+            border-radius: 10px 10px 0 0;
+            animation: sway 5s ease-in-out infinite;
+        }
+
+        .tree::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            left: -20px;
+            width: 160px;
+            height: 80px;
+            background: linear-gradient(135deg, #3a7d30, #2d5a27);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .tree:nth-child(1) { left: 10px; }
+        .tree:nth-child(2) { left: 15%; height: 240px; animation-delay: 1s; }
+        .tree:nth-child(3) { right: 10%; height: 180px; animation-delay: 2s; }
+        .tree:nth-child(4) { right: 20px; height: 260px; animation-delay: 3s; }
+        .tree:nth-child(5) { left: 40%; height: 220px; animation-delay: 4s; }
+        .tree:nth-child(6) { right: 40%; height: 200px; animation-delay: 5s; }
+
+        .fireflies {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ffe066;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffe066;
+            animation: fly 8s infinite;
+        }
+
+        .fireflies:nth-child(7) { top: 30%; left: 20%; animation-delay: 0s; }
+        .fireflies:nth-child(8) { top: 50%; left: 80%; animation-delay: 2s; }
+        .fireflies:nth-child(9) { top: 70%; left: 50%; animation-delay: 4s; }
+        .fireflies:nth-child(10) { top: 40%; left: 70%; animation-delay: 6s; }
+        .fireflies:nth-child(11) { top: 60%; left: 30%; animation-delay: 1s; }
+        .fireflies:nth-child(12) { top: 20%; left: 60%; animation-delay: 3s; }
+        .fireflies:nth-child(13) { top: 80%; left: 90%; animation-delay: 5s; }
+        .fireflies:nth-child(14) { top: 45%; left: 10%; animation-delay: 7s; }
+
+        .fog {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(180deg, transparent, rgba(255,255,255,0.1));
+            animation: fogMove 10s ease-in-out infinite alternate;
+            z-index: -0.5;
+        }
+
+        .moon {
+            position: absolute;
+            top: 50px;
+            right: 100px;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #fff, #f1c40f);
+            border-radius: 50%;
+            box-shadow: 0 0 40px #f1c40f, 0 0 80px rgba(241,196,15,0.3);
+            animation: moonGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        @keyframes fly {
+            0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+            25% { transform: translate(15px, -20px); opacity: 1; }
+            50% { transform: translate(-10px, -35px); opacity: 0.6; }
+            75% { transform: translate(20px, -15px); opacity: 0.8; }
+        }
+
+        @keyframes fogMove {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50px); }
+        }
+
+        @keyframes moonGlow {
+            from { box-shadow: 0 0 40px #f1c40f; }
+            to { box-shadow: 0 0 60px #f1c40f, 0 0 100px rgba(241,196,15,0.5); }
+        }
+
+        /* Container utama */
+        .game-container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header game */
+        .game-header {
+            text-align: center;
             margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(90deg, #ffd700, #ff8c00, #ffd700);
+            border-radius: 15px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
         }
 
-        .slot-machine {
-            background: rgba(255,255,255,0.1);
+        .game-header::before {
+            content: '🐉';
+            position: absolute;
+            left: 20px;
+            font-size: 40px;
+            animation: floatDragon 3s ease-in-out infinite;
+        }
+
+        .game-header::after {
+            content: '🐉';
+            position: absolute;
+            right: 20px;
+            font-size: 40px;
+            animation: floatDragon 3s ease-in-out infinite reverse;
+        }
+
+        @keyframes floatDragon {
+            0%, 100% { transform: translateY(0) rotate(-10deg); }
+            50% { transform: translateY(-15px) rotate(10deg); }
+        }
+
+        .game-header h1 {
+            font-size: 2.8em;
+            color: #3d1e00;
+            font-family: 'Papyrus', 'Georgia', serif;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.3);
+        }
+
+        .game-header p {
+            font-size: 1.2em;
+            color: #3d1e00;
+        }
+
+        /* Grid 12 Gulungan */
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 20px;
+            background: radial-gradient(ellipse at center, #3d5a3d, #1a2a1a);
             border-radius: 20px;
-            padding: 30px;
-            max-width: 700px;
-            margin: 0 auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 3px solid #8b6914;
+            margin-bottom: 20px;
+            position: relative;
         }
 
-        .reel-container {
+        .slot-grid::before {
+            content: '🏆';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 40px;
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
             display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
+            box-shadow: 0 4px 15px rgba(255,215,0,0.5);
+            z-index: 2;
         }
 
         .reel {
-            width: 80px;
-            height: 80px;
-            font-size: 45px;
-            border: 3px solid #ffd700;
+            aspect-ratio: 1;
+            background: linear-gradient(145deg, #4a3f35, #2a1f15);
             border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            position: relative;
+            box-shadow: 
+                inset 0 4px 15px rgba(0,0,0,0.6),
+                0 4px 10px rgba(0,0,0,0.4);
             transition: all 0.3s ease;
+            overflow: hidden;
+            min-height: 100px;
+        }
+
+        .reel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(180deg, #ffd700, transparent);
+            opacity: 0.5;
+        }
+
+        .reel svg {
+            width: 60%;
+            height: 60%;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5));
+            transition: transform 0.3s ease;
+        }
+
+        .reel:hover svg {
+            transform: scale(1.1);
         }
 
         .reel.spinning {
-            animation: spin 0.5s ease-in-out;
+            animation: spinReel 0.8s ease-in-out;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg) scale(1); }
-            25% { transform: rotate(360deg) scale(1.2); }
-            50% { transform: rotate(720deg) scale(1); }
-            75% { transform: rotate(1080deg) scale(1.1); }
-            100% { transform: rotate(1440deg) scale(1); }
+        @keyframes spinReel {
+            0% { transform: scale(1.2) rotate(0deg); }
+            25% { transform: scale(0.8) rotate(180deg); }
+            50% { transform: scale(1.3) rotate(360deg); }
+            75% { transform: scale(0.9) rotate(540deg); }
+            100% { transform: scale(1) rotate(720deg); }
         }
 
         .reel.win {
-            border-color: #00ff88;
-            box-shadow: 0 0 20px #00ff88;
+            border: 3px solid #00ff88;
+            box-shadow: 0 0 30px #00ff88, inset 0 0 20px rgba(0,255,136,0.3);
+            animation: winPulse 1s infinite;
         }
 
-        .reel.dragon {
-            border-color: #ff4444;
-            box-shadow: 0 0 25px #ff4444;
-            animation: dragonGlow 1s infinite alternate;
+        .reel.dragon-win {
+            border: 3px solid #ff4444;
+            box-shadow: 0 0 40px #ff4444, inset 0 0 30px rgba(255,68,68,0.4);
+            animation: dragonPulse 0.5s infinite;
         }
 
-        @keyframes dragonGlow {
-            from { box-shadow: 0 0 10px #ff4444; }
-            to { box-shadow: 0 0 30px #ff6666; }
+        @keyframes winPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
-        .controls {
-            margin: 20px 0;
+        @keyframes dragonPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px #ff4444; }
+            50% { transform: scale(1.1); box-shadow: 0 0 50px #ff6666; }
+        }
+
+        /* Panel Kontrol */
+        .control-panel {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(145deg, #3a2a15, #2a1a0e);
+            border-radius: 15px;
+            border: 2px solid #8b6914;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            min-width: 120px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-box:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .stat-box label {
+            display: block;
+            font-size: 0.9em;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .stat-box span {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
         }
 
         .spin-btn {
             background: linear-gradient(145deg, #ffd700, #ffaa00);
-            color: #1a1a1a;
             border: none;
             padding: 15px 40px;
-            font-size: 20px;
+            font-size: 1.3em;
             font-weight: bold;
             border-radius: 50px;
             cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255,215,0,0.4);
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(255,215,0,0.4);
+            color: #3d1e00;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spin-btn::before {
+            content: '🎰';
+            margin-right: 8px;
         }
 
         .spin-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255,215,0,0.6);
+            box-shadow: 0 10px 30px rgba(255,215,0,0.6);
         }
 
         .spin-btn:disabled {
@@ -108,282 +356,1024 @@
             transform: none;
         }
 
-        .info-panel {
+        .auto-btn {
+            background: linear-gradient(145deg, #4a9d4a, #2d7a2d);
+            border: none;
+            padding: 12px 20px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 3px 15px rgba(74,157,74,0.4);
+            transition: all 0.3s ease;
+            color: #fff;
+        }
+
+        .auto-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .bet-controls {
             display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .bet-btn {
+            background: #8b6914;
+            border: none;
+            color: #fff;
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .bet-btn:hover {
+            background: #a07818;
+        }
+
+        /* Hasil */
+        .result-display {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            font-size: 1.2em;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 30px;
-            margin-top: 20px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.3s ease;
         }
 
-        .info-box {
-            background: rgba(255,255,255,0.15);
-            padding: 15px 25px;
-            border-radius: 15px;
-            font-size: 18px;
+        .result-display.win {
+            background: rgba(0,255,136,0.2);
+            border: 2px solid #00ff88;
         }
 
-        .info-box span {
-            display: block;
-            font-size: 24px;
-            font-weight: bold;
-            margin-top: 5px;
+        .result-display.lose {
+            background: rgba(255,102,102,0.2);
+            border: 2px solid #ff6666;
         }
 
-        #result {
-            font-size: 22px;
-            margin-top: 20px;
-            min-height: 40px;
-            font-weight: bold;
+        .result-display.jackpot {
+            background: rgba(255,68,68,0.3);
+            border: 3px solid #ff4444;
+            animation: jackpotGlow 0.5s infinite;
         }
 
-        .win-text {
-            color: #00ff88;
-            text-shadow: 0 0 10px #00ff88;
+        @keyframes jackpotGlow {
+            0%, 100% { box-shadow: 0 0 20px #ff4444; }
+            50% { box-shadow: 0 0 40px #ff6666; }
         }
 
-        .lose-text {
-            color: #ff6666;
-        }
-
-        .dragon-text {
-            color: #ff4444;
-            text-shadow: 0 0 15px #ff4444;
-        }
-
+        /* Paytable */
         .paytable {
-            margin-top: 30px;
-            text-align: left;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
+            margin-top: 20px;
+            background: rgba(0,0,0,0.3);
             border-radius: 15px;
+            padding: 20px;
         }
 
         .paytable h3 {
-            margin-top: 0;
+            text-align: center;
             color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.5em;
         }
 
-        .paytable ul {
-            list-style: none;
-            padding: 0;
+        .paytable-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
         }
 
-        .paytable li {
-            padding: 5px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+        .pay-item {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .pay-item:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+
+        .pay-item .animal-icon {
+            font-size: 1.2em;
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        /* Leaderboard */
+        .leaderboard {
+            margin-top: 20px;
+            background: linear-gradient(145deg, #3a2a15, #2a1a0e);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #8b6914;
+        }
+
+        .leaderboard h3 {
+            text-align: center;
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .leaderboard-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .leaderboard-item.rank-1 {
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            color: #3d1e00;
+            font-weight: bold;
+        }
+
+        .leaderboard-item.rank-2 {
+            background: linear-gradient(145deg, #c0c0c0, #a8a8a8);
+            color: #333;
+        }
+
+        .leaderboard-item.rank-3 {
+            background: linear-gradient(145deg, #cd7f32, #b8860b);
+            color: #333;
+        }
+
+        .leaderboard-name {
+            font-weight: bold;
+        }
+
+        .leaderboard-score {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .name-input {
+            padding: 8px;
+            border-radius: 5px;
+            border: 2px solid #8b6914;
+            background: #1a1208;
+            color: #fff;
+            font-size: 1em;
+            margin-right: 10px;
+            width: 150px;
+        }
+
+        .save-btn {
+            background: #ffd700;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #3d1e00;
+            transition: all 0.3s ease;
+        }
+
+        .save-btn:hover {
+            background: #ffaa00;
+        }
+
+        /* Efek suara */
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(255,215,0,0.2);
+            transform: scale(1.1);
+        }
+
+        /* Partikel Emas */
+        .gold-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, #ffd700, #ffaa00);
+            border-radius: 50%;
+            animation: particleFall 3s ease-in-out infinite;
+        }
+
+        @keyframes particleFall {
+            0% { transform: translateY(-100px) scale(1); opacity: 1; }
+            100% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+        }
+
+        /* Responsif */
+        @media (max-width: 768px) {
+            .game-container {
+                margin: 10px;
+                padding: 10px;
+            }
+
+            .game-header h1 {
+                font-size: 1.8em;
+            }
+
+            .slot-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+
+            .control-panel {
+                flex-direction: column;
+            }
+
+            .reel {
+                min-height: 80px;
+            }
+
+            .reel svg {
+                width: 50%;
+                height: 50%;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>🐾 Slot Binatang Naga 🐉</h1>
-    
-    <div class="slot-machine">
-        <div class="reel-container">
-            <div class="reel" id="reel1">🐱</div>
-            <div class="reel" id="reel2">🐶</div>
-            <div class="reel" id="reel3">🦊</div>
-            <div class="reel" id="reel4">🐼</div>
-            <div class="reel" id="reel5">🐯</div>
+    <!-- Background Hutan -->
+    <div class="forest-bg">
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="moon"></div>
+        <div class="fog"></div>
+    </div>
+
+    <!-- Partikel Emas -->
+    <div class="gold-particles" id="goldParticles"></div>
+
+    <!-- Tombol Suara -->
+    <button class="sound-toggle" onclick="toggleSound()" id="soundBtn">🔊</button>
+
+    <!-- Game Container -->
+    <div class="game-container">
+        <div class="game-header">
+            <h1>🐉 HUTAN RIMBA DONGENG 🐉</h1>
+            <p style="font-size: 1.2em; color: #3d1e00;">Petualangan 12 Gulungan di Jantung Hutan</p>
         </div>
 
-        <div class="controls">
-            <button class="spin-btn" id="spinBtn" onclick="spin()">🎰 SPIN!</button>
+        <!-- Grid 12 Gulungan (3x4) -->
+        <div class="slot-grid" id="slotGrid">
+            <!-- Gulungan akan digenerate oleh JS -->
         </div>
 
-        <div id="result"></div>
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="stat-box">
+                <label>💰 Saldo</label>
+                <span id="balance">5000</span>
+            </div>
+            <div class="stat-box">
+                <label>🎲 Taruhan</label>
+                <div class="bet-controls">
+                    <button class="bet-btn" onclick="changeBet(-10)">-</button>
+                    <span id="bet">100</span>
+                    <button class="bet-btn" onclick="changeBet(10)">+</button>
+                </div>
+            </div>
+            <div class="stat-box">
+                <label>🏆 Jackpot</label>
+                <span id="jackpot">50000</span>
+            </div>
+            <button class="spin-btn" id="spinBtn" onclick="spin()">SPIN!</button>
+            <button class="auto-btn" id="autoBtn" onclick="toggleAutoSpin()">🔄 Auto</button>
+        </div>
 
-        <div class="info-panel">
-            <div class="info-box">
-                Saldo
-                <span id="balance">1000</span>
-            </div>
-            <div class="info-box">
-                Taruhan
-                <span id="bet">50</span>
-            </div>
-            <div class="info-box">
-                Jackpot
-                <span id="jackpot">10000</span>
+        <!-- Hasil -->
+        <div class="result-display" id="result">
+            Selamat datang di Hutan Rimba! Klik SPIN untuk mulai!
+        </div>
+
+        <!-- Input Nama untuk Leaderboard -->
+        <div style="text-align: center; margin: 10px 0;">
+            <input type="text" class="name-input" id="playerName" placeholder="Masukkan nama Anda" maxlength="20">
+            <button class="save-btn" onclick="saveScore()">💾 Simpan Skor</button>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="leaderboard">
+            <h3>🏆 Leaderboard Pemain</h3>
+            <div class="leaderboard-list" id="leaderboardList">
+                <!-- Akan diisi JS -->
             </div>
         </div>
 
+        <!-- Paytable -->
         <div class="paytable">
-            <h3>📋 Tabel Pembayaran</h3>
-            <ul>
-                <li>🐯 Harimau x5 = 1000 | x4 = 200 | x3 = 50</li>
-                <li>🦊 Rubah x5 = 800 | x4 = 150 | x3 = 40</li>
-                <li>🐼 Panda x5 = 600 | x4 = 120 | x3 = 30</li>
-                <li>🐶 Anjing x5 = 500 | x4 = 100 | x3 = 25</li>
-                <li>🐱 Kucing x5 = 400 | x4 = 80 | x3 = 20</li>
-                <li>🐉 <strong>NAGA</strong> x5 = <strong>10000 (Jackpot)</strong> | x4 = 2000 | x3 = 500</li>
-            </ul>
+            <h3>📜 Tabel Pembayaran Hewan</h3>
+            <div class="paytable-grid" id="paytableGrid">
+                <!-- Akan diisi JS -->
+            </div>
         </div>
     </div>
 
     <script>
-        // Simbol dan nilai pembayaran
-        const symbols = [
-            { icon: "🐱", name: "Kucing", pay5: 400, pay4: 80, pay3: 20 },
-            { icon: "🐶", name: "Anjing", pay5: 500, pay4: 100, pay3: 25 },
-            { icon: "🦊", name: "Rubah", pay5: 800, pay4: 150, pay3: 40 },
-            { icon: "🐼", name: "Panda", pay5: 600, pay4: 120, pay3: 30 },
-            { icon: "🐯", name: "Harimau", pay5: 1000, pay4: 200, pay3: 50 },
-            { icon: "🐉", name: "Naga", pay5: 10000, pay4: 2000, pay3: 500 }
+        // Data hewan realistis (SVG)
+        const animals = [
+            {
+                name: "Harimau",
+                icon: `
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="40" r="30" fill="#ff8c00" stroke="#d35400" stroke-width="3"/>
+                    <ellipse cx="30" cy="30" rx="8" ry="6" fill="#fff"/>
+                    <ellipse cx="70" cy="30" rx="8" ry="6" fill="#fff"/>
+                    <circle cx="30" cy="28" r="3" fill="#000"/>
+                    <circle cx="70" cy="28" r="3" fill="#000"/>
+                    <circle cx="50" cy="40" r="6" fill="#ff69b4"/>
+                    <path d="M20,40 L10,30 M20,42 L5,42 M80,40 L90,30 M80,42 L95,42" stroke="#000" stroke-width="3"/>
+                    <path d="M20,60 Q50,80 80,60" fill="#ff8c00" stroke="#d35400" stroke-width="3"/>
+                    <path d="M35,55 L45,60 L35,65" fill="#fff" stroke="#d35400" stroke-width="2"/>
+                </svg>`,
+                pay5: 5000, pay4: 1000, pay3: 200, pay2: 50
+            },
+            {
+                name: "Rusa",
+                icon: `
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="25" fill="#8b6914" stroke="#6b4f12" stroke-width="3"/>
+                    <circle cx="42" cy="45" r="4" fill="#000"/>
+                    <circle cx="58" cy="45" r="4" fill="#000"/>
+                    <path d="M20,40 L5,25 L15,25 L5,15" stroke="#6b4f12" stroke-width="4" fill="none"/>
+                    <path d="M80,40 L95,25 L85,25 L95,15" stroke="#6b4f12" stroke-width="4" fill="none"/>
+                    <circle cx="50" cy="55" r="8" fill="#6b4f12"/>
+                    <path d="M35,65 Q50,75 65,65" fill="#8b6914"/>
+                </svg>`,
+                pay5: 4000, pay4: 800, pay3: 150, pay2: 30
+            },
+            {
+                name: "Serigala",
+                icon: `
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="40" r="28" fill="#7f8c8d" stroke="#5d6d7e" stroke-width="3"/>
+                    <path d="M25,35 L15,20 L35,30" fill="#7f8c8d" stroke="#5d6d7e" stroke-width="2"/>
+                    <path d="M75,35 L85,20 L65,30" fill="#7f8c8d" stroke="#5d6d7e" stroke-width="2"/>
+                    <circle cx="38" cy="35" r="5" fill="#f39c12"/>
+                    <circle cx="38" cy="35" r="2" fill="#000"/>
+                    <circle cx="62" cy="35" r="5" fill="#f39c12"/>
+                    <circle cx="62" cy="35" r="2" fill="#000"/>
+                    <path d="M30,55 Q50,65 70,55" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+                </svg>`,
+                pay5: 3500, pay4: 700, pay3: 120, pay2: 20
+            },
+            {
+                name: "Elang",
+                icon: `
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="35" r="20" fill="#f39c12" stroke="#e67e22" stroke-width="3"/>
+                    <path d="M25,35 Q10,20 5,40 Q20,35 30,45" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+                    <path d="M75,35 Q90,20 95,40 Q80,35 70,45" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+                    <circle cx="42" cy="30" r="4" fill="#000"/>
+                    <circle cx="58" cy="30" r="4" fill="#000"/>
+                    <path d="M45,40 Q50,48 55,40" stroke="#d35400" stroke-width="2" fill="none"/>
+                    <path d="M35,55 Q50,70 65,55" fill="#f39c12" stroke="#e67e22" stroke-width="2"/>
+                </svg>`,
+                pay5: 3000, pay4: 600, pay3: 100, pay2: 15
+            },
+            {
+                name: "Beruang",
+                icon: `
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="45" r="30" fill="#5d4037" stroke="#3e2723" stroke-width="3"/>
+                    <circle cx="35" cy="30" r="15" fill="#5d4037" stroke="#3e2723" stroke-width="2"/>
+                    <circle cx="65" cy="30" r="15" fill="#5d4037" stroke="#3e2723" stroke-width="2"/>
+                    <circle cx="35" cy="30" r="5" fill="#8d6e63"/>
+                    <circle cx="65" cy="30" r="5" fill="#8d6e63"/>
+                    <circle cx="42" cy="40" r="5" fill="#000"/>
+                    <circle cx="58" cy="40" r="5" fill="#000"/>
+                    <circle cx="50" cy="48" r="8" fill="#5d4037"/>
+                    <path d="M30,60 Q50,75 70,60" fill="#8d6e63" stroke="#5d4037" stroke-width="2"/>
+                </svg>`,
+                pay5: 2500, pay4: 500, pay3: 80, pay2: 10
+            },
+            {
+                name: "Rubah",
+                icon: `
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="42" r="25" fill="#e67e22" stroke="#d35400" stroke-width="3"/>
+                    <path d="M25,35 L12,15 L35,28" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+                    <path d="M75,35 L88,15 L65,28" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+                    <circle cx="42" cy="38" r="4" fill="#000"/>
+                    <circle cx="58" cy="38" r="4" fill="#000"/>
+                    <path d="M35,55 Q50,65 65,55" fill="#fff" stroke="#d35400" stroke-width="2"/>
+                    <circle cx="50" cy="50" r="3" fill="#e74c3c"/>
+                </svg>`,
+                pay5: 2000, pay4: 400, pay3: 60, pay2: 5
+            },
+            {
+                name: "Singa",
+                icon: `
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="45" r="30" fill="#f1c40f" stroke="#d4ac0d" stroke-width="3"/>
+                    <path d="M20,35 L5,25 M20,45 L3,45 M20,55 L5,65" stroke="#d4ac0d" stroke-width="4" fill="none"/>
+                    <path d="M80,35 L95,25 M80,45 L97,45 M80,55 L95,65" stroke="#d4ac0d" stroke-width="4" fill="none"/>
+                    <circle cx="42" cy="40" r="5" fill="#000"/>
+                    <circle cx="58" cy="40" r="5" fill="#000"/>
+                    <path d="M30,55 Q50,70 70,55" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+                </svg>`,
+                pay5: 1500, pay4: 300, pay3: 40, pay2: 0
+            },
+            {
+                name: "Kelinci",
+                icon: `
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="55" r="20" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3"/>
+                    <ellipse cx="40" cy="25" rx="8" ry="20" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3"/>
+                    <ellipse cx="60" cy="25" rx="8" ry="20" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3"/>
+                    <circle cx="45" cy="52" r="4" fill="#e74c3c"/>
+                    <circle cx="55" cy="52" r="4" fill="#e74c3c"/>
+                    <path d="M35,65 Q50,75 65,65" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="2"/>
+                </svg>`,
+                pay5: 1000, pay4: 200, pay3: 25, pay2: 0
+            },
+            {
+                name: "Landak",
+                icon: `
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="55" r="20" fill="#95a5a6" stroke="#7f8c8d" stroke-width="3"/>
+                    <path d="M20,50 L10,40 L20,45 M15,55 L5,55 M20,60 L10,70" stroke="#7f8c8d" stroke-width="4" fill="none"/>
+                    <path d="M80,50 L90,40 L80,45 M85,55 L95,55 M80,60 L90,70" stroke="#7f8c8d" stroke-width="4" fill="none"/>
+                    <circle cx="45" cy="52" r="3" fill="#000"/>
+                    <circle cx="55" cy="52" r="3" fill="#000"/>
+                    <circle cx="50" cy="58" r="4" fill="#e74c3c"/>
+                </svg>`,
+                pay5: 800, pay4: 150, pay3: 15, pay2: 0
+            },
+            {
+                name: "Burung Hantu",
+                icon: `
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="45" r="25" fill="#8e44ad" stroke="#6c3483" stroke-width="3"/>
+                    <circle cx="40" cy="38" r="8" fill="#f39c12" stroke="#d4ac0d" stroke-width="2"/>
+                    <circle cx="60" cy="38" r="8" fill="#f39c12" stroke="#d4ac0d" stroke-width="2"/>
+                    <circle cx="40" cy="38" r="4" fill="#000"/>
+                    <circle cx="60" cy="38" r="4" fill="#000"/>
+                    <path d="M25,50 L15,60 M75,50 L85,60" stroke="#6c3483" stroke-width="3" fill="none"/>
+                    <path d="M35,55 Q50,62 65,55" fill="#f39c12"/>
+                </svg>`,
+                pay5: 600, pay4: 100, pay3: 10, pay2: 0
+            },
+            {
+                name: "Ular",
+                icon: `
+                <svg viewBox="0 0 100 100">
+                    <path d="M20,50 Q50,20 80,50 Q95,70 80,85 Q65,95 50,80" fill="#27ae60" stroke="#1e8449" stroke-width="3"/>
+                    <circle cx="20" cy="50" r="8" fill="#27ae60" stroke="#1e8449" stroke-width="2"/>
+                    <circle cx="20" cy="50" r="3" fill="#000"/>
+                    <path d="M15,45 L8,40 M15,55 L8,60" stroke="#1e8449" stroke-width="3" fill="none"/>
+                </svg>`,
+                pay5: 500, pay4: 80, pay3: 5, pay2: 0
+            },
+            {
+                name: "Naga",
+                icon: `
+                <svg viewBox="0 0 100 100">
+                    <path d="M20,50 Q40,20 60,50 Q80,70 70,85" fill="#e74c3c" stroke="#c0392b" stroke-width="3"/>
+                    <path d="M15,45 L5,30 L20,35 M15,55 L5,70 L20,65" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+                    <circle cx="45" cy="45" r="10" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+                    <circle cx="45" cy="45" r="4" fill="#f1c40f"/>
+                    <circle cx="45" cy="45" r="2" fill="#000"/>
+                    <path d="M55,50 Q70,40 80,50" fill="none" stroke="#e74c3c" stroke-width="2"/>
+                    <path d="M60,55 Q75,65 85,55" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+                    <circle cx="65" cy="80" r="15" fill="#f1c40f" stroke="#e67e22" stroke-width="2" opacity="0.5"/>
+                </svg>`,
+                pay5: 50000, pay4: 10000, pay3: 1000, pay2: 100
+            }
         ];
 
-        let balance = 1000;
-        const baseBet = 50;
+        // State game
+        let balance = 5000;
+        let currentBet = 100;
+        let isSpinning = false;
+        let isAutoSpin = false;
+        let autoSpinInterval = null;
+        let soundEnabled = true;
+        let gameResult = {
+            totalWin: 0,
+            isJackpot: false,
+            timestamp: null
+        };
 
-        // Fungsi putar
-        function spin() {
-            const spinBtn = document.getElementById('spinBtn');
-            const resultDiv = document.getElementById('result');
+        // Audio Context untuk efek suara
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Efek suara spin
+        function playSpinSound() {
+            if (!soundEnabled || !audioCtx) return;
             
-            // Cek saldo
-            if (balance < baseBet) {
-                resultDiv.innerHTML = "❌ Saldo tidak cukup!";
-                resultDiv.className = "lose-text";
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.frequency.setValueAtTime(200, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.5);
+            
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.5);
+        }
+
+        // Efek suara menang
+        function playWinSound() {
+            if (!soundEnabled || !audioCtx) return;
+            
+            const notes = [523.25, 659.25, 783.99];
+            notes.forEach((freq, index) => {
+                setTimeout(() => {
+                    const oscillator = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    
+                    oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.3);
+                }, index * 100);
+            });
+        }
+
+        // Efek suara jackpot
+        function playJackpotSound() {
+            if (!soundEnabled || !audioCtx) return;
+            
+            const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
+            notes.forEach((freq, index) => {
+                setTimeout(() => {
+                    const oscillator = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    
+                    oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    oscillator.type = 'triangle';
+                    
+                    gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.5);
+                }, index * 150);
+            });
+        }
+
+        // Efek suara kalah
+        function playLoseSound() {
+            if (!soundEnabled || !audioCtx) return;
+            
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.4);
+            
+            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.4);
+        }
+
+        // Suara burung hutan
+        function playBirdSound() {
+            if (!soundEnabled || !audioCtx) return;
+            
+            // Suara burung acak
+            const randomBird = Math.floor(Math.random() * 3);
+            const freqs = [[880, 1100], [660, 880], [990, 1320]];
+            
+            const [freq1, freq2] = freqs[randomBird];
+            
+            setTimeout(() => {
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.frequency.setValueAtTime(freq1, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(freq2, audioCtx.currentTime + 0.1);
+                
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.2);
+            }, Math.random() * 3000);
+        }
+
+        // Toggle suara
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const soundBtn = document.getElementById('soundBtn');
+            soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
+            if (soundEnabled) {
+                initAudio();
+                playBirdSound();
+            }
+        }
+
+        // Generate partikel emas
+        function generateGoldParticles() {
+            const container = document.getElementById('goldParticles');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.width = (Math.random() * 15 + 5) + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                particle.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // Generate 12 gulungan (3 baris x 4 kolom)
+        function generateReels() {
+            const grid = document.getElementById('slotGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < 12; i++) {
+                const reel = document.createElement('div');
+                reel.className = 'reel';
+                reel.id = `reel-${i}`;
+                reel.innerHTML = animals[Math.floor(Math.random() * animals.length)].icon;
+                grid.appendChild(reel);
+            }
+        }
+
+        // Generate paytable
+        function generatePaytable() {
+            const paytable = document.getElementById('paytableGrid');
+            paytable.innerHTML = '';
+            
+            animals.forEach(animal => {
+                const payItem = document.createElement('div');
+                payItem.className = 'pay-item';
+                payItem.innerHTML = `
+                    <div class="animal-icon">${animal.name}</div>
+                    <div style="font-size: 0.8em;">x5: ${animal.pay5}</div>
+                    <div style="font-size: 0.8em;">x4: ${animal.pay4}</div>
+                    <div style="font-size: 0.8em;">x3: ${animal.pay3}</div>
+                `;
+                paytable.appendChild(payItem);
+            });
+        }
+
+        // Load leaderboard dari localStorage
+        function loadLeaderboard() {
+            const saved = localStorage.getItem('forestLeaderboard');
+            return saved ? JSON.parse(saved) : [];
+        }
+
+        // Save leaderboard ke localStorage
+        function saveLeaderboard(data) {
+            localStorage.setItem('forestLeaderboard', JSON.stringify(data));
+        }
+
+        // Display leaderboard
+        function displayLeaderboard() {
+            const leaderboard = loadLeaderboard();
+            const listEl = document.getElementById('leaderboardList');
+            listEl.innerHTML = '';
+            
+            if (leaderboard.length === 0) {
+                listEl.innerHTML = '<p style="text-align: center;">Belum ada pemain. Jadilah yang pertama!</p>';
                 return;
             }
 
-            // Kurangi saldo
-            balance -= baseBet;
+            leaderboard.slice(0, 10).forEach((player, index) => {
+                const item = document.createElement('div');
+                item.className = `leaderboard-item rank-${index + 1}`;
+                item.innerHTML = `
+                    <span class="leaderboard-name">${index + 1}. ${player.name}</span>
+                    <span class="leaderboard-score">💰 ${player.score}</span>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        // Save skor pemain
+        function saveScore() {
+            const nameInput = document.getElementById('playerName');
+            const playerName = nameInput.value.trim();
+            
+            if (!playerName) {
+                alert('Mohon masukkan nama Anda!');
+                return;
+            }
+
+            const leaderboard = loadLeaderboard();
+            
+            // Tambah skor baru
+            leaderboard.push({
+                name: playerName,
+                score: balance,
+                timestamp: Date.now()
+            });
+
+            // Sort berdasarkan skor tertinggi
+            leaderboard.sort((a, b) => b.score - a.score);
+
+            // Ambil top 10 saja
+            const top10 = leaderboard.slice(0, 10);
+
+            // Simpan
+            saveLeaderboard(top10);
+            displayLeaderboard();
+            
+            // Reset input
+            nameInput.value = '';
+            alert('Skor Anda berhasil disimpan! 🎉');
+        }
+
+        // Ubah taruhan
+        function changeBet(delta) {
+            const newBet = Math.max(10, Math.min(1000, currentBet + delta));
+            currentBet = newBet;
+            document.getElementById('bet').textContent = currentBet;
+        }
+
+        // Auto spin toggle
+        function toggleAutoSpin() {
+            isAutoSpin = !isAutoSpin;
+            const autoBtn = document.getElementById('autoBtn');
+            autoBtn.style.background = isAutoSpin ? 'linear-gradient(145deg, #ff4444, #cc0000)' : 'linear-gradient(145deg, #4a9d4a, #2d7a2d)';
+            
+            if (isAutoSpin) {
+                autoBtn.textContent = '⏹ Stop';
+                startAutoSpin();
+            } else {
+                autoBtn.textContent = '🔄 Auto';
+                stopAutoSpin();
+            }
+        }
+
+        function startAutoSpin() {
+            if (balance < currentBet) {
+                alert('Saldo tidak cukup untuk autospin!');
+                toggleAutoSpin();
+                return;
+            }
+            spin();
+            autoSpinInterval = setInterval(() => {
+                if (!isAutoSpin || balance < currentBet) {
+                    toggleAutoSpin();
+                    return;
+                }
+                spin();
+            }, 2000);
+        }
+
+        function stopAutoSpin() {
+            if (autoSpinInterval) {
+                clearInterval(autoSpinInterval);
+                autoSpinInterval = null;
+            }
+        }
+
+        // Fungsi spin
+        function spin() {
+            if (isSpinning) return;
+            if (balance < currentBet) {
+                document.getElementById('result').innerHTML = '❌ Saldo tidak cukup!';
+                return;
+            }
+
+            isSpinning = true;
+            balance -= currentBet;
             document.getElementById('balance').textContent = balance;
-
-            // Disable tombol
+            
+            const spinBtn = document.getElementById('spinBtn');
             spinBtn.disabled = true;
-            resultDiv.textContent = "";
 
-            // Animasi spinning
+            // Play sound
+            playSpinSound();
+
+            // Animasi semua gulungan
             const reels = document.querySelectorAll('.reel');
+            const intervals = [];
+
+            // Reset hasil
+            document.getElementById('result').className = 'result-display';
+
             reels.forEach((reel, index) => {
                 reel.classList.add('spinning');
-                // Ganti simbol acak selama animasi
+                reel.classList.remove('win', 'dragon-win');
+
+                // Interval untuk mengganti simbol acak
                 const interval = setInterval(() => {
-                    const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
-                    reel.textContent = randomSymbol.icon;
+                    const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
+                    reel.innerHTML = randomAnimal.icon;
                 }, 80);
 
-                // Hentikan animasi setelah 500ms + delay bertingkat
+                intervals.push(interval);
+
+                // Setelah animasi selesai, set hasil akhir
                 setTimeout(() => {
                     clearInterval(interval);
                     reel.classList.remove('spinning');
 
-                    // Set hasil akhir
-                    const result = generateResult();
-                    const reelResults = result.reels;
-                    reel.textContent = reelResults[index].icon;
+                    // Generate hasil akhir untuk reel ini
+                    const finalAnimal = animals[Math.floor(Math.random() * animals.length)];
+                    reel.innerHTML = finalAnimal.icon;
+                    reel.dataset.animal = finalAnimal.name;
 
-                    // Highlight jika menang atau dragon
-                    if (reelResults[index].name === "Naga") {
-                        reel.classList.add('dragon');
-                    } else {
-                        reel.classList.remove('dragon');
-                    }
-
-                    // Setelah semua berhenti, cek kemenangan
+                    // Jika ini gulungan terakhir, cek hasil
                     if (index === reels.length - 1) {
-                        checkWin(result.reels, result.payout);
-                        spinBtn.disabled = false;
+                        checkWin();
                     }
-                }, 500 + (index * 200));
-            });
-        }
-
-        // Generate hasil acak
-        function generateResult() {
-            const reels = [];
-            for (let i = 0; i < 5; i++) {
-                const symbol = symbols[Math.floor(Math.random() * symbols.length)];
-                reels.push(symbol);
-            }
-
-            // Hitung payout
-            const payout = calculatePayout(reels);
-            return { reels, payout };
-        }
-
-        // Hitung pembayaran
-        function calculatePayout(reels) {
-            // Hitung kemunculan setiap simbol
-            const counts = {};
-            reels.forEach(reel => {
-                counts[reel.name] = (counts[reel.name] || 0) + 1;
+                }, 800 + (index * 100));
             });
 
-            let totalWin = 0;
-            let winDetails = [];
-
-            // Cek setiap simbol
-            Object.keys(counts).forEach(symbolName => {
-                const count = counts[symbolName];
-                const symbolData = symbols.find(s => s.name === symbolName);
-
-                if (count === 5) {
-                    totalWin += symbolData.pay5;
-                    winDetails.push({ symbol: symbolName, count: 5, amount: symbolData.pay5 });
-                } else if (count === 4) {
-                    totalWin += symbolData.pay4;
-                    winDetails.push({ symbol: symbolName, count: 4, amount: symbolData.pay4 });
-                } else if (count === 3) {
-                    totalWin += symbolData.pay3;
-                    winDetails.push({ symbol: symbolName, count: 3, amount: symbolData.pay3 });
-                }
-            });
-
-            return { amount: totalWin, details: winDetails };
+            setTimeout(() => {
+                spinBtn.disabled = false;
+                isSpinning = false;
+            }, 800 + (reels.length * 100));
         }
 
         // Cek kemenangan
-        function checkWin(reels, payout) {
+        function checkWin() {
             const resultDiv = document.getElementById('result');
-
-            // Highlight reel yang menang
-            const reelElements = document.querySelectorAll('.reel');
+            const reels = document.querySelectorAll('.reel');
+            
+            // Hitung semua hewan
             const counts = {};
             reels.forEach(reel => {
-                counts[reel.name] = (counts[reel.name] || 0) + 1;
+                const animal = reel.dataset.animal;
+                counts[animal] = (counts[animal] || 0) + 1;
             });
 
-            reelElements.forEach((reelElement, index) => {
-                const symbolName = reels[index].name;
-                const count = counts[symbolName];
-                if (count >= 3) {
-                    reelElement.classList.add('win');
+            let totalWin = 0;
+            let winMessages = [];
+            let isJackpot = false;
+
+            // Cek setiap hewan
+            Object.keys(counts).forEach(animalName => {
+                const count = counts[animalName];
+                const animalData = animals.find(a => a.name === animalName);
+
+                if (count >= 5 && animalData.pay5 > 0) {
+                    totalWin += animalData.pay5;
+                    winMessages.push(`${animalName} x${count} = ${animalData.pay5}`);
+                    
+                    // Highlight reel dengan hewan ini
+                    reels.forEach((reel, index) => {
+                        if (reel.dataset.animal === animalName) {
+                            if (animalName === 'Naga') {
+                                reel.classList.add('dragon-win');
+                                isJackpot = true;
+                            } else {
+                                reel.classList.add('win');
+                            }
+                        }
+                    });
+                } else if (count === 4 && animalData.pay4 > 0) {
+                    totalWin += animalData.pay4;
+                    winMessages.push(`${animalName} x4 = ${animalData.pay4}`);
+                    
+                    reels.forEach((reel) => {
+                        if (reel.dataset.animal === animalName) {
+                            reel.classList.add('win');
+                        }
+                    });
+                } else if (count === 3 && animalData.pay3 > 0) {
+                    totalWin += animalData.pay3;
+                    winMessages.push(`${animalName} x3 = ${animalData.pay3}`);
+                    
+                    reels.forEach((reel) => {
+                        if (reel.dataset.animal === animalName) {
+                            reel.classList.add('win');
+                        }
+                    });
                 }
             });
 
-            // Tampilkan hasil
-            if (payout.amount > 0) {
-                balance += payout.amount;
+            if (totalWin > 0) {
+                balance += totalWin;
                 document.getElementById('balance').textContent = balance;
-
-                // Cek apakah ada Naga menang
-                const nagaWin = payout.details.find(d => d.symbol === "Naga");
                 
-                if (nagaWin && nagaWin.count === 5) {
-                    resultDiv.innerHTML = `🐉🎉 JACKPOT NAGA! Menang ${payout.amount}!`;
-                    resultDiv.className = "dragon-text";
-                } else {
-                    resultDiv.innerHTML = `🎉 Menang ${payout.amount}!`;
-                    resultDiv.className = "win-text";
-                }
+                gameResult = {
+                    totalWin: totalWin,
+                    isJackpot: isJackpot,
+                    timestamp: Date.now()
+                };
 
-                // Tampilkan detail
-                let detailText = "";
-                payout.details.forEach(d => {
-                    detailText += ` ${d.symbol} x${d.count} = ${d.amount} |`;
-                });
-                resultDiv.innerHTML += `<br><small>${detailText}</small>`;
+                // Cek apakah Naga menang
+                if (isJackpot) {
+                    resultDiv.innerHTML = `🐉🎉 JACKPOT NAGA! Menang ${totalWin}!`;
+                    resultDiv.className = 'result-display jackpot';
+                    playJackpotSound();
+                    generateGoldParticles();
+                } else {
+                    resultDiv.innerHTML = `🎉 Menang ${totalWin}!<br><small>${winMessages.join(' | ')}</small>`;
+                    resultDiv.className = 'result-display win';
+                    playWinSound();
+                }
             } else {
                 resultDiv.innerHTML = "Belum beruntung, coba lagi!";
-                resultDiv.className = "lose-text";
+                resultDiv.className = 'result-display lose';
+                playLoseSound();
             }
         }
+
+        // Inisialisasi
+        function init() {
+            // Init audio pada interaksi pertama
+            document.addEventListener('click', function initAudioOnce() {
+                initAudio();
+                playBirdSound();
+                document.removeEventListener('click', initAudioOnce);
+            });
+
+            generateReels();
+            generatePaytable();
+            displayLeaderboard();
+            
+            // Suara burung berkala
+            setInterval(playBirdSound, 5000);
+        }
+
+        // Jalankan inisialisasi
+        init();
     </script>
 </body>
-</html>
+    </html>
