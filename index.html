@@ -1312,11 +1312,11 @@
             document.querySelectorAll('#topupOptions .topup-option').forEach(opt => opt.classList.remove('selected'));
             document.getElementById('topupModal').classList.add('show');
         }
-
+        
         function closeTopUp() {
             document.getElementById('topupModal').classList.remove('show');
         }
-
+        
         function selectTopUp(amount) {
             selectedTopUp = amount;
             const options = document.querySelectorAll('#topupOptions .topup-option');
@@ -1327,26 +1327,29 @@
                 }
             });
         }
-
+        
         function processPayment() {
             if (selectedTopUp === 0) {
                 alert('Pilih nominal top up terlebih dahulu!');
                 return;
             }
-
+            
             let bonus = 0;
             if (selectedTopUp >= 200000) bonus = 30;
             else if (selectedTopUp >= 100000) bonus = 20;
             else if (selectedTopUp >= 50000) bonus = 10;
-
+            
             const totalDeposit = selectedTopUp + (selectedTopUp * bonus / 100);
             
-            balance += totalDeposit;
-            db.ref('users/' + currentUserId + '/balance').set(balance);
-            document.getElementById('balance').textContent = 'Rp ' + balance.toLocaleString('id-ID');
+            // Simpan nominal ke localStorage
+            localStorage.setItem('pendingTopUpAmount', totalDeposit);
+            localStorage.setItem('pendingTopUpBaseAmount', selectedTopUp);
             
-            alert(`✅ Top up berhasil! Saldo: Rp ${balance.toLocaleString('id-ID')}`);
+            // Tutup modal
             closeTopUp();
+            
+            // Arahkan ke halaman pembayaran QRIS
+            window.location.href = 'pembayaran.html';
         }
 
         // ========== WITHDRAW ==========
