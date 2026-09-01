@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dragons-hunter-v3';
+const CACHE_NAME = 'dragons-hunter-v4';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -78,45 +78,45 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache First untuk file lainnya
+  // Cache First dengan revalidation untuk file lainnya
   event.respondWith(
     caches.match(event.request)
       .then((cachedResponse) => {
+        const fetchPromise = fetch(event.request)
+          .then((response) => {
+            if (response && response.status === 200 && response.type !== 'opaque') {
+              const responseToCache = response.clone();
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(event.request, responseToCache);
+              });
+            }
+            return response;
+          })
+          .catch(() => cachedResponse);
+
+        // Return cached response immediately, update in background
         if (cachedResponse) {
           return cachedResponse;
         }
 
-        return fetch(event.request)
-          .then((response) => {
-            if (!response || response.status !== 200 || response.type === 'opaque') {
-              return response;
-            }
-
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          })
-          .catch(() => {
-            if (event.request.mode === 'navigate') {
-              return caches.match('/login.html');
-            }
-          });
+        return fetchPromise;
+      })
+      .catch(() => {
+        if (event.request.mode === 'navigate') {
+          return caches.match('/login.html');
+        }
       })
   );
 });
 
-// Message handler untuk update cache
+// Message handler
 self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
 
-// Notifikasi push (opsional)
+// Push notification
 self.addEventListener('push', (event) => {
   const data = event.data.json();
   
@@ -135,7 +135,7 @@ self.addEventListener('push', (event) => {
   );
 });
 
-// Klik notifikasi
+// Notification click
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   
