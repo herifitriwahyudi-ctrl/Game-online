@@ -6,57 +6,534 @@
     <title>🛡️ Admin Panel - Dragons Hunter</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Georgia', serif; background: url('background-dragon.png') no-repeat center center fixed; background-size: cover; background-color: #0a1f14; min-height: 100vh; overflow-x: hidden; color: #fff; }
-        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 31, 20, 0.85); z-index: -1; pointer-events: none; }
-
-        .login-container { max-width: 400px; width: 90%; margin: 100px auto; padding: 30px; background: linear-gradient(145deg, #2a1f0e, #1a1208); border-radius: 30px; border: 4px solid #8b6914; box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3); text-align: center; }
-        .login-container h2 { color: #ffd700; margin-bottom: 20px; font-size: 2em; }
-        .login-container input { width: 100%; background: #1a1208; border: 2px solid #8b6914; border-radius: 10px; padding: 12px; color: #fff; font-size: 1em; margin-bottom: 15px; }
-        .login-btn { width: 100%; background: linear-gradient(145deg, #ffd700, #ffaa00); border: none; padding: 15px; font-size: 1.2em; font-weight: bold; border-radius: 50px; cursor: pointer; color: #3d1e00; }
-        .message { margin-top: 15px; padding: 10px; border-radius: 8px; font-size: 0.9em; display: none; }
-        .message.error { background: rgba(255,68,68,0.2); border: 2px solid #ff4444; color: #ff6666; display: block; }
-
-        .dashboard-container { max-width: 1200px; width: 95%; margin: 20px auto; padding: 20px; background: linear-gradient(145deg, #2a1f0e, #1a1208); border-radius: 30px; border: 4px solid #8b6914; box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3); position: relative; z-index: 10; display: none; }
-        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .dashboard-header h2 { color: #ffd700; font-size: 1.8em; }
-        .logout-btn { background: linear-gradient(145deg, #ff4444, #cc0000); border: none; padding: 10px 20px; font-size: 0.9em; font-weight: bold; border-radius: 50px; cursor: pointer; color: #fff; }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-box { background: rgba(255,255,255,0.05); border: 2px solid #8b6914; border-radius: 15px; padding: 20px; text-align: center; }
-        .stat-box h3 { color: #ffd700; font-size: 0.9em; margin-bottom: 10px; }
-        .stat-box .value { font-size: 2em; font-weight: bold; color: #fff; }
-
-        .search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-bar input { flex: 1; background: #1a1208; border: 2px solid #8b6914; border-radius: 10px; padding: 12px; color: #fff; font-size: 1em; }
-
-        .table-wrapper { overflow-x: auto; border-radius: 15px; border: 2px solid #8b6914; max-height: 600px; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; background: rgba(0,0,0,0.3); }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid rgba(139,105,20,0.3); font-size: 0.9em; white-space: nowrap; }
-        th { background: rgba(255,215,0,0.1); color: #ffd700; font-weight: bold; position: sticky; top: 0; z-index: 2; }
-        tr:hover { background: rgba(255,255,255,0.05); }
-
-        .method-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }
-        .method-ewallet { background: rgba(0,191,255,0.2); border: 1px solid #00bfff; color: #00bfff; }
-        .method-bank { background: rgba(255,215,0,0.2); border: 1px solid #ffd700; color: #ffd700; }
-        .copy-btn { background: rgba(255,255,255,0.1); border: 1px solid #aaa; color: #fff; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.8em; margin-left: 5px; }
-
-        .action-btns { display: flex; gap: 5px; }
-        .edit-btn, .delete-btn { border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8em; font-weight: bold; }
-        .edit-btn { background: linear-gradient(145deg, #ffd700, #ffaa00); color: #3d1e00; }
-        .delete-btn { background: linear-gradient(145deg, #ff4444, #cc0000); color: #fff; }
-
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
-        .modal.show { opacity: 1; pointer-events: auto; }
-        .modal-content { background: linear-gradient(145deg, #2a1f0e, #1a1208); border-radius: 30px; border: 4px solid #8b6914; padding: 30px; text-align: center; max-width: 400px; width: 90%; }
-        .modal-content h3 { color: #ffd700; margin-bottom: 20px; font-size: 1.5em; }
-        .modal-content input { width: 100%; background: #1a1208; border: 2px solid #8b6914; border-radius: 10px; padding: 12px; color: #fff; font-size: 1em; margin-bottom: 20px; }
-        .modal-btns { display: flex; gap: 10px; }
-        .modal-btns button { flex: 1; border: none; padding: 12px; border-radius: 50px; cursor: pointer; font-size: 1em; font-weight: bold; }
-        .modal-save { background: linear-gradient(145deg, #00ff88, #00cc66); color: #1a1a1a; }
-        .modal-close { background: rgba(255,255,255,0.1); border: 2px solid #ff4444 !important; color: #ff4444; }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: url('background-dragon.png') no-repeat center center fixed;
+            background-size: cover;
+            background-color: #0a1f14;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 31, 20, 0.85);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* Background Hutan */
+        .forest-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .tree {
+            position: absolute;
+            bottom: 0;
+            width: 120px; height: 200px;
+            background: linear-gradient(180deg, #2d5a27, #1a3d15);
+            border-radius: 10px 10px 0 0;
+            animation: sway 5s ease-in-out infinite;
+        }
+        
+        .tree::before {
+            content: '';
+            position: absolute;
+            top: -40px; left: -20px;
+            width: 160px; height: 80px;
+            background: linear-gradient(135deg, #3a7d30, #2d5a27);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        
+        .tree:nth-child(1) { left: 10px; }
+        .tree:nth-child(2) { left: 15%; height: 240px; animation-delay: 1s; }
+        .tree:nth-child(3) { right: 10%; height: 180px; animation-delay: 2s; }
+        .tree:nth-child(4) { right: 20px; height: 260px; animation-delay: 3s; }
+        .tree:nth-child(5) { left: 40%; height: 220px; animation-delay: 4s; }
+        .tree:nth-child(6) { right: 40%; height: 200px; animation-delay: 5s; }
+        
+        .fireflies {
+            position: absolute;
+            width: 6px; height: 6px;
+            background: #ffe066;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffe066;
+            animation: fly 8s infinite;
+        }
+        
+        .fireflies:nth-child(7) { top: 30%; left: 20%; animation-delay: 0s; }
+        .fireflies:nth-child(8) { top: 50%; left: 80%; animation-delay: 2s; }
+        .fireflies:nth-child(9) { top: 70%; left: 50%; animation-delay: 4s; }
+        .fireflies:nth-child(10) { top: 40%; left: 70%; animation-delay: 6s; }
+        .fireflies:nth-child(11) { top: 60%; left: 30%; animation-delay: 1s; }
+        .fireflies:nth-child(12) { top: 20%; left: 60%; animation-delay: 3s; }
+        .fireflies:nth-child(13) { top: 80%; left: 90%; animation-delay: 5s; }
+        .fireflies:nth-child(14) { top: 45%; left: 10%; animation-delay: 7s; }
+        
+        .moon {
+            position: absolute;
+            top: 50px; right: 100px;
+            width: 80px; height: 80px;
+            background: radial-gradient(circle, #fff, #f1c40f);
+            border-radius: 50%;
+            box-shadow: 0 0 40px #f1c40f, 0 0 80px rgba(241,196,15,0.3);
+            animation: moonGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+        
+        @keyframes fly {
+            0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+            25% { transform: translate(15px, -20px); opacity: 1; }
+            50% { transform: translate(-10px, -35px); opacity: 0.6; }
+            75% { transform: translate(20px, -15px); opacity: 0.8; }
+        }
+        
+        @keyframes moonGlow {
+            from { box-shadow: 0 0 40px #f1c40f; }
+            to { box-shadow: 0 0 60px #f1c40f, 0 0 100px rgba(241,196,15,0.5); }
+        }
+        
+        /* Login Container */
+        .login-container {
+            max-width: 400px;
+            width: 90%;
+            margin: 100px auto;
+            padding: 30px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+            text-align: center;
+        }
+        
+        .login-container h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .login-container input {
+            width: 100%;
+            background: #1a1208;
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 12px;
+            color: #fff;
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+        
+        .login-container input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255,215,0,0.4);
+            transition: all 0.3s ease;
+            color: #3d1e00;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,215,0,0.6);
+        }
+        
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            display: none;
+        }
+        
+        .message.error {
+            background: rgba(255,68,68,0.2);
+            border: 2px solid #ff4444;
+            color: #ff6666;
+            display: block;
+        }
+        
+        /* Dashboard Container */
+        .dashboard-container {
+            max-width: 1200px;
+            width: 95%;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+            position: relative;
+            z-index: 10;
+            display: none;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .dashboard-header h2 {
+            color: #ffd700;
+            font-size: 1.8em;
+            text-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .logout-btn {
+            background: linear-gradient(145deg, #ff4444, #cc0000);
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(255,68,68,0.4);
+            transition: all 0.3s ease;
+            color: #fff;
+        }
+        
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,68,68,0.6);
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid #8b6914;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-box h3 {
+            color: #ffd700;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .stat-box .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            background: #1a1208;
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 12px;
+            color: #fff;
+            font-size: 1em;
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        /* Table Wrapper */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 15px;
+            border: 2px solid #8b6914;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(0,0,0,0.3);
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(139,105,20,0.3);
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+        
+        th {
+            background: rgba(255,215,0,0.1);
+            color: #ffd700;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        
+        tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        /* Method Badge */
+        .method-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .method-ewallet {
+            background: rgba(0,191,255,0.2);
+            border: 1px solid #00bfff;
+            color: #00bfff;
+        }
+        
+        .method-bank {
+            background: rgba(255,215,0,0.2);
+            border: 1px solid #ffd700;
+            color: #ffd700;
+        }
+        
+        .copy-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #aaa;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* Action Buttons */
+        .action-btns {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .edit-btn, .delete-btn {
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .edit-btn {
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            color: #3d1e00;
+        }
+        
+        .edit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(255,215,0,0.4);
+        }
+        
+        .delete-btn {
+            background: linear-gradient(145deg, #ff4444, #cc0000);
+            color: #fff;
+        }
+        
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(255,68,68,0.4);
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal-content {
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+        }
+        
+        .modal-content h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .modal-content label {
+            color: #ffd700;
+            margin-bottom: 10px;
+            display: block;
+            text-align: left;
+        }
+        
+        .modal-content input {
+            width: 100%;
+            background: #1a1208;
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 12px;
+            color: #fff;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        
+        .modal-content input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .modal-btns button {
+            flex: 1;
+            border: none;
+            padding: 12px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-save {
+            background: linear-gradient(145deg, #00ff88, #00cc66);
+            color: #1a1a1a;
+        }
+        
+        .modal-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,255,136,0.4);
+        }
+        
+        .modal-close {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #ff4444 !important;
+            color: #ff4444;
+        }
+        
+        .modal-close:hover {
+            background: rgba(255,68,68,0.2);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                margin: 10px;
+                padding: 10px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .search-bar {
+                flex-direction: column;
+            }
+            
+            .search-bar input {
+                width: 100%;
+            }
+            
+            th, td {
+                font-size: 0.8em;
+                padding: 8px 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Background -->
+    <div class="forest-bg">
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="moon"></div>
+    </div>
+
+    <!-- Login Form -->
     <div class="login-container" id="loginForm">
         <h2>🛡️ Admin Login</h2>
         <input type="password" id="adminPass" placeholder="Masukkan Password Admin">
@@ -64,6 +541,7 @@
         <div class="message" id="loginMsg"></div>
     </div>
 
+    <!-- Dashboard -->
     <div class="dashboard-container" id="dashboard">
         <div class="dashboard-header">
             <h2>🛡️ Dashboard Admin</h2>
@@ -71,10 +549,26 @@
         </div>
 
         <div class="stats-grid">
-            <div class="stat-box"><h3>Total Pengguna</h3><div class="value" id="totalUsers">0</div></div>
-            <div class="stat-box"><h3>Total Saldo</h3><div class="value" id="totalBalance">Rp 0</div></div>
-            <div class="stat-box"><h3>Pengguna E-Wallet</h3><div class="value" id="totalEwallet">0</div></div>
-            <div class="stat-box"><h3>Pengguna Bank</h3><div class="value" id="totalBank">0</div></div>
+            <div class="stat-box">
+                <h3>Total Pengguna</h3>
+                <div class="value" id="totalUsers">0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Total Saldo</h3>
+                <div class="value" id="totalBalance">Rp 0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Pengguna E-Wallet</h3>
+                <div class="value" id="totalEwallet">0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Pengguna Bank</h3>
+                <div class="value" id="totalBank">0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Total Transaksi</h3>
+                <div class="value" id="totalTransactions">0</div>
+            </div>
         </div>
 
         <div class="search-bar">
@@ -85,8 +579,16 @@
             <table>
                 <thead>
                     <tr>
-                        <th>No</th><th>Username (Email)</th><th>Nama</th><th>No WhatsApp</th><th>Metode WD</th>
-                        <th>Nomor Tujuan</th><th>Nama Pemilik</th><th>Saldo</th><th>Terdaftar</th><th>Aksi</th>
+                        <th>No</th>
+                        <th>Username (Email)</th>
+                        <th>Nama</th>
+                        <th>No WhatsApp</th>
+                        <th>Metode WD</th>
+                        <th>Nomor Tujuan</th>
+                        <th>Nama Pemilik</th>
+                        <th>Saldo</th>
+                        <th>Terdaftar</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="userTableBody"></tbody>
@@ -94,6 +596,7 @@
         </div>
     </div>
 
+    <!-- Modal Edit Saldo -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <h3>✏️ Edit Saldo</h3>
@@ -110,11 +613,13 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
 
     <script>
         let editingUserId = null;
+        let allUsers = [];
+        let allTransactions = [];
 
         // Login Admin (Password hardcoded)
         function adminLogin() {
@@ -128,42 +633,76 @@
             }
         }
 
-        function adminLogout() { localStorage.removeItem('adminLoggedIn'); window.location.reload(); }
+        function adminLogout() { 
+            localStorage.removeItem('adminLoggedIn'); 
+            window.location.reload(); 
+        }
 
         function showDashboard() {
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
             loadUsers();
+            loadTransactions();
         }
 
-        // Load Users dari Firestore
+        // Load Users dari Realtime Database
         function loadUsers() {
-            db.collection('users').get().then((querySnapshot) => {
-                let users = [];
-                querySnapshot.forEach((doc) => { users.push({ id: doc.id, ...doc.data() }); });
-                window.allUsers = users;
+            db.ref('users').on('value', (snapshot) => {
+                allUsers = [];
+                snapshot.forEach((child) => {
+                    allUsers.push({ id: child.key, ...child.val() });
+                });
                 renderTable();
+            });
+        }
+
+        // Load Transaksi dari Realtime Database
+        function loadTransactions() {
+            db.ref('transactions').on('value', (snapshot) => {
+                allTransactions = [];
+                snapshot.forEach((child) => {
+                    // child.key adalah uid user
+                    const userTransactions = child.val();
+                    if (userTransactions) {
+                        Object.values(userTransactions).forEach((transaction) => {
+                            allTransactions.push({
+                                userId: child.key,
+                                ...transaction
+                            });
+                        });
+                    }
+                });
+                
+                // Update total transaksi
+                document.getElementById('totalTransactions').textContent = allTransactions.length;
             });
         }
 
         // Render Tabel & Statistik
         function renderTable() {
-            let users = window.allUsers || [];
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filteredUsers = users.filter(user => (user.email || '').toLowerCase().includes(searchTerm) || (user.nama || '').toLowerCase().includes(searchTerm));
+            const filteredUsers = allUsers.filter(user => 
+                (user.email || '').toLowerCase().includes(searchTerm) || 
+                (user.nama || '').toLowerCase().includes(searchTerm)
+            );
 
-            document.getElementById('totalUsers').textContent = users.length;
-            const totalBalance = users.reduce((sum, user) => sum + (user.balance || 0), 0);
+            // Update statistik
+            document.getElementById('totalUsers').textContent = allUsers.length;
+            const totalBalance = allUsers.reduce((sum, user) => sum + (user.balance || 0), 0);
             document.getElementById('totalBalance').textContent = 'Rp ' + totalBalance.toLocaleString('id-ID');
-            document.getElementById('totalEwallet').textContent = users.filter(user => user.withdrawMethod === 'E-Wallet').length;
-            document.getElementById('totalBank').textContent = users.filter(user => user.withdrawMethod === 'Rekening Bank').length;
+            document.getElementById('totalEwallet').textContent = allUsers.filter(user => user.withdrawMethod === 'E-Wallet').length;
+            document.getElementById('totalBank').textContent = allUsers.filter(user => user.withdrawMethod === 'Rekening Bank').length;
 
             const tbody = document.getElementById('userTableBody');
             tbody.innerHTML = '';
-            if (filteredUsers.length === 0) { tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 20px;">Tidak ada user ditemukan</td></tr>'; return; }
+            
+            if (filteredUsers.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 20px;">Tidak ada user ditemukan</td></tr>'; 
+                return; 
+            }
 
             filteredUsers.forEach((user, index) => {
-                const date = user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleDateString('id-ID') : '-';
+                const date = user.createdAt ? new Date(user.createdAt).toLocaleDateString('id-ID') : '-';
                 let methodBadge = '-';
                 if (user.withdrawMethod === 'E-Wallet') methodBadge = '<span class="method-badge method-ewallet">📱 E-Wallet</span>';
                 else if (user.withdrawMethod === 'Rekening Bank') methodBadge = '<span class="method-badge method-bank">🏦 Bank</span>';
@@ -190,33 +729,50 @@
             });
         }
 
-        function copyText(text) { navigator.clipboard.writeText(text).then(() => alert('✅ Nomor disalin: ' + text)); }
+        function copyText(text) { 
+            navigator.clipboard.writeText(text).then(() => alert('✅ Nomor disalin: ' + text)); 
+        }
 
         // Edit Saldo
         function openEdit(userId) {
             editingUserId = userId;
-            const user = window.allUsers.find(u => u.id === userId);
+            const user = allUsers.find(u => u.id === userId);
             document.getElementById('editUsername').textContent = user.email;
             document.getElementById('editAmount').value = '';
             document.getElementById('editModal').classList.add('show');
         }
 
-        function closeModal() { document.getElementById('editModal').classList.remove('show'); editingUserId = null; }
+        function closeModal() { 
+            document.getElementById('editModal').classList.remove('show'); 
+            editingUserId = null; 
+        }
 
         function saveEdit() {
             if (!editingUserId) return;
             const amount = parseInt(document.getElementById('editAmount').value);
             if (isNaN(amount)) return;
 
-            const userRef = db.collection('users').doc(editingUserId);
-            userRef.get().then((doc) => {
-                const currentBalance = doc.data().balance || 0;
+            db.ref('users/' + editingUserId + '/balance').once('value', (snapshot) => {
+                const currentBalance = snapshot.val() || 0;
                 let newBalance = currentBalance + amount;
                 if (newBalance < 0) newBalance = 0;
-                userRef.update({ balance: newBalance }).then(() => {
+                
+                db.ref('users/' + editingUserId + '/balance').set(newBalance).then(() => {
+                    // Simpan log transaksi admin
+                    const currentUser = auth.currentUser;
+                    if (currentUser) {
+                        db.ref('transactions/' + editingUserId).push({
+                            type: 'admin_edit',
+                            amount: amount,
+                            adminEmail: currentUser.email,
+                            timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            status: 'success',
+                            note: 'Admin edit saldo'
+                        });
+                    }
+                    
                     alert('✅ Saldo berhasil diubah!');
                     closeModal();
-                    loadUsers();
                 });
             });
         }
@@ -224,16 +780,25 @@
         // Hapus User
         function deleteUser(userId) {
             if (!confirm('Yakin ingin menghapus akun ini?')) return;
-            db.collection('users').doc(userId).delete().then(() => {
+            
+            db.ref('users/' + userId).remove().then(() => {
+                // Hapus juga transaksi user
+                db.ref('transactions/' + userId).remove();
+                
+                // Hapus history user jika ada
+                db.ref('history/' + userId).remove();
+                
                 alert('🗑️ Akun dihapus!');
-                loadUsers();
             });
         }
 
         // Init
         function init() {
             if (localStorage.getItem('adminLoggedIn') === 'true') showDashboard();
-            else { document.getElementById('loginForm').style.display = 'block'; document.getElementById('dashboard').style.display = 'none'; }
+            else { 
+                document.getElementById('loginForm').style.display = 'block'; 
+                document.getElementById('dashboard').style.display = 'none'; 
+            }
         }
         init();
     </script>
