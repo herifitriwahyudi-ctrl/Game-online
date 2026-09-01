@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Admin Panel - Dragons Hunter</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8b6914">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dragons Hunter">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Georgia', serif; background: #0a1f14; color: #fff; min-height: 100vh; }
+        
+        /* Login */
+        .login-container {
+            max-width: 400px; width: 90%; margin: 100px auto; padding: 30px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px; border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+        .login-container h2 { color: #ffd700; margin-bottom: 20px; font-size: 2em; }
+        .login-container input {
+            width: 100%; background: #1a1208; border: 2px solid #8b6914;
+            border-radius: 10px; padding: 12px; color: #fff; font-size: 1em; margin-bottom: 15px;
+        }
+        .login-btn {
+            width: 100%; background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none; padding: 15px; font-size: 1.2em; font-weight: bold;
+            border-radius: 50px; cursor: pointer; color: #3d1e00;
+        }
+        .message { margin-top: 15px; padding: 10px; border-radius: 8px; display: none; }
+        .message.error { background: rgba(255,68,68,0.2); border: 2px solid #ff4444; color: #ff6666; display: block; }
+        .message.success { background: rgba(0,255,136,0.2); border: 2px solid #00ff88; color: #00ff88; display: block; }
+
+        /* Dashboard */
+        .dashboard-container {
+            max-width: 1200px; width: 95%; margin: 20px auto; padding: 20px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px; border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+            display: none;
+        }
+        .dashboard-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+        }
+        .dashboard-header h2 { color: #ffd700; font-size: 1.8em; }
+        .logout-btn {
+            background: linear-gradient(145deg, #ff4444, #cc0000);
+            border: none; padding: 10px 20px; border-radius: 50px;
+            cursor: pointer; color: #fff; font-weight: bold;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px; margin-bottom: 30px;
+        }
+        .stat-box {
+            background: rgba(255,255,255,0.05); border: 2px solid #8b6914;
+            border-radius: 15px; padding: 20px; text-align: center;
+        }
+        .stat-box h3 { color: #ffd700; font-size: 0.9em; margin-bottom: 10px; }
+        .stat-box .value { font-size: 1.8em; font-weight: bold; }
+
+        /* RTP Section */
+        .rtp-section {
+            border: 3px solid #ffd700; border-radius: 20px; padding: 25px;
+            margin-bottom: 30px; background: rgba(255,215,0,0.05);
+        }
+        .rtp-section h3 { color: #ffd700; font-size: 1.5em; margin-bottom: 20px; text-align: center; }
+        .rtp-stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px; margin-bottom: 25px;
+        }
+        .rtp-stat-box {
+            background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; text-align: center;
+        }
+        .rtp-stat-box h4 { color: #aaa; font-size: 0.85em; margin-bottom: 10px; }
+        .rtp-stat-box .value { font-size: 1.8em; font-weight: bold; }
+
+        .rtp-controls-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;
+        }
+        .rtp-control-box {
+            background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; border: 2px solid #8b6914;
+        }
+        .rtp-control-box h4 { color: #ffd700; margin-bottom: 15px; }
+        .rtp-control-box label { color: #aaa; font-size: 0.85em; margin-bottom: 8px; display: block; }
+        .rtp-control-box input, .rtp-control-box select {
+            width: 100%; background: #1a1208; border: 2px solid #8b6914;
+            border-radius: 10px; padding: 10px; color: #fff; margin-bottom: 15px;
+        }
+        .rtp-control-box button {
+            width: 100%; background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none; padding: 12px; border-radius: 10px;
+            cursor: pointer; color: #3d1e00; font-weight: bold; margin-bottom: 10px;
+        }
+
+        /* Search */
+        .search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-bar input {
+            flex: 1; background: #1a1208; border: 2px solid #8b6914;
+            border-radius: 10px; padding: 12px; color: #fff;
+        }
+        .refresh-btn {
+            background: rgba(255,255,255,0.1); border: 2px solid #8b6914;
+            color: #fff; padding: 12px 20px; border-radius: 10px; cursor: pointer;
+        }
+
+        /* Table */
+        .table-wrapper { overflow-x: auto; border-radius: 15px; border: 2px solid #8b6914; max-height: 600px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid rgba(139,105,20,0.3); font-size: 0.9em; }
+        th { background: rgba(255,215,0,0.1); color: #ffd700; position: sticky; top: 0; }
+        tr:hover { background: rgba(255,255,255,0.05); }
+
+        .method-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }
+        .method-ewallet { background: rgba(0,191,255,0.2); border: 1px solid #00bfff; color: #00bfff; }
+        .method-bank { background: rgba(255,215,0,0.2); border: 1px solid #ffd700; color: #ffd700; }
+
+        .action-btns { display: flex; gap: 5px; }
+        .edit-btn, .delete-btn { border: none; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 0.8em; font-weight: bold; }
+        .edit-btn { background: linear-gradient(145deg, #ffd700, #ffaa00); color: #3d1e00; }
+        .delete-btn { background: linear-gradient(145deg, #ff4444, #cc0000); color: #fff; }
+
+        /* Modal */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center;
+            z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .modal.show { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px; border: 4px solid #8b6914;
+            padding: 30px; text-align: center; max-width: 400px; width: 90%;
+        }
+        .modal-content h3 { color: #ffd700; margin-bottom: 20px; }
+        .modal-content input {
+            width: 100%; background: #1a1208; border: 2px solid #8b6914;
+            border-radius: 10px; padding: 12px; color: #fff; margin-bottom: 20px;
+        }
+        .modal-btns { display: flex; gap: 10px; }
+        .modal-btns button { flex: 1; border: none; padding: 12px; border-radius: 50px; cursor: pointer; font-weight: bold; }
+        .modal-save { background: linear-gradient(145deg, #00ff88, #00cc66); color: #1a1a1a; }
+        .modal-close { background: rgba(255,255,255,0.1); border: 2px solid #ff4444 !important; color: #ff4444; }
+
+        /* Toast */
+        .toast {
+            position: fixed; top: 20px; right: 20px; background: #2a1f0e;
+            border: 2px solid #8b6914; border-radius: 10px; padding: 15px 25px;
+            z-index: 99999; transform: translateX(400px); transition: transform 0.3s ease;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { border-color: #00ff88; color: #00ff88; }
+        .toast.error { border-color: #ff4444; color: #ff6666; }
+        .toast.info { border-color: #ffd700; color: #ffd700; }
+    </style>
+</head>
+<body>
+    <!-- Login Form -->
+    <div class="login-container" id="loginForm">
+        <h2>🛡️ Admin Login</h2>
+        <input type="password" id="adminPass" placeholder="Masukkan Password Admin">
+        <button class="login-btn" id="loginBtn" onclick="adminLogin()">Masuk</button>
+        <div class="message" id="loginMsg"></div>
+        <p style="color: #666; margin-top: 15px; font-size: 0.8em;">Default password: admin123</p>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard-container" id="dashboard">
+        <div class="dashboard-header">
+            <h2>🛡️ Dashboard Admin</h2>
+            <button class="logout-btn" onclick="adminLogout()">🚪 Keluar</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-box"><h3>Total Pengguna</h3><div class="value" id="totalUsers">0</div></div>
+            <div class="stat-box"><h3>Total Saldo</h3><div class="value" id="totalBalance">Rp 0</div></div>
+            <div class="stat-box"><h3>E-Wallet</h3><div class="value" id="totalEwallet">0</div></div>
+            <div class="stat-box"><h3>Bank</h3><div class="value" id="totalBank">0</div></div>
+            <div class="stat-box"><h3>Transaksi</h3><div class="value" id="totalTransactions">0</div></div>
+        </div>
+
+        <!-- RTP Section -->
+        <div class="rtp-section">
+            <h3>🎯 RTP Control Panel</h3>
+            
+            <div class="rtp-stats-grid">
+                <div class="rtp-stat-box"><h4>Total Taruhan</h4><div class="value" id="rtpTotalBet" style="color: #fff;">Rp 0</div></div>
+                <div class="rtp-stat-box"><h4>Total Kemenangan</h4><div class="value" id="rtpTotalWin" style="color: #00ff88;">Rp 0</div></div>
+                <div class="rtp-stat-box"><h4>RTP Aktual</h4><div class="value" id="rtpActual" style="color: #ffd700;">-</div></div>
+                <div class="rtp-stat-box"><h4>Total Game</h4><div class="value" id="rtpTotalGames" style="color: #fff;">0</div></div>
+            </div>
+            
+            <div class="rtp-controls-grid">
+                <div class="rtp-control-box">
+                    <h4>🌐 RTP Global</h4>
+                    <label>Default RTP (%)</label>
+                    <input type="number" id="rtpGlobal" min="1" max="100" value="90">
+                    <button onclick="saveRTPGlobal()">💾 Simpan Global</button>
+                    
+                    <label>Mode Kemenangan</label>
+                    <select id="rtpMode" onchange="saveRTPMode()">
+                        <option value="normal">🎲 Normal</option>
+                        <option value="loose">💰 Longgar</option>
+                        <option value="tight">🔒 Ketat</option>
+                        <option value="jackpot">🏆 Jackpot</option>
+                    </select>
+                    
+                    <label>Batas Max Win (Rp)</label>
+                    <input type="number" id="rtpMaxWin" value="1000000" placeholder="Contoh: 1000000">
+                    <button onclick="saveRTPMaxWin()">💾 Simpan Max Win</button>
+                </div>
+                
+                <div class="rtp-control-box">
+                    <h4>🎰 RTP per Kategori</h4>
+                    <label>RTP Hewan (%)</label>
+                    <input type="number" id="rtpHewan" min="1" max="100" value="90">
+                    <button onclick="saveRTPHewan()">💾 Simpan Hewan</button>
+                    
+                    <label>RTP Naga/Harimau (%)</label>
+                    <input type="number" id="rtpNaga" min="1" max="100" value="80">
+                    <button onclick="saveRTPNaga()">💾 Simpan Naga</button>
+                </div>
+                
+                <div class="rtp-control-box">
+                    <h4>⚡ Quick Settings</h4>
+                    <button onclick="setRTPPreset(95)" style="background: rgba(0,255,136,0.2); border: 2px solid #00ff88; color: #00ff88;">🟢 Friendly (95%)</button>
+                    <button onclick="setRTPPreset(90)" style="background: rgba(255,215,0,0.2); border: 2px solid #ffd700; color: #ffd700;">🟡 Normal (90%)</button>
+                    <button onclick="setRTPPreset(80)" style="background: rgba(255,165,0,0.2); border: 2px solid #ffa500; color: #ffa500;">🟠 Moderate (80%)</button>
+                    <button onclick="setRTPPreset(70)" style="background: rgba(255,68,68,0.2); border: 2px solid #ff4444; color: #ff4444;">🔴 Hard (70%)</button>
+                    <button onclick="setRTPPreset(50)" style="background: rgba(128,0,128,0.2); border: 2px solid #800080; color: #da70d6;">💀 Extreme (50%)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Cari username atau nama..." oninput="filterTable()">
+            <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th><th>Username</th><th>Nama</th><th>No WA</th>
+                        <th>Metode</th><th>Nomor Tujuan</th><th>Saldo</th><th>Status</th><th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Edit Saldo -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3>✏️ Edit Saldo</h3>
+            <div class="modal-info">
+                <p><strong>Username:</strong> <span id="editUsername" style="color: #fff;"></span></p>
+                <p><strong>Saldo Saat Ini:</strong> <span id="editCurrentBalance" style="color: #00ff88;"></span></p>
+            </div>
+            <label>Masukkan Jumlah (Boleh Negatif)</label>
+            <input type="number" id="editAmount" placeholder="Contoh: 50000 atau -10000">
+            <div class="modal-btns">
+                <button class="modal-save" onclick="saveEdit()">💾 Simpan</button>
+                <button class="modal-close" onclick="closeModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        // ========== STATE ==========
+        let editingUserId = null;
+        let allUsers = [];
+        let allTransactions = [];
+        let usersRef = null;
+        let rtpConfig = { global: 90, hewan: 90, naga: 80, mode: 'normal', maxWin: 1000000 };
+
+        // ========== INIT ==========
+        document.addEventListener('DOMContentLoaded', async () => {
+            await setupAdminPassword();
+            await loadRTPConfig();
+            
+            const adminSession = sessionStorage.getItem('adminSession');
+            if (adminSession && JSON.parse(adminSession).role === 'admin') {
+                showDashboard();
+            } else {
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('dashboard').style.display = 'none';
+            }
+        });
+
+        // ========== SETUP PASSWORD ==========
+        async function setupAdminPassword() {
+            try {
+                const snapshot = await db.ref('adminConfig/passwordHash').once('value');
+                if (!snapshot.exists()) {
+                    const defaultHash = await hashPassword('admin123');
+                    await db.ref('adminConfig/passwordHash').set(defaultHash);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // ========== LOGIN ==========
+        async function adminLogin() {
+            const pass = document.getElementById('adminPass').value;
+            const msg = document.getElementById('loginMsg');
+            const btn = document.getElementById('loginBtn');
+            
+            msg.className = 'message';
+            msg.textContent = '';
+            
+            if (!pass) {
+                msg.textContent = '❌ Password wajib diisi!';
+                msg.className = 'message error';
+                return;
+            }
+            
+            btn.disabled = true;
+            
+            try {
+                const hashedPass = await hashPassword(pass);
+                const snapshot = await db.ref('adminConfig/passwordHash').once('value');
+                const storedHash = snapshot.val();
+                
+                if (storedHash === hashedPass) {
+                    sessionStorage.setItem('adminSession', JSON.stringify({ role: 'admin', loginTime: Date.now() }));
+                    msg.textContent = '✅ Login berhasil!';
+                    msg.className = 'message success';
+                    setTimeout(showDashboard, 1000);
+                } else {
+                    throw new Error('Password salah!');
+                }
+            } catch (error) {
+                msg.textContent = '❌ ' + error.message;
+                msg.className = 'message error';
+                btn.disabled = false;
+            }
+        }
+
+        // ========== LOGOUT ==========
+        function adminLogout() {
+            if (confirm('Yakin keluar?')) {
+                sessionStorage.removeItem('adminSession');
+                if (usersRef) usersRef.off();
+                window.location.reload();
+            }
+        }
+
+        // ========== SHOW DASHBOARD ==========
+        function showDashboard() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            loadUsers();
+            loadTransactions();
+            loadRTPStats();
+            updateRTPInputs();
+        }
+
+        // ========== RTP FUNCTIONS ==========
+        async function loadRTPConfig() {
+            try {
+                const snapshot = await db.ref('rtpConfig').once('value');
+                if (snapshot.exists()) rtpConfig = { ...rtpConfig, ...snapshot.val() };
+            } catch (e) { console.error(e); }
+        }
+
+        function updateRTPInputs() {
+            document.getElementById('rtpGlobal').value = rtpConfig.global;
+            document.getElementById('rtpHewan').value = rtpConfig.hewan;
+            document.getElementById('rtpNaga').value = rtpConfig.naga;
+            document.getElementById('rtpMaxWin').value = rtpConfig.maxWin;
+            document.getElementById('rtpMode').value = rtpConfig.mode;
+        }
+
+        async function saveRTPConfig() {
+            try {
+                await db.ref('rtpConfig').set(rtpConfig);
+                await db.ref('config/rtp').set(rtpConfig);
+                showToast('✅ RTP tersimpan!', 'success');
+            } catch (e) { showToast('❌ Error: ' + e.message, 'error'); }
+        }
+
+        async function saveRTPGlobal() {
+            rtpConfig.global = parseInt(document.getElementById('rtpGlobal').value) || 90;
+            await saveRTPConfig();
+        }
+
+        async function saveRTPHewan() {
+            rtpConfig.hewan = parseInt(document.getElementById('rtpHewan').value) || 90;
+            await saveRTPConfig();
+        }
+
+        async function saveRTPNaga() {
+            rtpConfig.naga = parseInt(document.getElementById('rtpNaga').value) || 80;
+            await saveRTPConfig();
+        }
+
+        async function saveRTPMode() {
+            rtpConfig.mode = document.getElementById('rtpMode').value;
+            await saveRTPConfig();
+        }
+
+        async function saveRTPMaxWin() {
+            rtpConfig.maxWin = parseInt(document.getElementById('rtpMaxWin').value) || 1000000;
+            await saveRTPConfig();
+        }
+
+        async function setRTPPreset(val) {
+            rtpConfig.global = val;
+            rtpConfig.hewan = val;
+            rtpConfig.naga = Math.min(val, val - 10);
+            rtpConfig.mode = val >= 95 ? 'loose' : val >= 85 ? 'normal' : val >= 70 ? 'tight' : 'jackpot';
+            await saveRTPConfig();
+            updateRTPInputs();
+        }
+
+        async function loadRTPStats() {
+            try {
+                const snapshot = await db.ref('gameHistory').once('value');
+                let totalBet = 0, totalWin = 0, totalGames = 0;
+                
+                if (snapshot.exists()) {
+                    snapshot.forEach(userChild => {
+                        const history = userChild.val();
+                        if (history) {
+                            Object.values(history).forEach(game => {
+                                totalGames++;
+                                totalBet += game.betAmount || 0;
+                                totalWin += game.winAmount || 0;
+                            });
+                        }
+                    });
+                }
+                
+                document.getElementById('rtpTotalBet').textContent = formatRupiah(totalBet);
+                document.getElementById('rtpTotalWin').textContent = formatRupiah(totalWin);
+                document.getElementById('rtpTotalGames').textContent = totalGames;
+                document.getElementById('rtpActual').textContent = totalBet > 0 ? ((totalWin / totalBet) * 100).toFixed(1) + '%' : '-';
+            } catch (e) { console.error(e); }
+        }
+
+        // ========== LOAD USERS ==========
+        function loadUsers() {
+            if (usersRef) usersRef.off();
+            usersRef = db.ref('users');
+            usersRef.on('value', snapshot => {
+                allUsers = [];
+                snapshot.forEach(child => {
+                    allUsers.push({ id: child.key, ...child.val() });
+                });
+                renderTable();
+                updateStats();
+            }, error => {
+                console.error('Error:', error);
+                showToast('❌ Error loading users', 'error');
+            });
+        }
+
+        // ========== LOAD TRANSACTIONS ==========
+        function loadTransactions() {
+            db.ref('transactions').once('value', snapshot => {
+                allTransactions = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach(userChild => {
+                        const userTrans = userChild.val();
+                        if (userTrans) {
+                            Object.values(userTrans).forEach(t => {
+                                allTransactions.push({ userId: userChild.key, ...t });
+                            });
+                        }
+                    });
+                }
+                document.getElementById('totalTransactions').textContent = allTransactions.length;
+            });
+        }
+
+        // ========== UPDATE STATS ==========
+        function updateStats() {
+            document.getElementById('totalUsers').textContent = allUsers.length;
+            const totalBalance = allUsers.reduce((s, u) => s + (u.balance || 0), 0);
+            document.getElementById('totalBalance').textContent = formatRupiah(totalBalance);
+            document.getElementById('totalEwallet').textContent = allUsers.filter(u => u.withdrawMethod === 'E-Wallet').length;
+            document.getElementById('totalBank').textContent = allUsers.filter(u => u.withdrawMethod === 'Rekening Bank').length;
+        }
+
+        // ========== FILTER ==========
+        function filterTable() { renderTable(); }
+
+        // ========== RENDER TABLE ==========
+        function renderTable() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allUsers.filter(u => 
+                (u.username || '').toLowerCase().includes(search) ||
+                (u.nama || '').toLowerCase().includes(search) ||
+                (u.noWhatsapp || '').toLowerCase().includes(search)
+            );
+
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#aaa;">Tidak ada user</td></tr>';
+                return;
+            }
+
+            filtered.forEach((user, i) => {
+                const date = formatDate(user.createdAt);
+                let method = '-';
+                if (user.withdrawMethod === 'E-Wallet') method = '<span class="method-badge method-ewallet">📱 E-Wallet</span>';
+                else if (user.withdrawMethod === 'Rekening Bank') method = '<span class="method-badge method-bank">🏦 Bank</span>';
+                
+                const status = user.online ? '<span style="color:#00ff88;">🟢 Online</span>' : '<span style="color:#888;">⚫ Offline</span>';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${i + 1}</td>
+                    <td><strong>${escapeHtml(user.username || '-')}</strong></td>
+                    <td>${escapeHtml(user.nama || '-')}</td>
+                    <td>${escapeHtml(user.noWhatsapp || '-')}</td>
+                    <td>${method}</td>
+                    <td>${escapeHtml(user.withdrawAccount || '-')}</td>
+                    <td style="color:#00ff88;font-weight:bold;">${formatRupiah(user.balance || 0)}</td>
+                    <td>${status}</td>
+                    <td>
+                        <button class="edit-btn" onclick="openEdit('${user.id}')">✏️</button>
+                        <button class="delete-btn" onclick="deleteUser('${user.id}')">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ========== EDIT ==========
+        function openEdit(userId) {
+            editingUserId = userId;
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+            document.getElementById('editUsername').textContent = user.username || user.nama;
+            document.getElementById('editCurrentBalance').textContent = formatRupiah(user.balance || 0);
+            document.getElementById('editAmount').value = '';
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('show');
+            editingUserId = null;
+        }
+
+        async function saveEdit() {
+            if (!editingUserId) return;
+            const amount = parseInt(document.getElementById('editAmount').value);
+            if (isNaN(amount) || amount === 0) return;
+
+            if (!confirm(`Yakin ubah saldo ${formatRupiah(amount)}?`)) return;
+
+            try {
+                const snap = await db.ref('users/' + editingUserId + '/balance').once('value');
+                const current = snap.val() || 0;
+                const newBalance = current + amount;
+                if (newBalance < 0) throw new Error('Saldo tidak boleh negatif');
+
+                await db.ref('users/' + editingUserId + '/balance').set(newBalance);
+                await db.ref('transactions/' + editingUserId).push({
+                    type: 'admin_edit', amount: amount, timestamp: firebase.database.ServerValue.TIMESTAMP, status: 'success'
+                });
+
+                showToast('✅ Saldo diubah!', 'success');
+                closeModal();
+            } catch (e) {
+                showToast('❌ ' + e.message, 'error');
+            }
+        }
+
+        // ========== DELETE USER ==========
+        async function deleteUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+            if (!confirm(`Hapus akun "${user.username}"?`)) return;
+
+            try {
+                await db.ref('users/' + userId).remove();
+                await db.ref('transactions/' + userId).remove();
+                if (user.username) await db.ref('usernameIndex/' + user.username).remove();
+                showToast('🗑️ Akun dihapus!', 'success');
+            } catch (e) {
+                showToast('❌ ' + e.message, 'error');
+            }
+        }
+
+        // ========== REFRESH ==========
+        function refreshData() {
+            loadUsers();
+            loadTransactions();
+            loadRTPStats();
+            showToast('🔄 Data di-refresh!', 'success');
+        }
+
+        // ========== TOAST ==========
+        function showToast(msg, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast show ' + type;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ========== AUTO REFRESH ==========
+        setInterval(() => {
+            if (allUsers.length > 0) loadUsers();
+            loadRTPStats();
+        }, 30000);
+    </script>
+</body>
+                                                                     </html>
