@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🐉 Daftar Akun - Dragons Hunter</title>
-    <link rel="stylesheet" href="style.css"> <!-- Bisa pakai CSS yang sama -->
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Georgia', serif; background: url('background-dragon.png') no-repeat center center fixed; background-size: cover; background-color: #0a1f14; min-height: 100vh; overflow-x: hidden; color: #fff; display: flex; align-items: center; justify-content: center; }
@@ -89,7 +88,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     
     <script src="firebase-config.js"></script>
     
@@ -128,8 +127,8 @@
                 .then((userCredential) => {
                     const user = userCredential.user;
 
-                    // Simpan data ke Firestore
-                    return db.collection('users').doc(user.uid).set({
+                    // Simpan data ke Realtime Database
+                    return db.ref('users/' + user.uid).set({
                         nama: nama,
                         email: email,
                         noWhatsapp: noWhatsapp,
@@ -137,7 +136,7 @@
                         withdrawAccount: withdrawAccount,
                         withdrawName: withdrawName,
                         balance: 10000,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        createdAt: firebase.database.ServerValue.TIMESTAMP
                     });
                 })
                 .then(() => {
