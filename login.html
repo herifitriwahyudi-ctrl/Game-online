@@ -52,7 +52,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     
     <script src="firebase-config.js"></script>
     
@@ -76,10 +76,10 @@
                 .then((userCredential) => {
                     const user = userCredential.user;
                     
-                    // Ambil data dari Firestore
-                    return db.collection('users').doc(user.uid).get().then((doc) => {
-                        if (doc.exists) {
-                            const userData = doc.data();
+                    // Ambil data dari Realtime Database
+                    return db.ref('users/' + user.uid).once('value').then((snapshot) => {
+                        if (snapshot.exists()) {
+                            const userData = snapshot.val();
                             // Simpan user aktif di localStorage (untuk sesi)
                             localStorage.setItem('dragonsHunterActiveUser', JSON.stringify({
                                 uid: user.uid,
