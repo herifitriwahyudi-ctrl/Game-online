@@ -6,86 +6,429 @@
     <title>💳 Pembayaran QRIS - Dragons Hunter</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Georgia', serif; background: url('background-dragon.png') no-repeat center center fixed; background-size: cover; background-color: #0a1f14; min-height: 100vh; overflow-x: hidden; color: #fff; display: flex; align-items: center; justify-content: center; }
-        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 31, 20, 0.85); z-index: -1; pointer-events: none; }
-        .payment-container { max-width: 480px; width: 90%; margin: 20px; padding: 25px; background: linear-gradient(145deg, #2a1f0e, #1a1208); border-radius: 30px; border: 4px solid #8b6914; box-shadow: 0 15px 50px rgba(0,0,0,0.8); text-align: center; position: relative; z-index: 10; }
-        .payment-container h2 { color: #ffd700; margin-bottom: 5px; font-size: 1.8em; }
-        .payment-container p { color: #ccc; margin-bottom: 20px; font-size: 0.9em; }
-        .amount-display { font-size: 2.2em; font-weight: bold; color: #00ff88; margin: 10px 0 20px; }
-        .qris-box { background: #fff; border-radius: 20px; padding: 10px; margin-bottom: 20px; border: 4px solid #ffd700; }
-        .qris-box img { width: 100%; max-width: 350px; height: auto; border-radius: 10px; }
-        .instructions { text-align: left; background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; margin-bottom: 20px; font-size: 0.9em; line-height: 1.6; color: #ddd; }
-        .instructions h4 { color: #ffd700; margin-bottom: 10px; }
-        .confirm-btn { width: 100%; background: linear-gradient(145deg, #00ff88, #00cc66); border: none; padding: 15px; font-size: 1.2em; font-weight: bold; border-radius: 50px; cursor: pointer; color: #1a1a1a; margin-bottom: 10px; }
-        .confirm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .back-btn { width: 100%; background: rgba(255,255,255,0.1); border: 2px solid #ff4444; color: #ff4444; padding: 12px; font-size: 1em; font-weight: bold; border-radius: 50px; cursor: pointer; }
-        .message { margin-top: 15px; padding: 10px; border-radius: 8px; font-size: 0.9em; display: none; }
-        .message.error { background: rgba(255,68,68,0.2); border: 2px solid #ff4444; color: #ff6666; display: block; }
-        .message.success { background: rgba(0,255,136,0.2); border: 2px solid #00ff88; color: #00ff88; display: block; }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: url('background-dragon.png') no-repeat center center fixed;
+            background-size: cover;
+            background-color: #0a1f14;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 31, 20, 0.85);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* Background Hutan */
+        .forest-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .tree {
+            position: absolute;
+            bottom: 0;
+            width: 120px; height: 200px;
+            background: linear-gradient(180deg, #2d5a27, #1a3d15);
+            border-radius: 10px 10px 0 0;
+            animation: sway 5s ease-in-out infinite;
+        }
+        
+        .tree::before {
+            content: '';
+            position: absolute;
+            top: -40px; left: -20px;
+            width: 160px; height: 80px;
+            background: linear-gradient(135deg, #3a7d30, #2d5a27);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        
+        .tree:nth-child(1) { left: 10px; }
+        .tree:nth-child(2) { left: 15%; height: 240px; animation-delay: 1s; }
+        .tree:nth-child(3) { right: 10%; height: 180px; animation-delay: 2s; }
+        .tree:nth-child(4) { right: 20px; height: 260px; animation-delay: 3s; }
+        .tree:nth-child(5) { left: 40%; height: 220px; animation-delay: 4s; }
+        .tree:nth-child(6) { right: 40%; height: 200px; animation-delay: 5s; }
+        
+        .fireflies {
+            position: absolute;
+            width: 6px; height: 6px;
+            background: #ffe066;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffe066;
+            animation: fly 8s infinite;
+        }
+        
+        .fireflies:nth-child(7) { top: 30%; left: 20%; animation-delay: 0s; }
+        .fireflies:nth-child(8) { top: 50%; left: 80%; animation-delay: 2s; }
+        .fireflies:nth-child(9) { top: 70%; left: 50%; animation-delay: 4s; }
+        .fireflies:nth-child(10) { top: 40%; left: 70%; animation-delay: 6s; }
+        .fireflies:nth-child(11) { top: 60%; left: 30%; animation-delay: 1s; }
+        .fireflies:nth-child(12) { top: 20%; left: 60%; animation-delay: 3s; }
+        .fireflies:nth-child(13) { top: 80%; left: 90%; animation-delay: 5s; }
+        .fireflies:nth-child(14) { top: 45%; left: 10%; animation-delay: 7s; }
+        
+        .moon {
+            position: absolute;
+            top: 50px; right: 100px;
+            width: 80px; height: 80px;
+            background: radial-gradient(circle, #fff, #f1c40f);
+            border-radius: 50%;
+            box-shadow: 0 0 40px #f1c40f, 0 0 80px rgba(241,196,15,0.3);
+            animation: moonGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+        
+        @keyframes fly {
+            0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+            25% { transform: translate(15px, -20px); opacity: 1; }
+            50% { transform: translate(-10px, -35px); opacity: 0.6; }
+            75% { transform: translate(20px, -15px); opacity: 0.8; }
+        }
+        
+        @keyframes moonGlow {
+            from { box-shadow: 0 0 40px #f1c40f; }
+            to { box-shadow: 0 0 60px #f1c40f, 0 0 100px rgba(241,196,15,0.5); }
+        }
+        
+        /* Payment Container */
+        .payment-container {
+            max-width: 480px;
+            width: 90%;
+            margin: 20px;
+            padding: 25px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .payment-container h2 {
+            color: #ffd700;
+            margin-bottom: 5px;
+            font-size: 1.8em;
+            text-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .payment-container p {
+            color: #ccc;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        
+        .amount-display {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #00ff88;
+            margin: 10px 0 20px;
+            text-shadow: 0 0 15px rgba(0,255,136,0.4);
+        }
+        
+        .qris-box {
+            background: #fff;
+            border-radius: 20px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 4px solid #ffd700;
+            box-shadow: 0 0 20px rgba(255,215,0,0.3);
+        }
+        
+        .qris-box img {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            border-radius: 10px;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .instructions {
+            text-align: left;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            line-height: 1.6;
+            color: #ddd;
+        }
+        
+        .instructions h4 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .confirm-btn {
+            width: 100%;
+            background: linear-gradient(145deg, #00ff88, #00cc66);
+            border: none;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,255,136,0.4);
+            transition: all 0.3s ease;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+        
+        .confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,255,136,0.6);
+        }
+        
+        .confirm-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .back-btn {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #ff4444;
+            color: #ff4444;
+            padding: 12px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,68,68,0.2);
+        }
+        
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            display: none;
+        }
+        
+        .message.error {
+            background: rgba(255,68,68,0.2);
+            border: 2px solid #ff4444;
+            color: #ff6666;
+            display: block;
+        }
+        
+        .message.success {
+            background: rgba(0,255,136,0.2);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            display: block;
+        }
+        
+        .countdown {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #aaa;
+        }
+        
+        @media (max-width: 480px) {
+            .payment-container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .amount-display {
+                font-size: 1.8em;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Background -->
+    <div class="forest-bg">
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="moon"></div>
+    </div>
+
+    <!-- Payment Container -->
     <div class="payment-container">
         <h2>💳 Pembayaran QRIS</h2>
         <p>Scan kode di bawah untuk menyelesaikan top up</p>
+        
         <div class="amount-display" id="amountDisplay">Rp 0</div>
-        <div class="qris-box"><img src="qris-topup.png" alt="QRIS Pembayaran"></div>
+        
+        <div class="qris-box">
+            <img src="qris-topup.png" alt="QRIS Pembayaran">
+        </div>
+        
         <div class="instructions">
             <h4>📌 Cara Pembayaran:</h4>
             <ol>
-                <li>Buka aplikasi e-wallet (GoPay, OVO, DANA, ShopeePay) atau Mobile Banking.</li>
+                <li>Buka aplikasi e-wallet (GoPay, OVO, DANA, ShopeePay) atau Mobile Banking Anda.</li>
                 <li>Pilih menu <strong>Scan QRIS</strong> atau <strong>QR Payment</strong>.</li>
                 <li>Scan kode QRIS di atas.</li>
                 <li>Pastikan nominal sesuai, lalu konfirmasi dan bayar.</li>
-                <li>Klik tombol <strong>"Saya Sudah Bayar"</strong> setelah pembayaran berhasil.</li>
+                <li>Klik tombol <strong>"Saya Sudah Bayar"</strong> di bawah setelah pembayaran berhasil.</li>
             </ol>
         </div>
+        
         <button class="confirm-btn" id="confirmBtn" onclick="confirmPayment()">✅ Saya Sudah Bayar</button>
         <button class="back-btn" onclick="window.location.href='index.html'">⬅ Kembali ke Game</button>
+        
         <div class="message" id="message"></div>
+        <div class="countdown" id="countdown"></div>
     </div>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
     <script src="firebase-config.js"></script>
-
+    
     <script>
+        // Ambil nominal top up dari localStorage
         let topUpAmount = parseInt(localStorage.getItem('pendingTopUpAmount')) || 0;
+        let countdownInterval = null;
+        
+        // Tampilkan nominal
         document.getElementById('amountDisplay').textContent = 'Rp ' + topUpAmount.toLocaleString('id-ID');
         
+        // Cek apakah ada nominal top up
         if (topUpAmount === 0) { 
             document.getElementById('message').textContent = '❌ Tidak ada nominal top up!'; 
             document.getElementById('message').className = 'message error'; 
             document.getElementById('confirmBtn').disabled = true; 
+        } else {
+            // Mulai countdown 15 menit
+            startCountdown(15 * 60); // 15 menit dalam detik
+        }
+
+        function startCountdown(seconds) {
+            const countdownEl = document.getElementById('countdown');
+            
+            countdownInterval = setInterval(() => {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                
+                countdownEl.textContent = `⏱️ Sisa waktu: ${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+                
+                seconds--;
+                
+                if (seconds < 0) {
+                    clearInterval(countdownInterval);
+                    countdownEl.textContent = '⏱️ Waktu habis!';
+                    document.getElementById('message').textContent = '❌ Waktu pembayaran habis!';
+                    document.getElementById('message').className = 'message error';
+                    document.getElementById('confirmBtn').disabled = true;
+                    
+                    // Hapus pending top up
+                    localStorage.removeItem('pendingTopUpAmount');
+                    
+                    // Redirect ke index setelah 3 detik
+                    setTimeout(() => window.location.href = 'index.html', 3000);
+                }
+            }, 1000);
         }
 
         function confirmPayment() {
             const messageEl = document.getElementById('message');
             const confirmBtn = document.getElementById('confirmBtn');
 
+            // Nonaktifkan tombol
+            confirmBtn.disabled = true;
+            messageEl.textContent = '⏳ Memverifikasi pembayaran...';
+            messageEl.className = 'message';
+
+            // Cek autentikasi
             auth.onAuthStateChanged((user) => {
                 if (user) {
+                    // Ambil saldo saat ini
                     db.ref('users/' + user.uid + '/balance').once('value', (snapshot) => {
                         const currentBalance = snapshot.val() || 0;
                         const newBalance = currentBalance + topUpAmount;
                         
+                        // Update saldo di Realtime Database
                         db.ref('users/' + user.uid + '/balance').set(newBalance).then(() => {
-                            localStorage.removeItem('pendingTopUpAmount');
-                            messageEl.textContent = '✅ Pembayaran berhasil! Saldo: Rp ' + newBalance.toLocaleString('id-ID');
-                            messageEl.className = 'message success';
-                            confirmBtn.disabled = true;
-                            setTimeout(() => window.location.href = 'index.html', 2000);
+                            // Simpan riwayat transaksi
+                            db.ref('transactions/' + user.uid).push({
+                                type: 'topup',
+                                amount: topUpAmount,
+                                method: 'QRIS',
+                                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                                status: 'success'
+                            }).then(() => {
+                                // Hapus pending top up dari localStorage
+                                localStorage.removeItem('pendingTopUpAmount');
+                                
+                                // Tampilkan pesan sukses
+                                messageEl.textContent = '✅ Pembayaran berhasil! Saldo: Rp ' + newBalance.toLocaleString('id-ID');
+                                messageEl.className = 'message success';
+                                
+                                // Hentikan countdown
+                                if (countdownInterval) clearInterval(countdownInterval);
+                                
+                                // Redirect ke index setelah 2 detik
+                                setTimeout(() => window.location.href = 'index.html', 2000);
+                            });
                         });
                     });
                 } else {
+                    // User belum login
                     messageEl.textContent = '❌ Anda belum login!';
                     messageEl.className = 'message error';
+                    
+                    // Redirect ke login setelah 1.5 detik
                     setTimeout(() => window.location.href = 'login.html', 1500);
                 }
             });
         }
+        
+        // Bersihkan interval saat halaman ditutup
+        window.addEventListener('beforeunload', () => {
+            if (countdownInterval) clearInterval(countdownInterval);
+        });
     </script>
 </body>
 </html>
