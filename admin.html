@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Admin Panel - Dragons Hunter</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: url('background-dragon.png') no-repeat center center fixed;
+            background-size: cover;
+            background-color: #0a1f14;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        /* Overlay gelap */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 31, 20, 0.85);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Container Login */
+        .login-container {
+            max-width: 400px;
+            width: 90%;
+            margin: 100px auto;
+            padding: 30px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+            text-align: center;
+        }
+
+        .login-container h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+
+        .login-container input {
+            width: 100%;
+            background: #1a1208;
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 12px;
+            color: #fff;
+            font-size: 1em;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .login-container input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255,215,0,0.4);
+            transition: all 0.3s ease;
+            color: #3d1e00;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,215,0,0.6);
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        .message.error {
+            background: rgba(255,68,68,0.2);
+            border: 2px solid #ff4444;
+            color: #ff6666;
+            display: block;
+        }
+
+        .message.success {
+            background: rgba(0,255,136,0.2);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            display: block;
+        }
+
+        /* Container Dashboard */
+        .dashboard-container {
+            max-width: 1000px;
+            width: 95%;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+            position: relative;
+            z-index: 10;
+            display: none;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .dashboard-header h2 {
+            color: #ffd700;
+            font-size: 1.8em;
+            text-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+
+        .logout-btn {
+            background: linear-gradient(145deg, #ff4444, #cc0000);
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(255,68,68,0.4);
+            transition: all 0.3s ease;
+            color: #fff;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,68,68,0.6);
+        }
+
+        /* Statistik */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid #8b6914;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-box h3 {
+            color: #ffd700;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .stat-box .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Search */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: #1a1208;
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 12px;
+            color: #fff;
+            font-size: 1em;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        /* Tabel */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 15px;
+            border: 2px solid #8b6914;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(0,0,0,0.3);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(139,105,20,0.3);
+            font-size: 0.9em;
+        }
+
+        th {
+            background: rgba(255,215,0,0.1);
+            color: #ffd700;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        td {
+            color: #fff;
+        }
+
+        tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* Tombol Aksi */
+        .action-btns {
+            display: flex;
+            gap: 5px;
+        }
+
+        .edit-btn, .delete-btn, .save-btn {
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            color: #3d1e00;
+        }
+
+        .delete-btn {
+            background: linear-gradient(145deg, #ff4444, #cc0000);
+            color: #fff;
+        }
+
+        .save-btn {
+            background: linear-gradient(145deg, #00ff88, #00cc66);
+            color: #1a1a1a;
+        }
+
+        .edit-btn:hover, .delete-btn:hover, .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Modal Edit Saldo */
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-content h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .modal-content label {
+            display: block;
+            color: #ffd700;
+            margin-bottom: 5px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+
+        .modal-content input {
+            width: 100%;
+            background: #1a1208;
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 12px;
+            color: #fff;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btns button {
+            flex: 1;
+            border: none;
+            padding: 12px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .modal-save {
+            background: linear-gradient(145deg, #00ff88, #00cc66);
+            color: #1a1a1a;
+        }
+
+        .modal-close {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #ff4444 !important;
+            color: #ff4444;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Halaman Login Admin -->
+    <div class="login-container" id="loginForm">
+        <h2>🛡️ Admin Login</h2>
+        <input type="password" id="adminPass" placeholder="Masukkan Password Admin">
+        <button class="login-btn" onclick="adminLogin()">Masuk</button>
+        <div class="message" id="loginMsg"></div>
+    </div>
+
+    <!-- Dashboard Admin -->
+    <div class="dashboard-container" id="dashboard">
+        <div class="dashboard-header">
+            <h2>🛡️ Dashboard Admin</h2>
+            <button class="logout-btn" onclick="adminLogout()">🚪 Keluar</button>
+        </div>
+
+        <!-- Statistik -->
+        <div class="stats-grid">
+            <div class="stat-box">
+                <h3>Total Pengguna</h3>
+                <div class="value" id="totalUsers">0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Total Saldo</h3>
+                <div class="value" id="totalBalance">Rp 0</div>
+            </div>
+        </div>
+
+        <!-- Pencarian -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Cari username atau nama..." oninput="renderTable()">
+        </div>
+
+        <!-- Tabel Data User -->
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Username</th>
+                        <th>Nama</th>
+                        <th>No WhatsApp</th>
+                        <th>Saldo</th>
+                        <th>Terdaftar</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- Data user akan diisi oleh JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Edit Saldo -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3>✏️ Edit Saldo</h3>
+            <label>Username: <span id="editUsername" style="color: #fff;"></span></label>
+            <br><br>
+            <label>Masukkan Jumlah (Boleh Negatif untuk potong saldo)</label>
+            <input type="number" id="editAmount" placeholder="Contoh: 50000 atau -10000">
+            <div class="modal-btns">
+                <button class="modal-save" onclick="saveEdit()">💾 Simpan</button>
+                <button class="modal-close" onclick="closeModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== STATE ==========
+        let editingUsername = null;
+
+        // ========== LOGIN ADMIN ==========
+        function adminLogin() {
+            const pass = document.getElementById('adminPass').value;
+            const msg = document.getElementById('loginMsg');
+
+            // Ganti password di sini (default: admin123)
+            if (pass === 'admin123') {
+                localStorage.setItem('adminLoggedIn', 'true');
+                msg.className = 'message';
+                msg.textContent = '';
+                showDashboard();
+            } else {
+                msg.textContent = '❌ Password admin salah!';
+                msg.className = 'message error';
+            }
+        }
+
+        function adminLogout() {
+            localStorage.removeItem('adminLoggedIn');
+            window.location.reload();
+        }
+
+        function showDashboard() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            renderTable();
+        }
+
+        // ========== RENDER TABEL & STATISTIK ==========
+        function renderTable() {
+            let users = JSON.parse(localStorage.getItem('dragonsHunterUsers')) || [];
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Filter berdasarkan pencarian
+            const filteredUsers = users.filter(user => 
+                user.username.toLowerCase().includes(searchTerm) || 
+                (user.nama || '').toLowerCase().includes(searchTerm)
+            );
+
+            // Statistik
+            document.getElementById('totalUsers').textContent = users.length;
+            const totalBalance = users.reduce((sum, user) => sum + (user.balance || 0), 0);
+            document.getElementById('totalBalance').textContent = 'Rp ' + totalBalance.toLocaleString('id-ID');
+
+            // Render tabel
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '';
+
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">Tidak ada user ditemukan</td></tr>';
+                return;
+            }
+
+            filteredUsers.forEach((user, index) => {
+                const date = new Date(user.createdAt);
+                const formattedDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${user.username}</td>
+                    <td>${user.nama || '-'}</td>
+                    <td>${user.noWhatsapp || '-'}</td>
+                    <td>Rp ${(user.balance || 0).toLocaleString('id-ID')}</td>
+                    <td>${formattedDate}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="edit-btn" onclick="openEdit('${user.username}')">✏️ Edit</button>
+                            <button class="delete-btn" onclick="deleteUser('${user.username}')">🗑️ Hapus</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // ========== EDIT SALDO ==========
+        function openEdit(username) {
+            editingUsername = username;
+            document.getElementById('editUsername').textContent = username;
+            document.getElementById('editAmount').value = '';
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('show');
+            editingUsername = null;
+        }
+
+        function saveEdit() {
+            if (!editingUsername) return;
+
+            const amount = parseInt(document.getElementById('editAmount').value);
+            if (isNaN(amount)) {
+                alert('Masukkan jumlah yang valid!');
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('dragonsHunterUsers')) || [];
+            const userIndex = users.findIndex(u => u.username === editingUsername);
+
+            if (userIndex !== -1) {
+                // Update saldo (bisa negatif)
+                users[userIndex].balance = (users[userIndex].balance || 0) + amount;
+                
+                // Pastikan saldo tidak negatif
+                if (users[userIndex].balance < 0) {
+                    users[userIndex].balance = 0;
+                }
+
+                localStorage.setItem('dragonsHunterUsers', JSON.stringify(users));
+
+                // Update juga jika user ini sedang login
+                const activeUser = JSON.parse(localStorage.getItem('dragonsHunterActiveUser'));
+                if (activeUser && activeUser.username === editingUsername) {
+                    activeUser.balance = users[userIndex].balance;
+                    localStorage.setItem('dragonsHunterActiveUser', JSON.stringify(activeUser));
+                }
+
+                alert(`✅ Saldo ${editingUsername} berhasil diubah!`);
+                closeModal();
+                renderTable();
+            }
+        }
+
+        // ========== HAPUS USER ==========
+        function deleteUser(username) {
+            if (!confirm(`Yakin ingin menghapus akun "${username}"?`)) return;
+
+            let users = JSON.parse(localStorage.getItem('dragonsHunterUsers')) || [];
+            users = users.filter(user => user.username !== username);
+            localStorage.setItem('dragonsHunterUsers', JSON.stringify(users));
+
+            // Jika user yang dihapus sedang login, hapus sesi
+            const activeUser = JSON.parse(localStorage.getItem('dragonsHunterActiveUser'));
+            if (activeUser && activeUser.username === username) {
+                localStorage.removeItem('dragonsHunterActiveUser');
+            }
+
+            alert(`🗑️ Akun ${username} telah dihapus!`);
+            renderTable();
+        }
+
+        // ========== INISIALISASI ==========
+        function init() {
+            // Cek apakah admin sudah login
+            if (localStorage.getItem('adminLoggedIn') === 'true') {
+                showDashboard();
+            } else {
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('dashboard').style.display = 'none';
+            }
+        }
+
+        init();
+    </script>
+</body>
+              </html>
