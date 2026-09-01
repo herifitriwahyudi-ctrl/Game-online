@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐉 Daftar Akun - Dragons Hunter</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', serif;
+            /* Background sama dengan halaman utama */
+            background: url('background-dragon.png') no-repeat center center fixed;
+            background-size: cover;
+            background-color: #0a1f14;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Overlay gelap agar teks terbaca */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 31, 20, 0.7);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .register-container {
+            max-width: 420px;
+            width: 90%;
+            margin: 20px;
+            padding: 30px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .register-container h2 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 2em;
+            text-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+
+        .register-container p {
+            color: #aaa;
+            margin-bottom: 25px;
+            font-size: 0.9em;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            color: #ffd700;
+            margin-bottom: 5px;
+            font-size: 0.85em;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: #1a1208;
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 12px;
+            color: #fff;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+
+        .register-btn {
+            width: 100%;
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255,215,0,0.4);
+            transition: all 0.3s ease;
+            color: #3d1e00;
+            margin-top: 10px;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,215,0,0.6);
+        }
+
+        .register-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-link {
+            display: block;
+            margin-top: 20px;
+            color: #ffd700;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .login-link:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        .message.error {
+            background: rgba(255,68,68,0.2);
+            border: 2px solid #ff4444;
+            color: #ff6666;
+            display: block;
+        }
+
+        .message.success {
+            background: rgba(0,255,136,0.2);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+            .register-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h2>🐉 Daftar Akun</h2>
+        <p>Buat akun baru untuk mulai berburu naga!</p>
+
+        <form id="registerForm">
+            <div class="input-group">
+                <label for="nama">Nama Lengkap</label>
+                <input type="text" id="nama" placeholder="Masukkan nama Anda" required>
+            </div>
+
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Masukkan username" required autocomplete="username">
+            </div>
+
+            <div class="input-group">
+                <label for="noWhatsapp">Nomor WhatsApp</label>
+                <input type="tel" id="noWhatsapp" placeholder="Contoh: 08123456789" required pattern="[0-9+]{10,15}">
+            </div>
+
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Masukkan password" required autocomplete="new-password">
+            </div>
+
+            <div class="input-group">
+                <label for="confirmPassword">Konfirmasi Password</label>
+                <input type="password" id="confirmPassword" placeholder="Ulangi password" required autocomplete="new-password">
+            </div>
+
+            <button type="submit" class="register-btn" id="registerBtn">Daftar Sekarang</button>
+        </form>
+
+        <div class="message" id="message"></div>
+
+        <a href="login.html" class="login-link">Sudah punya akun? Login di sini</a>
+    </div>
+
+    <script>
+        function handleRegister(event) {
+            event.preventDefault();
+
+            const nama = document.getElementById('nama').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const noWhatsapp = document.getElementById('noWhatsapp').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const messageEl = document.getElementById('message');
+
+            messageEl.className = 'message';
+            messageEl.textContent = '';
+
+            if (nama.length < 3) {
+                messageEl.textContent = '❌ Nama minimal 3 karakter!';
+                messageEl.className = 'message error';
+                return;
+            }
+
+            if (username.length < 4) {
+                messageEl.textContent = '❌ Username minimal 4 karakter!';
+                messageEl.className = 'message error';
+                return;
+            }
+
+            if (!/^[0-9+]{10,15}$/.test(noWhatsapp)) {
+                messageEl.textContent = '❌ Nomor WhatsApp tidak valid!';
+                messageEl.className = 'message error';
+                return;
+            }
+
+            if (password.length < 6) {
+                messageEl.textContent = '❌ Password minimal 6 karakter!';
+                messageEl.className = 'message error';
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                messageEl.textContent = '❌ Konfirmasi password tidak cocok!';
+                messageEl.className = 'message error';
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('dragonsHunterUsers')) || [];
+
+            if (users.some(user => user.username === username)) {
+                messageEl.textContent = '❌ Username sudah digunakan!';
+                messageEl.className = 'message error';
+                return;
+            }
+
+            const newUser = {
+                nama: nama,
+                username: username,
+                noWhatsapp: noWhatsapp,
+                password: password,
+                balance: 10000,
+                createdAt: new Date().toISOString()
+            };
+
+            users.push(newUser);
+            localStorage.setItem('dragonsHunterUsers', JSON.stringify(users));
+
+            messageEl.textContent = '✅ Akun berhasil dibuat! Mengalihkan ke login...';
+            messageEl.className = 'message success';
+
+            document.getElementById('registerBtn').disabled = true;
+
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const registerForm = document.getElementById('registerForm');
+            registerForm.addEventListener('submit', handleRegister);
+        });
+    </script>
+</body>
+</html>
