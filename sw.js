@@ -1,6 +1,7 @@
-const CACHE_NAME = 'dragons-hunter-v1';
+const CACHE_NAME = 'dragons-hunter-v3';
 const urlsToCache = [
   '/',
+  '/manifest.json',
   '/login.html',
   '/register.html',
   '/index.html',
@@ -12,8 +13,8 @@ const urlsToCache = [
   '/icon-192.png',
   '/icon-512.png',
   '/intro-dragon.mp4',
+  '/screenshot-game.png',
   'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
-  'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js',
   'https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js'
 ];
 
@@ -45,7 +46,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch handler dengan strategi Cache First
+// Fetch handler dengan strategi hybrid
 self.addEventListener('fetch', (event) => {
   // Skip untuk API Firebase dan cross-origin requests
   if (event.request.url.includes('firebase') || 
@@ -59,23 +60,38 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Gunakan Network First untuk file penting
+  const importantFiles = ['/login.html', '/admin.html', '/firebase-config.js', '/manifest.json'];
+  
+  if (importantFiles.some(file => event.request.url.includes(file))) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Cache First untuk file lainnya
   event.respondWith(
     caches.match(event.request)
       .then((cachedResponse) => {
-        // Jika ada di cache, kembalikan
         if (cachedResponse) {
           return cachedResponse;
         }
 
-        // Jika tidak ada di cache, fetch dari network
         return fetch(event.request)
           .then((response) => {
-            // Jika response valid, simpan di cache
             if (!response || response.status !== 200 || response.type === 'opaque') {
               return response;
             }
 
-            // Clone response dan simpan di cache
             const responseToCache = response.clone();
             caches.open(CACHE_NAME)
               .then((cache) => {
@@ -85,7 +101,6 @@ self.addEventListener('fetch', (event) => {
             return response;
           })
           .catch(() => {
-            // Jika offline dan halaman tidak ada di cache, kembalikan fallback
             if (event.request.mode === 'navigate') {
               return caches.match('/login.html');
             }
