@@ -39,8 +39,8 @@
             </div>
 
             <div class="input-group">
-                <label for="username">Username (Email)</label>
-                <input type="email" id="username" placeholder="Masukkan email (contoh: user@gmail.com)" required autocomplete="username">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Masukkan username (tanpa @)" required minlength="3" maxlength="20" pattern="[a-zA-Z0-9_]+" title="Hanya huruf, angka, dan underscore">
             </div>
 
             <div class="input-group">
@@ -97,7 +97,7 @@
             event.preventDefault();
 
             const nama = document.getElementById('nama').value.trim();
-            const email = document.getElementById('username').value.trim();
+            const username = document.getElementById('username').value.trim().toLowerCase();
             const noWhatsapp = document.getElementById('noWhatsapp').value.trim();
             const withdrawMethod = document.getElementById('withdrawMethod').value;
             const withdrawAccount = document.getElementById('withdrawAccount').value.trim();
@@ -109,8 +109,10 @@
             messageEl.className = 'message';
             messageEl.textContent = '';
 
+            // Validasi input
             if (nama.length < 3) { messageEl.textContent = '❌ Nama minimal 3 karakter!'; messageEl.className = 'message error'; return; }
-            if (email.length < 4) { messageEl.textContent = '❌ Email tidak valid!'; messageEl.className = 'message error'; return; }
+            if (username.length < 3) { messageEl.textContent = '❌ Username minimal 3 karakter!'; messageEl.className = 'message error'; return; }
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) { messageEl.textContent = '❌ Username hanya boleh huruf, angka, dan underscore!'; messageEl.className = 'message error'; return; }
             if (!/^[0-9+]{10,15}$/.test(noWhatsapp)) { messageEl.textContent = '❌ Nomor WhatsApp tidak valid!'; messageEl.className = 'message error'; return; }
             if (!withdrawMethod) { messageEl.textContent = '❌ Pilih metode penarikan!'; messageEl.className = 'message error'; return; }
             if (withdrawAccount.length < 5) { messageEl.textContent = '❌ Nomor tujuan tidak valid!'; messageEl.className = 'message error'; return; }
@@ -122,15 +124,27 @@
             messageEl.textContent = '⏳ Membuat akun...';
             messageEl.className = 'message';
 
-            // Firebase Authentication
-            auth.createUserWithEmailAndPassword(email, password)
+            // Cek apakah username sudah digunakan
+            db.ref('users').orderByChild('username').equalTo(username).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        throw new Error('Username sudah digunakan!');
+                    }
+                    
+                    // Buat akun dengan username sebagai email dummy
+                    const dummyEmail = username + '@dragonshunter.com';
+                    
+                    // Firebase Authentication
+                    return auth.createUserWithEmailAndPassword(dummyEmail, password);
+                })
                 .then((userCredential) => {
                     const user = userCredential.user;
 
                     // Simpan data ke Realtime Database
                     return db.ref('users/' + user.uid).set({
                         nama: nama,
-                        email: email,
+                        username: username,
+                        email: dummyEmail,
                         noWhatsapp: noWhatsapp,
                         withdrawMethod: withdrawMethod,
                         withdrawAccount: withdrawAccount,
