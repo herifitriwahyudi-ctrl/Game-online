@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Admin Panel - Dragons Hunter</title>
+    
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8b6914">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dragons Hunter">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: url('background-dragon.png') no-repeat center center fixed;
+            background-size: cover;
+            background-color: #0a1f14;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 31, 20, 0.85);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* Login */
+        .login-container {
+            max-width: 400px;
+            width: 90%;
+            margin: 100px auto;
+            padding: 30px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+            text-align: center;
+        }
+        
+        .login-container h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .login-container input {
+            width: 100%;
+            background: #1a1208;
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 12px;
+            color: #fff;
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+        
+        .login-container input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255,215,0,0.4);
+            transition: all 0.3s ease;
+            color: #3d1e00;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,215,0,0.6);
+        }
+        
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            display: none;
+        }
+        
+        .message.error {
+            background: rgba(255,68,68,0.2);
+            border: 2px solid #ff4444;
+            color: #ff6666;
+            display: block;
+        }
+        
+        .message.success {
+            background: rgba(0,255,136,0.2);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            display: block;
+        }
+        
+        /* Dashboard */
+        .dashboard-container {
+            max-width: 1400px;
+            width: 95%;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+            position: relative;
+            z-index: 10;
+            display: none;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .dashboard-header h2 {
+            color: #ffd700;
+            font-size: 1.8em;
+            text-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .admin-badge {
+            background: rgba(255,215,0,0.2);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .logout-btn {
+            background: linear-gradient(145deg, #ff4444, #cc0000);
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(255,68,68,0.4);
+            transition: all 0.3s ease;
+            color: #fff;
+        }
+        
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,68,68,0.6);
+        }
+        
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-box {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid #8b6914;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-box:hover {
+            border-color: #ffd700;
+            transform: translateY(-2px);
+        }
+        
+        .stat-box h3 {
+            color: #ffd700;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .stat-box .value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        /* RTP Section */
+        .rtp-section {
+            border: 3px solid #ffd700;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            background: rgba(255,215,0,0.05);
+        }
+        
+        .rtp-section h3 {
+            color: #ffd700;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .rtp-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .rtp-stat-box {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid rgba(139,105,20,0.3);
+        }
+        
+        .rtp-stat-box h4 {
+            color: #aaa;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+        }
+        
+        .rtp-stat-box .value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        
+        .rtp-controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .rtp-control-box {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #8b6914;
+        }
+        
+        .rtp-control-box h4 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .rtp-control-box label {
+            color: #aaa;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .rtp-control-box input {
+            width: 100%;
+            background: #1a1208;
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 10px;
+            color: #fff;
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+        
+        .rtp-control-box input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .rtp-control-box select {
+            width: 100%;
+            background: #1a1208;
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 10px;
+            color: #fff;
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+        
+        .rtp-control-box button {
+            width: 100%;
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            color: #3d1e00;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+        
+        .rtp-control-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,215,0,0.4);
+        }
+        
+        /* Quick Preset Buttons */
+        .preset-buttons {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .preset-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.95em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid;
+        }
+        
+        .preset-friendly {
+            background: rgba(0,255,136,0.2);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+        
+        .preset-friendly:hover {
+            background: rgba(0,255,136,0.4);
+        }
+        
+        .preset-normal {
+            background: rgba(255,215,0,0.2);
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+        
+        .preset-normal:hover {
+            background: rgba(255,215,0,0.4);
+        }
+        
+        .preset-moderate {
+            background: rgba(255,165,0,0.2);
+            border-color: #ffa500;
+            color: #ffa500;
+        }
+        
+        .preset-moderate:hover {
+            background: rgba(255,165,0,0.4);
+        }
+        
+        .preset-hard {
+            background: rgba(255,68,68,0.2);
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+        
+        .preset-hard:hover {
+            background: rgba(255,68,68,0.4);
+        }
+        
+        .preset-extreme {
+            background: rgba(128,0,128,0.2);
+            border-color: #800080;
+            color: #da70d6;
+        }
+        
+        .preset-extreme:hover {
+            background: rgba(128,0,128,0.4);
+        }
+        
+        /* Search */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            background: #1a1208;
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 12px;
+            color: #fff;
+            font-size: 1em;
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .refresh-btn {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #8b6914;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        
+        .refresh-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: #ffd700;
+        }
+        
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 15px;
+            border: 2px solid #8b6914;
+            max-height: 600px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.3);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(139,105,20,0.3);
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+        
+        th {
+            background: rgba(255,215,0,0.1);
+            color: #ffd700;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        
+        tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        /* Badge */
+        .method-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .method-ewallet {
+            background: rgba(0,191,255,0.2);
+            border: 1px solid #00bfff;
+            color: #00bfff;
+        }
+        
+        .method-bank {
+            background: rgba(255,215,0,0.2);
+            border: 1px solid #ffd700;
+            color: #ffd700;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+        
+        .status-online {
+            background: rgba(0,255,136,0.2);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+        }
+        
+        .status-offline {
+            background: rgba(128,128,128,0.2);
+            border: 1px solid #808080;
+            color: #aaa;
+        }
+        
+        .copy-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #aaa;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* Actions */
+        .action-btns {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .edit-btn, .delete-btn {
+            border: none;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .edit-btn {
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            color: #3d1e00;
+        }
+        
+        .edit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(255,215,0,0.4);
+        }
+        
+        .delete-btn {
+            background: linear-gradient(145deg, #ff4444, #cc0000);
+            color: #fff;
+        }
+        
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(255,68,68,0.4);
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal-content {
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-content h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .modal-content label {
+            color: #ffd700;
+            margin-bottom: 10px;
+            display: block;
+            text-align: left;
+        }
+        
+        .modal-content input {
+            width: 100%;
+            background: #1a1208;
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 12px;
+            color: #fff;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        
+        .modal-content input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .modal-btns button {
+            flex: 1;
+            border: none;
+            padding: 12px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-save {
+            background: linear-gradient(145deg, #00ff88, #00cc66);
+            color: #1a1a1a;
+        }
+        
+        .modal-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,255,136,0.4);
+        }
+        
+        .modal-close {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #ff4444 !important;
+            color: #ff4444;
+        }
+        
+        .modal-close:hover {
+            background: rgba(255,68,68,0.2);
+        }
+        
+        .modal-info {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: left;
+        }
+        
+        .modal-info p {
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+        
+        .modal-info strong {
+            color: #ffd700;
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2a1f0e;
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 15px 25px;
+            z-index: 99999;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.success {
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+        
+        .toast.error {
+            border-color: #ff4444;
+            color: #ff6666;
+        }
+        
+        .toast.info {
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                margin: 10px;
+                padding: 10px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .rtp-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .rtp-controls-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+            }
+            
+            .search-bar input {
+                width: 100%;
+            }
+            
+            th, td {
+                font-size: 0.8em;
+                padding: 8px 10px;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid,
+            .rtp-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Form -->
+    <div class="login-container" id="loginForm">
+        <h2>🛡️ Admin Login</h2>
+        <input type="password" id="adminPass" placeholder="Masukkan Password Admin">
+        <button class="login-btn" onclick="adminLogin()">Masuk</button>
+        <div class="message" id="loginMsg"></div>
+        <p style="color: #666; margin-top: 15px; font-size: 0.8em;">Default password: admin123</p>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard-container" id="dashboard">
+        <div class="dashboard-header">
+            <h2>🛡️ Dashboard Admin</h2>
+            <div class="header-actions">
+                <span class="admin-badge">👑 Admin</span>
+                <button class="logout-btn" onclick="adminLogout()">🚪 Keluar</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-box">
+                <h3>Total Pengguna</h3>
+                <div class="value" id="totalUsers">0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Total Saldo</h3>
+                <div class="value" id="totalBalance">Rp 0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Pengguna E-Wallet</h3>
+                <div class="value" id="totalEwallet">0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Pengguna Bank</h3>
+                <div class="value" id="totalBank">0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Total Transaksi</h3>
+                <div class="value" id="totalTransactions">0</div>
+            </div>
+            <div class="stat-box">
+                <h3>User Online</h3>
+                <div class="value" id="totalOnline">0</div>
+            </div>
+        </div>
+
+        <!-- RTP Control Panel -->
+        <div class="rtp-section">
+            <h3>🎯 RTP Control Panel</h3>
+            
+            <!-- RTP Statistics -->
+            <div class="rtp-stats-grid">
+                <div class="rtp-stat-box">
+                    <h4>Total Taruhan</h4>
+                    <div class="value" id="rtpTotalBet" style="color: #fff;">Rp 0</div>
+                </div>
+                <div class="rtp-stat-box">
+                    <h4>Total Kemenangan</h4>
+                    <div class="value" id="rtpTotalWin" style="color: #00ff88;">Rp 0</div>
+                </div>
+                <div class="rtp-stat-box">
+                    <h4>RTP Aktual</h4>
+                    <div class="value" id="rtpActual" style="color: #ffd700;">-</div>
+                </div>
+                <div class="rtp-stat-box">
+                    <h4>Total Game</h4>
+                    <div class="value" id="rtpTotalGames" style="color: #fff;">0</div>
+                </div>
+            </div>
+            
+            <!-- RTP Controls -->
+            <div class="rtp-controls-grid">
+                <!-- Global RTP -->
+                <div class="rtp-control-box">
+                    <h4>🌐 RTP Global</h4>
+                    <label>Default RTP (%)</label>
+                    <input type="number" id="rtpGlobal" min="1" max="100" value="90">
+                    <button onclick="saveRTPGlobal()">💾 Simpan Global</button>
+                    
+                    <label>Mode Kemenangan</label>
+                    <select id="rtpMode" onchange="saveRTPMode()">
+                        <option value="normal">🎲 Normal</option>
+                        <option value="loose">💰 Longgar</option>
+                        <option value="tight">🔒 Ketat</option>
+                        <option value="jackpot">🏆 Jackpot</option>
+                    </select>
+                    
+                    <label>Batas Max Win (Rp)</label>
+                    <input type="number" id="rtpMaxWin" value="1000000" placeholder="Contoh: 1000000">
+                    <button onclick="saveRTPMaxWin()">💾 Simpan Max Win</button>
+                </div>
+                
+                <!-- RTP per Kategori -->
+                <div class="rtp-control-box">
+                    <h4>🎰 RTP per Kategori</h4>
+                    <label>RTP Hewan (%)</label>
+                    <input type="number" id="rtpHewan" min="1" max="100" value="90">
+                    <button onclick="saveRTPHewan()">💾 Simpan Hewan</button>
+                    
+                    <label>RTP Naga/Harimau (%)</label>
+                    <input type="number" id="rtpNaga" min="1" max="100" value="80">
+                    <button onclick="saveRTPNaga()">💾 Simpan Naga</button>
+                </div>
+                
+                <!-- Quick Presets -->
+                <div class="rtp-control-box">
+                    <h4>⚡ Quick Settings</h4>
+                    <div class="preset-buttons">
+                        <button class="preset-btn preset-friendly" onclick="setRTPPreset(95)">🟢 Friendly Mode (95%)</button>
+                        <button class="preset-btn preset-normal" onclick="setRTPPreset(90)">🟡 Normal Mode (90%)</button>
+                        <button class="preset-btn preset-moderate" onclick="setRTPPreset(80)">🟠 Moderate Mode (80%)</button>
+                        <button class="preset-btn preset-hard" onclick="setRTPPreset(70)">🔴 Hard Mode (70%)</button>
+                        <button class="preset-btn preset-extreme" onclick="setRTPPreset(50)">💀 Extreme Mode (50%)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Cari username atau nama..." oninput="filterTable()">
+            <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
+        </div>
+
+        <!-- Users Table -->
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Username</th>
+                        <th>Nama</th>
+                        <th>No WhatsApp</th>
+                        <th>Metode WD</th>
+                        <th>Nomor Tujuan</th>
+                        <th>Nama Pemilik</th>
+                        <th>Saldo</th>
+                        <th>Terdaftar</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Edit Saldo -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3>✏️ Edit Saldo</h3>
+            <div class="modal-info">
+                <p><strong>Username:</strong> <span id="editUsername" style="color: #fff;"></span></p>
+                <p><strong>Saldo Saat Ini:</strong> <span id="editCurrentBalance" style="color: #00ff88;"></span></p>
+            </div>
+            <label>Masukkan Jumlah (Boleh Negatif)</label>
+            <input type="number" id="editAmount" placeholder="Contoh: 50000 atau -10000">
+            <div class="modal-btns">
+                <button class="modal-save" onclick="saveEdit()">💾 Simpan</button>
+                <button class="modal-close" onclick="closeModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Tambah Saldo -->
+    <div class="modal" id="addBalanceModal">
+        <div class="modal-content">
+            <h3>💰 Tambah Saldo</h3>
+            <div class="modal-info">
+                <p><strong>Username:</strong> <span id="addUsername" style="color: #fff;"></span></p>
+            </div>
+            <label>Masukkan Jumlah Saldo</label>
+            <input type="number" id="addAmount" placeholder="Contoh: 100000">
+            <div class="modal-btns">
+                <button class="modal-save" onclick="saveAddBalance()">💾 Tambahkan</button>
+                <button class="modal-close" onclick="closeModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail User -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <h3>📋 Detail User</h3>
+            <div class="modal-info" id="detailInfo"></div>
+            <div class="modal-btns">
+                <button class="modal-close" onclick="closeModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        // ========== STATE ==========
+        let editingUserId = null;
+        let addingBalanceUserId = null;
+        let allUsers = [];
+        let allTransactions = [];
+        let isAdminLoggedIn = false;
+        let usersRef = null;
+        let transactionsRef = null;
+        let rtpConfig = {
+            global: 90,
+            hewan: 90,
+            naga: 80,
+            mode: 'normal',
+            maxWin: 1000000
+        };
+
+        // ========== INITIALIZATION ==========
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🛡️ Admin panel loading...');
+            
+            await setupAdminPassword();
+            await loadRTPConfig();
+            
+            const adminSession = sessionStorage.getItem('adminSession');
+            if (adminSession) {
+                const session = JSON.parse(adminSession);
+                if (session.role === 'admin' && session.loginTime > Date.now() - 86400000) {
+                    showDashboard();
+                    return;
+                }
+            }
+            
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('adminPass').focus();
+        });
+
+        // ========== SETUP ADMIN PASSWORD ==========
+        async function setupAdminPassword() {
+            try {
+                const snapshot = await db.ref('adminConfig/passwordHash').once('value');
+                if (!snapshot.exists()) {
+                    console.log('🔧 Setting default admin password...');
+                    const defaultHash = await hashPassword('admin123');
+                    await db.ref('adminConfig/passwordHash').set(defaultHash);
+                    console.log('✅ Default admin password set: admin123');
+                }
+            } catch (error) {
+                console.error('❌ Error setting admin password:', error);
+            }
+        }
+
+        // ========== ADMIN LOGIN ==========
+        async function adminLogin() {
+            const pass = document.getElementById('adminPass').value;
+            const messageEl = document.getElementById('loginMsg');
+            
+            messageEl.className = 'message';
+            messageEl.textContent = '';
+            
+            if (!pass) {
+                messageEl.textContent = '❌ Password wajib diisi!';
+                messageEl.className = 'message error';
+                return;
+            }
+            
+            document.getElementById('loginBtn').disabled = true;
+            
+            try {
+                const hashedPass = await hashPassword(pass);
+                const snapshot = await db.ref('adminConfig/passwordHash').once('value');
+                const storedHash = snapshot.val();
+                
+                if (storedHash && storedHash === hashedPass) {
+                    messageEl.textContent = '✅ Login berhasil!';
+                    messageEl.className = 'message success';
+                    
+                    const adminSession = {
+                        role: 'admin',
+                        loginTime: Date.now(),
+                        sessionId: generateId('admin_')
+                    };
+                    
+                    sessionStorage.setItem('adminSession', JSON.stringify(adminSession));
+                    
+                    setTimeout(() => {
+                        showDashboard();
+                    }, 1000);
+                    
+                } else {
+                    throw new Error('Password admin salah!');
+                }
+                
+            } catch (error) {
+                messageEl.textContent = '❌ ' + error.message;
+                messageEl.className = 'message error';
+                document.getElementById('loginBtn').disabled = false;
+            }
+        }
+
+        // ========== ADMIN LOGOUT ==========
+        function adminLogout() {
+            if (confirm('Yakin ingin keluar dari admin panel?')) {
+                sessionStorage.removeItem('adminSession');
+                if (usersRef) usersRef.off();
+                if (transactionsRef) transactionsRef.off();
+                showToast('👋 Admin keluar', 'info');
+                setTimeout(() => window.location.reload(), 1000);
+            }
+        }
+
+        // ========== SHOW DASHBOARD ==========
+        function showDashboard() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            
+            loadUsers();
+            loadTransactions();
+            loadRTPStats();
+            updateRTPInputs();
+            
+            showToast('✅ Selamat datang, Admin!', 'success');
+        }
+
+        // ========== LOAD RTP CONFIG ==========
+        async function loadRTPConfig() {
+            try {
+                const snapshot = await db.ref('rtpConfig').once('value');
+                if (snapshot.exists()) {
+                    rtpConfig = { ...rtpConfig, ...snapshot.val() };
+                }
+            } catch (error) {
+                console.error('Error loading RTP config:', error);
+            }
+        }
+
+        // ========== UPDATE RTP INPUTS ==========
+        function updateRTPInputs() {
+            document.getElementById('rtpGlobal').value = rtpConfig.global;
+            document.getElementById('rtpHewan').value = rtpConfig.hewan;
+            document.getElementById('rtpNaga').value = rtpConfig.naga;
+            document.getElementById('rtpMaxWin').value = rtpConfig.maxWin;
+            document.getElementById('rtpMode').value = rtpConfig.mode;
+        }
+
+        // ========== SAVE RTP FUNCTIONS ==========
+        async function saveRTPGlobal() {
+            const value = parseInt(document.getElementById('rtpGlobal').value);
+            if (isNaN(value) || value < 1 || value > 100) {
+                showToast('❌ RTP harus antara 1-100%!', 'error');
+                return;
+            }
+            rtpConfig.global = value;
+            await saveRTPConfig();
+            showToast('✅ RTP Global disimpan: ' + value + '%', 'success');
+        }
+
+        async function saveRTPHewan() {
+            const value = parseInt(document.getElementById('rtpHewan').value);
+            if (isNaN(value) || value < 1 || value > 100) {
+                showToast('❌ RTP harus antara 1-100%!', 'error');
+                return;
+            }
+            rtpConfig.hewan = value;
+            await saveRTPConfig();
+            showToast('✅ RTP Hewan disimpan: ' + value + '%', 'success');
+        }
+
+        async function saveRTPNaga() {
+            const value = parseInt(document.getElementById('rtpNaga').value);
+            if (isNaN(value) || value < 1 || value > 100) {
+                showToast('❌ RTP harus antara 1-100%!', 'error');
+                return;
+            }
+            rtpConfig.naga = value;
+            await saveRTPConfig();
+            showToast('✅ RTP Naga disimpan: ' + value + '%', 'success');
+        }
+
+        async function saveRTPMode() {
+            rtpConfig.mode = document.getElementById('rtpMode').value;
+            await saveRTPConfig();
+            showToast('✅ Mode kemenangan: ' + rtpConfig.mode, 'success');
+        }
+
+        async function saveRTPMaxWin() {
+            const value = parseInt(document.getElementById('rtpMaxWin').value);
+            if (isNaN(value) || value < 0) return;
+            rtpConfig.maxWin = value;
+            await saveRTPConfig();
+            showToast('✅ Batas kemenangan maks: ' + formatRupiah(value), 'success');
+        }
+
+        async function saveRTPConfig() {
+            try {
+                await db.ref('rtpConfig').set(rtpConfig);
+                await db.ref('config/rtp').set(rtpConfig);
+                console.log('RTP Config saved:', rtpConfig);
+            } catch (error) {
+                console.error('Error saving RTP config:', error);
+                showToast('❌ Error saving config: ' + error.message, 'error');
+            }
+        }
+
+        async function setRTPPreset(rtpValue) {
+            if (!confirm(`Yakin ingin set RTP ke ${rtpValue}%?`)) return;
+            
+            rtpConfig.global = rtpValue;
+            rtpConfig.hewan = rtpValue;
+            rtpConfig.naga = Math.min(rtpValue, rtpValue - 10);
+            
+            if (rtpValue >= 95) {
+                rtpConfig.mode = 'loose';
+            } else if (rtpValue >= 85) {
+                rtpConfig.mode = 'normal';
+            } else if (rtpValue >= 70) {
+                rtpConfig.mode = 'tight';
+            } else {
+                rtpConfig.mode = 'jackpot';
+            }
+            
+            await saveRTPConfig();
+            updateRTPInputs();
+            showToast(`✅ RTP diset ke ${rtpValue}%`, 'success');
+        }
+
+        // ========== LOAD RTP STATS ==========
+        async function loadRTPStats() {
+            try {
+                const snapshot = await db.ref('gameHistory').once('value');
+                
+                let totalBet = 0;
+                let totalWin = 0;
+                let totalGames = 0;
+                
+                if (snapshot.exists()) {
+                    snapshot.forEach((userChild) => {
+                        const userHistory = userChild.val();
+                        if (userHistory) {
+                            Object.values(userHistory).forEach((game) => {
+                                totalGames++;
+                                totalBet += game.betAmount || 0;
+                                totalWin += game.winAmount || 0;
+                            });
+                        }
+                    });
+                }
+                
+                document.getElementById('rtpTotalBet').textContent = formatRupiah(totalBet);
+                document.getElementById('rtpTotalWin').textContent = formatRupiah(totalWin);
+                document.getElementById('rtpTotalGames').textContent = totalGames;
+                
+                const actualRTP = totalBet > 0 ? ((totalWin / totalBet) * 100) : 0;
+                document.getElementById('rtpActual').textContent = actualRTP.toFixed(1) + '%';
+                
+            } catch (error) {
+                console.error('Error loading RTP stats:', error);
+            }
+        }
+
+        // ========== LOAD USERS ==========
+        function loadUsers() {
+            if (usersRef) usersRef.off();
+            
+            usersRef = db.ref('users');
+            usersRef.on('value', (snapshot) => {
+                allUsers = [];
+                snapshot.forEach((child) => {
+                    const userData = child.val();
+                    allUsers.push({ 
+                        id: child.key, 
+                        ...userData,
+                        createdAt: userData.createdAt || child.key
+                    });
+                });
+                renderTable();
+                updateStats();
+            }, (error) => {
+                console.error('Error loading users:', error);
+                showToast('❌ Error loading users', 'error');
+            });
+        }
+
+        // ========== LOAD TRANSACTIONS ==========
+        function loadTransactions() {
+            if (transactionsRef) transactionsRef.off();
+            
+            transactionsRef = db.ref('transactions');
+            transactionsRef.on('value', (snapshot) => {
+                allTransactions = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((userChild) => {
+                        const userTransactions = userChild.val();
+                        if (userTransactions) {
+                            Object.values(userTransactions).forEach((transaction) => {
+                                allTransactions.push({
+                                    userId: userChild.key,
+                                    ...transaction
+                                });
+                            });
+                        }
+                    });
+                }
+                document.getElementById('totalTransactions').textContent = allTransactions.length;
+            }, (error) => {
+                console.error('Error loading transactions:', error);
+            });
+        }
+
+        // ========== UPDATE STATS ==========
+        function updateStats() {
+            document.getElementById('totalUsers').textContent = allUsers.length;
+            const totalBalance = allUsers.reduce((sum, user) => sum + (user.balance || 0), 0);
+            document.getElementById('totalBalance').textContent = formatRupiah(totalBalance);
+            document.getElementById('totalEwallet').textContent = allUsers.filter(user => user.withdrawMethod === 'E-Wallet').length;
+            document.getElementById('totalBank').textContent = allUsers.filter(user => user.withdrawMethod === 'Rekening Bank').length;
+            document.getElementById('totalOnline').textContent = allUsers.filter(user => user.online).length;
+        }
+
+        // ========== FILTER TABLE ==========
+        function filterTable() {
+            renderTable();
+        }
+
+        // ========== RENDER TABLE ==========
+        function renderTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filteredUsers = allUsers.filter(user => 
+                (user.username || '').toLowerCase().includes(searchTerm) || 
+                (user.nama || '').toLowerCase().includes(searchTerm) ||
+                (user.noWhatsapp || '').toLowerCase().includes(searchTerm)
+            );
+
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '';
+            
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 30px; color: #aaa;">Tidak ada user ditemukan</td></tr>';
+                return;
+            }
+
+            filteredUsers.forEach((user, index) => {
+                const date = formatDate(user.createdAt);
+                
+                let methodBadge = '<span style="color: #666;">-</span>';
+                if (user.withdrawMethod === 'E-Wallet') {
+                    methodBadge = '<span class="method-badge method-ewallet">📱 E-Wallet</span>';
+                } else if (user.withdrawMethod === 'Rekening Bank') {
+                    methodBadge = '<span class="method-badge method-bank">🏦 Bank</span>';
+                }
+                
+                const statusBadge = user.online 
+                    ? '<span class="status-badge status-online">🟢 Online</span>'
+                    : '<span class="status-badge status-offline">⚫ Offline</span>';
+                
+                let withdrawAccountHTML = user.withdrawAccount || '-';
+                if (user.withdrawAccount) {
+                    withdrawAccountHTML += ` <button class="copy-btn" onclick="copyText('${user.withdrawAccount}')">📋</button>`;
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><strong>${escapeHtml(user.username || '-')}</strong></td>
+                    <td>${escapeHtml(user.nama || '-')}</td>
+                    <td>${escapeHtml(user.noWhatsapp || '-')}</td>
+                    <td>${methodBadge}</td>
+                    <td>${withdrawAccountHTML}</td>
+                    <td>${escapeHtml(user.withdrawName || '-')}</td>
+                    <td style="color: #00ff88; font-weight: bold;">${formatRupiah(user.balance || 0)}</td>
+                    <td>${date}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="edit-btn" onclick="openEdit('${user.id}')" title="Edit saldo">✏️</button>
+                            <button class="edit-btn" onclick="openAddBalance('${user.id}')" title="Tambah saldo">💰</button>
+                            <button class="edit-btn" onclick="openDetail('${user.id}')" title="Detail">📋</button>
+                            <button class="delete-btn" onclick="deleteUser('${user.id}')" title="Hapus user">🗑️</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // ========== ESCAPE HTML ==========
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ========== COPY TEXT ==========
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('📋 Nomor disalin: ' + text, 'success');
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('📋 Nomor disalin: ' + text, 'success');
+            });
+        }
+
+        // ========== EDIT SALDO ==========
+        function openEdit(userId) {
+            editingUserId = userId;
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+            
+            document.getElementById('editUsername').textContent = user.username || user.nama;
+            document.getElementById('editCurrentBalance').textContent = formatRupiah(user.balance || 0);
+            document.getElementById('editAmount').value = '';
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        // ========== ADD BALANCE ==========
+        function openAddBalance(userId) {
+            addingBalanceUserId = userId;
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+            
+            document.getElementById('addUsername').textContent = user.username || user.nama;
+            document.getElementById('addAmount').value = '';
+            document.getElementById('addBalanceModal').classList.add('show');
+        }
+
+        // ========== USER DETAIL ==========
+        function openDetail(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+            
+            const detailInfo = document.getElementById('detailInfo');
+            const userTransactions = allTransactions.filter(t => t.userId === userId).slice(-5);
+            
+            let transactionHTML = '';
+            if (userTransactions.length > 0) {
+                transactionHTML = '<p><strong>Riwayat Transaksi Terakhir:</strong></p>';
+                userTransactions.reverse().forEach(transaction => {
+                    const transDate = formatDateTime(transaction.timestamp);
+                    const transType = transaction.type === 'topup' ? 'Top Up' : transaction.type === 'admin_edit' ? 'Admin Edit' : transaction.type;
+                    const transStatus = transaction.status === 'success' ? '✅' : transaction.status === 'pending' ? '⏳' : '❌';
+                    
+                    transactionHTML += `
+                        <p style="margin-left: 10px; font-size: 0.85em;">
+                            ${transStatus} ${transType}: ${formatRupiah(transaction.amount)} (${transDate})
+                        </p>
+                    `;
+                });
+            } else {
+                transactionHTML = '<p><strong>Riwayat Transaksi:</strong> Tidak ada</p>';
+            }
+            
+            detailInfo.innerHTML = `
+                <p><strong>User ID:</strong> ${user.id}</p>
+                <p><strong>Username:</strong> ${escapeHtml(user.username || '-')}</p>
+                <p><strong>Nama:</strong> ${escapeHtml(user.nama || '-')}</p>
+                <p><strong>No WhatsApp:</strong> ${escapeHtml(user.noWhatsapp || '-')}</p>
+                <p><strong>Metode WD:</strong> ${user.withdrawMethod || '-'}</p>
+                <p><strong>Nomor Tujuan:</strong> ${escapeHtml(user.withdrawAccount || '-')}</p>
+                <p><strong>Nama Pemilik:</strong> ${escapeHtml(user.withdrawName || '-')}</p>
+                <p><strong>Saldo:</strong> <span style="color: #00ff88;">${formatRupiah(user.balance || 0)}</span></p>
+                <p><strong>Role:</strong> ${user.role || 'user'}</p>
+                <p><strong>Terdaftar:</strong> ${formatDateTime(user.createdAt)}</p>
+                <p><strong>Last Login:</strong> ${user.lastLogin ? formatDateTime(user.lastLogin) : 'Belum pernah login'}</p>
+                <p><strong>Status:</strong> ${user.online ? '🟢 Online' : '⚫ Offline'}</p>
+                <hr style="border-color: rgba(139,105,20,0.3); margin: 15px 0;">
+                ${transactionHTML}
+            `;
+            
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        // ========== CLOSE MODAL ==========
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('show');
+            document.getElementById('addBalanceModal').classList.remove('show');
+            document.getElementById('detailModal').classList.remove('show');
+            editingUserId = null;
+            addingBalanceUserId = null;
+        }
+
+        // ========== SAVE EDIT ==========
+        async function saveEdit() {
+            if (!editingUserId) return;
+            const amount = parseInt(document.getElementById('editAmount').value);
+            if (isNaN(amount) || amount === 0) return;
+
+            if (!confirm(`Yakin ingin mengubah saldo sebesar ${formatRupiah(amount)}?`)) return;
+
+            try {
+                const snapshot = await db.ref('users/' + editingUserId + '/balance').once('value');
+                const currentBalance = snapshot.val() || 0;
+                const newBalance = currentBalance + amount;
+                
+                if (newBalance < 0) throw new Error('Saldo tidak boleh negatif!');
+                
+                await db.ref('users/' + editingUserId + '/balance').set(newBalance);
+                
+                await db.ref('transactions/' + editingUserId).push({
+                    type: 'admin_edit',
+                    amount: amount,
+                    adminId: 'admin',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    status: 'success',
+                    note: 'Admin edit saldo',
+                    newBalance: newBalance
+                });
+
+                showToast('✅ Saldo berhasil diubah!', 'success');
+                closeModal();
+                
+            } catch (error) {
+                showToast('❌ Error: ' + error.message, 'error');
+            }
+        }
+
+        // ========== SAVE ADD BALANCE ==========
+        async function saveAddBalance() {
+            if (!addingBalanceUserId) return;
+            const amount = parseInt(document.getElementById('addAmount').value);
+            if (isNaN(amount) || amount <= 0) return;
+
+            if (!confirm(`Yakin ingin menambahkan saldo sebesar ${formatRupiah(amount)}?`)) return;
+
+            try {
+                const snapshot = await db.ref('users/' + addingBalanceUserId + '/balance').once('value');
+                const currentBalance = snapshot.val() || 0;
+                const newBalance = currentBalance + amount;
+                
+                await db.ref('users/' + addingBalanceUserId + '/balance').set(newBalance);
+                
+                await db.ref('transactions/' + addingBalanceUserId).push({
+                    type: 'admin_add',
+                    amount: amount,
+                    adminId: 'admin',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    status: 'success',
+                    note: 'Admin tambah saldo',
+                    newBalance: newBalance
+                });
+
+                showToast('✅ Saldo berhasil ditambahkan!', 'success');
+                closeModal();
+                
+            } catch (error) {
+                showToast('❌ Error: ' + error.message, 'error');
+            }
+        }
+
+        // ========== DELETE USER ==========
+        async function deleteUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+            
+            if (!confirm(`Yakin ingin menghapus akun "${user.username}"?\n\n⚠️ Semua data akan dihapus permanen!`)) return;
+
+            try {
+                await db.ref('users/' + userId).remove();
+                await db.ref('transactions/' + userId).remove();
+                await db.ref('gameHistory/' + userId).remove();
+                if (user.username) {
+                    await db.ref('usernameIndex/' + user.username).remove();
+                }
+                await db.ref('withdrawRequests/' + userId).remove();
+                
+                showToast('🗑️ Akun berhasil dihapus!', 'success');
+                
+            } catch (error) {
+                showToast('❌ Error: ' + error.message, 'error');
+            }
+        }
+
+        // ========== REFRESH DATA ==========
+        function refreshData() {
+            loadUsers();
+            loadTransactions();
+            loadRTPStats();
+            showToast('🔄 Data berhasil di-refresh!', 'success');
+        }
+
+        // ========== TOAST ==========
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show ' + type;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ========== AUTO REFRESH ==========
+        setInterval(() => {
+            if (allUsers.length > 0) {
+                loadUsers();
+                loadTransactions();
+            }
+            loadRTPStats();
+        }, 30000);
+    </script>
+</body>
+  </html>
