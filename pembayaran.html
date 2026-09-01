@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💳 Pembayaran QRIS - Dragons Hunter</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8b6914">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dragons Hunter">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -63,6 +73,10 @@
             color: #00ff88;
             margin: 10px 0 20px;
             text-shadow: 0 0 15px rgba(0,255,136,0.4);
+            background: rgba(0,255,136,0.1);
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid rgba(0,255,136,0.3);
         }
         
         .qris-box {
@@ -187,6 +201,21 @@
             border-radius: 10px;
         }
         
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ffd700;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         @media (max-width: 480px) {
             .payment-container {
                 margin: 10px;
@@ -235,39 +264,22 @@
         <div class="countdown" id="countdown"></div>
     </div>
 
-    <style>
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #ffd700;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 10px auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
-
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK - Hanya Realtime Database -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     
     <script src="firebase-config.js"></script>
     
     <script>
-        // Ambil nominal top up dari localStorage
-        let topUpAmount = parseInt(localStorage.getItem('pendingTopUpAmount')) || 0;
-        let baseTopUpAmount = parseInt(localStorage.getItem('pendingTopUpBaseAmount')) || 0;
+        // Ambil nominal top up dari sessionStorage
+        let topUpAmount = parseInt(sessionStorage.getItem('pendingTopUpAmount')) || 0;
+        let baseTopUpAmount = parseInt(sessionStorage.getItem('pendingTopUpBaseAmount')) || 0;
         let countdownInterval = null;
-        let currentUser = null;
-        
+        let currentUserId = null;
+        let pollInterval = null;
+
         // Tampilkan nominal
-        document.getElementById('amountDisplay').textContent = 'Rp ' + topUpAmount.toLocaleString('id-ID');
+        document.getElementById('amountDisplay').textContent = formatRupiah(topUpAmount);
         
         // Cek apakah ada nominal top up
         if (topUpAmount === 0) { 
@@ -280,33 +292,32 @@
             startCountdown(15 * 60); // 15 menit dalam detik
             
             // Cek status login
-            checkAuthStatus();
+            checkSession();
         }
 
-        function checkAuthStatus() {
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    currentUser = user;
-                    console.log('User terautentikasi:', user.email);
-                    
-                    // Cek apakah sudah ada transaksi pending
-                    checkPendingTransaction();
-                } else {
-                    console.log('User belum login');
-                    document.getElementById('message').textContent = '❌ Anda belum login!';
-                    document.getElementById('message').className = 'message error';
-                    document.getElementById('confirmBtn').disabled = true;
-                    
-                    setTimeout(() => window.location.href = 'login.html', 2000);
-                }
-            });
+        function checkSession() {
+            const session = sessionStorage.getItem('dragonsHunterSession');
+            if (!session) {
+                document.getElementById('message').textContent = '❌ Anda belum login!';
+                document.getElementById('message').className = 'message error';
+                document.getElementById('confirmBtn').disabled = true;
+                
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
+            
+            const sessionData = JSON.parse(session);
+            currentUserId = sessionData.userId;
+            
+            // Cek apakah sudah ada transaksi pending
+            checkPendingTransaction();
         }
 
         function checkPendingTransaction() {
-            if (!currentUser) return;
+            if (!currentUserId) return;
             
             // Cek apakah ada transaksi pending untuk user ini
-            db.ref('transactions/' + currentUser.uid).orderByChild('status').equalTo('pending')
+            db.ref('transactions/' + currentUserId).orderByChild('status').equalTo('pending')
                 .limitToLast(1)
                 .once('value', (snapshot) => {
                     if (snapshot.exists()) {
@@ -345,8 +356,8 @@
                     document.getElementById('confirmBtn').disabled = true;
                     
                     // Hapus pending top up
-                    localStorage.removeItem('pendingTopUpAmount');
-                    localStorage.removeItem('pendingTopUpBaseAmount');
+                    sessionStorage.removeItem('pendingTopUpAmount');
+                    sessionStorage.removeItem('pendingTopUpBaseAmount');
                     
                     // Redirect ke index setelah 3 detik
                     setTimeout(() => window.location.href = 'index.html', 3000);
@@ -359,7 +370,7 @@
             const confirmBtn = document.getElementById('confirmBtn');
             const checkingStatus = document.getElementById('checkingStatus');
 
-            if (!currentUser) {
+            if (!currentUserId) {
                 messageEl.textContent = '❌ Anda belum login!';
                 messageEl.className = 'message error';
                 setTimeout(() => window.location.href = 'login.html', 1500);
@@ -372,15 +383,14 @@
             messageEl.className = 'message';
 
             // Buat transaksi pending
-            db.ref('transactions/' + currentUser.uid).push({
+            db.ref('transactions/' + currentUserId).push({
                 type: 'topup',
                 amount: topUpAmount,
                 baseAmount: baseTopUpAmount,
                 method: 'QRIS',
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 status: 'pending',
-                userId: currentUser.uid,
-                userEmail: currentUser.email
+                userId: currentUserId
             })
             .then((ref) => {
                 // Tampilkan status menunggu
@@ -389,7 +399,7 @@
                 messageEl.className = 'message';
                 
                 // Simpan ID transaksi
-                localStorage.setItem('pendingTransactionId', ref.key);
+                sessionStorage.setItem('pendingTransactionId', ref.key);
                 
                 // Mulai polling status
                 startPolling(ref.key);
@@ -408,61 +418,87 @@
             
             checkingStatus.style.display = 'block';
             
-            // Polling setiap 3 detik
-            const pollInterval = setInterval(() => {
-                db.ref('transactions/' + currentUser.uid + '/' + transactionId).once('value', (snapshot) => {
-                    const transaction = snapshot.val();
-                    
-                    if (transaction) {
-                        if (transaction.status === 'success') {
-                            // Transaksi berhasil
-                            clearInterval(pollInterval);
-                            
-                            // Update saldo user
-                            db.ref('users/' + currentUser.uid + '/balance').once('value', (balanceSnapshot) => {
-                                const currentBalance = balanceSnapshot.val() || 0;
-                                const newBalance = currentBalance + transaction.amount;
-                                
-                                db.ref('users/' + currentUser.uid + '/balance').set(newBalance).then(() => {
-                                    // Tampilkan pesan sukses
-                                    checkingStatus.style.display = 'none';
-                                    messageEl.textContent = '✅ Pembayaran berhasil! Saldo: Rp ' + newBalance.toLocaleString('id-ID');
-                                    messageEl.className = 'message success';
-                                    
-                                    // Hentikan countdown
-                                    if (countdownInterval) clearInterval(countdownInterval);
-                                    
-                                    // Hapus data dari localStorage
-                                    localStorage.removeItem('pendingTopUpAmount');
-                                    localStorage.removeItem('pendingTopUpBaseAmount');
-                                    localStorage.removeItem('pendingTransactionId');
-                                    
-                                    // Redirect ke index setelah 2 detik
-                                    setTimeout(() => window.location.href = 'index.html', 2000);
-                                });
-                            });
-                        } else if (transaction.status === 'failed') {
-                            // Transaksi gagal
-                            clearInterval(pollInterval);
+            // Gunakan on() untuk real-time update
+            db.ref('transactions/' + currentUserId + '/' + transactionId).on('value', (snapshot) => {
+                const transaction = snapshot.val();
+                
+                if (transaction) {
+                    if (transaction.status === 'success') {
+                        // Transaksi berhasil
+                        clearInterval(countdownInterval);
+                        if (pollInterval) clearInterval(pollInterval);
+                        
+                        // Update saldo user dengan transaction
+                        db.ref('users/' + currentUserId + '/balance').transaction((currentBalance) => {
+                            return (currentBalance || 0) + transaction.amount;
+                        }).then(() => {
+                            // Tampilkan pesan sukses
                             checkingStatus.style.display = 'none';
-                            messageEl.textContent = '❌ Pembayaran gagal. Silakan coba lagi.';
-                            messageEl.className = 'message error';
-                            document.getElementById('confirmBtn').disabled = false;
+                            messageEl.textContent = '✅ Pembayaran berhasil! Saldo telah diperbarui.';
+                            messageEl.className = 'message success';
                             
-                            // Hapus data dari localStorage
-                            localStorage.removeItem('pendingTopUpAmount');
-                            localStorage.removeItem('pendingTopUpBaseAmount');
-                            localStorage.removeItem('pendingTransactionId');
-                        }
+                            // Hapus data dari sessionStorage
+                            sessionStorage.removeItem('pendingTopUpAmount');
+                            sessionStorage.removeItem('pendingTopUpBaseAmount');
+                            sessionStorage.removeItem('pendingTransactionId');
+                            
+                            // Redirect ke index setelah 2 detik
+                            setTimeout(() => window.location.href = 'index.html', 2000);
+                        });
+                    } else if (transaction.status === 'failed') {
+                        // Transaksi gagal
+                        clearInterval(countdownInterval);
+                        if (pollInterval) clearInterval(pollInterval);
+                        
+                        checkingStatus.style.display = 'none';
+                        messageEl.textContent = '❌ Pembayaran gagal. Silakan coba lagi.';
+                        messageEl.className = 'message error';
+                        document.getElementById('confirmBtn').disabled = false;
+                        
+                        // Hapus data dari sessionStorage
+                        sessionStorage.removeItem('pendingTopUpAmount');
+                        sessionStorage.removeItem('pendingTopUpBaseAmount');
+                        sessionStorage.removeItem('pendingTransactionId');
+                        
+                        // Hentikan listener
+                        db.ref('transactions/' + currentUserId + '/' + transactionId).off();
                     }
-                });
-            }, 3000);
+                }
+            });
         }
         
         // Bersihkan interval saat halaman ditutup
         window.addEventListener('beforeunload', () => {
             if (countdownInterval) clearInterval(countdownInterval);
+            if (pollInterval) clearInterval(pollInterval);
         });
+    </script>
+
+    <!-- Registrasi Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker terdaftar:', registration.scope);
+                        
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('Update Service Worker tersedia');
+                                    if (confirm('Versi baru tersedia! Muat ulang halaman?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('Registrasi Service Worker gagal:', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
