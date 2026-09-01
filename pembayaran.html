@@ -30,86 +30,6 @@
             pointer-events: none;
         }
         
-        /* Background Hutan */
-        .forest-bg {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-        
-        .tree {
-            position: absolute;
-            bottom: 0;
-            width: 120px; height: 200px;
-            background: linear-gradient(180deg, #2d5a27, #1a3d15);
-            border-radius: 10px 10px 0 0;
-            animation: sway 5s ease-in-out infinite;
-        }
-        
-        .tree::before {
-            content: '';
-            position: absolute;
-            top: -40px; left: -20px;
-            width: 160px; height: 80px;
-            background: linear-gradient(135deg, #3a7d30, #2d5a27);
-            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-        }
-        
-        .tree:nth-child(1) { left: 10px; }
-        .tree:nth-child(2) { left: 15%; height: 240px; animation-delay: 1s; }
-        .tree:nth-child(3) { right: 10%; height: 180px; animation-delay: 2s; }
-        .tree:nth-child(4) { right: 20px; height: 260px; animation-delay: 3s; }
-        .tree:nth-child(5) { left: 40%; height: 220px; animation-delay: 4s; }
-        .tree:nth-child(6) { right: 40%; height: 200px; animation-delay: 5s; }
-        
-        .fireflies {
-            position: absolute;
-            width: 6px; height: 6px;
-            background: #ffe066;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #ffe066;
-            animation: fly 8s infinite;
-        }
-        
-        .fireflies:nth-child(7) { top: 30%; left: 20%; animation-delay: 0s; }
-        .fireflies:nth-child(8) { top: 50%; left: 80%; animation-delay: 2s; }
-        .fireflies:nth-child(9) { top: 70%; left: 50%; animation-delay: 4s; }
-        .fireflies:nth-child(10) { top: 40%; left: 70%; animation-delay: 6s; }
-        .fireflies:nth-child(11) { top: 60%; left: 30%; animation-delay: 1s; }
-        .fireflies:nth-child(12) { top: 20%; left: 60%; animation-delay: 3s; }
-        .fireflies:nth-child(13) { top: 80%; left: 90%; animation-delay: 5s; }
-        .fireflies:nth-child(14) { top: 45%; left: 10%; animation-delay: 7s; }
-        
-        .moon {
-            position: absolute;
-            top: 50px; right: 100px;
-            width: 80px; height: 80px;
-            background: radial-gradient(circle, #fff, #f1c40f);
-            border-radius: 50%;
-            box-shadow: 0 0 40px #f1c40f, 0 0 80px rgba(241,196,15,0.3);
-            animation: moonGlow 3s ease-in-out infinite alternate;
-        }
-        
-        @keyframes sway {
-            0%, 100% { transform: rotate(-2deg); }
-            50% { transform: rotate(2deg); }
-        }
-        
-        @keyframes fly {
-            0%, 100% { transform: translate(0, 0); opacity: 0.3; }
-            25% { transform: translate(15px, -20px); opacity: 1; }
-            50% { transform: translate(-10px, -35px); opacity: 0.6; }
-            75% { transform: translate(20px, -15px); opacity: 0.8; }
-        }
-        
-        @keyframes moonGlow {
-            from { box-shadow: 0 0 40px #f1c40f; }
-            to { box-shadow: 0 0 60px #f1c40f, 0 0 100px rgba(241,196,15,0.5); }
-        }
-        
-        /* Payment Container */
         .payment-container {
             max-width: 480px;
             width: 90%;
@@ -259,6 +179,14 @@
             color: #aaa;
         }
         
+        .checking-status {
+            display: none;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        
         @media (max-width: 480px) {
             .payment-container {
                 margin: 10px;
@@ -272,25 +200,6 @@
     </style>
 </head>
 <body>
-    <!-- Background -->
-    <div class="forest-bg">
-        <div class="tree"></div>
-        <div class="tree"></div>
-        <div class="tree"></div>
-        <div class="tree"></div>
-        <div class="tree"></div>
-        <div class="tree"></div>
-        <div class="fireflies"></div>
-        <div class="fireflies"></div>
-        <div class="fireflies"></div>
-        <div class="fireflies"></div>
-        <div class="fireflies"></div>
-        <div class="fireflies"></div>
-        <div class="fireflies"></div>
-        <div class="fireflies"></div>
-        <div class="moon"></div>
-    </div>
-
     <!-- Payment Container -->
     <div class="payment-container">
         <h2>💳 Pembayaran QRIS</h2>
@@ -299,7 +208,8 @@
         <div class="amount-display" id="amountDisplay">Rp 0</div>
         
         <div class="qris-box">
-            <img src="qris-topup.png" alt="QRIS Pembayaran">
+            <!-- Placeholder QRIS - Ganti dengan QRIS merchant Anda -->
+            <img src="qris-topup.png" alt="QRIS Pembayaran" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=QRIS-Payment-Test'">
         </div>
         
         <div class="instructions">
@@ -316,9 +226,31 @@
         <button class="confirm-btn" id="confirmBtn" onclick="confirmPayment()">✅ Saya Sudah Bayar</button>
         <button class="back-btn" onclick="window.location.href='index.html'">⬅ Kembali ke Game</button>
         
+        <div class="checking-status" id="checkingStatus">
+            <p>⏳ Menunggu konfirmasi pembayaran...</p>
+            <div class="spinner"></div>
+        </div>
+        
         <div class="message" id="message"></div>
         <div class="countdown" id="countdown"></div>
     </div>
+
+    <style>
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ffd700;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -330,7 +262,9 @@
     <script>
         // Ambil nominal top up dari localStorage
         let topUpAmount = parseInt(localStorage.getItem('pendingTopUpAmount')) || 0;
+        let baseTopUpAmount = parseInt(localStorage.getItem('pendingTopUpBaseAmount')) || 0;
         let countdownInterval = null;
+        let currentUser = null;
         
         // Tampilkan nominal
         document.getElementById('amountDisplay').textContent = 'Rp ' + topUpAmount.toLocaleString('id-ID');
@@ -340,9 +274,56 @@
             document.getElementById('message').textContent = '❌ Tidak ada nominal top up!'; 
             document.getElementById('message').className = 'message error'; 
             document.getElementById('confirmBtn').disabled = true; 
+            document.getElementById('countdown').textContent = 'Silakan kembali ke game dan pilih nominal top up.';
         } else {
             // Mulai countdown 15 menit
             startCountdown(15 * 60); // 15 menit dalam detik
+            
+            // Cek status login
+            checkAuthStatus();
+        }
+
+        function checkAuthStatus() {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    console.log('User terautentikasi:', user.email);
+                    
+                    // Cek apakah sudah ada transaksi pending
+                    checkPendingTransaction();
+                } else {
+                    console.log('User belum login');
+                    document.getElementById('message').textContent = '❌ Anda belum login!';
+                    document.getElementById('message').className = 'message error';
+                    document.getElementById('confirmBtn').disabled = true;
+                    
+                    setTimeout(() => window.location.href = 'login.html', 2000);
+                }
+            });
+        }
+
+        function checkPendingTransaction() {
+            if (!currentUser) return;
+            
+            // Cek apakah ada transaksi pending untuk user ini
+            db.ref('transactions/' + currentUser.uid).orderByChild('status').equalTo('pending')
+                .limitToLast(1)
+                .once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        // Ada transaksi pending
+                        snapshot.forEach((child) => {
+                            const transaction = child.val();
+                            if (transaction.amount === topUpAmount) {
+                                // Transaksi sudah ada, tampilkan status
+                                document.getElementById('checkingStatus').style.display = 'block';
+                                document.getElementById('confirmBtn').disabled = true;
+                                
+                                // Mulai polling untuk cek status
+                                startPolling(child.key);
+                            }
+                        });
+                    }
+                });
         }
 
         function startCountdown(seconds) {
@@ -365,6 +346,7 @@
                     
                     // Hapus pending top up
                     localStorage.removeItem('pendingTopUpAmount');
+                    localStorage.removeItem('pendingTopUpBaseAmount');
                     
                     // Redirect ke index setelah 3 detik
                     setTimeout(() => window.location.href = 'index.html', 3000);
@@ -375,54 +357,106 @@
         function confirmPayment() {
             const messageEl = document.getElementById('message');
             const confirmBtn = document.getElementById('confirmBtn');
+            const checkingStatus = document.getElementById('checkingStatus');
+
+            if (!currentUser) {
+                messageEl.textContent = '❌ Anda belum login!';
+                messageEl.className = 'message error';
+                setTimeout(() => window.location.href = 'login.html', 1500);
+                return;
+            }
 
             // Nonaktifkan tombol
             confirmBtn.disabled = true;
             messageEl.textContent = '⏳ Memverifikasi pembayaran...';
             messageEl.className = 'message';
 
-            // Cek autentikasi
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    // Ambil saldo saat ini
-                    db.ref('users/' + user.uid + '/balance').once('value', (snapshot) => {
-                        const currentBalance = snapshot.val() || 0;
-                        const newBalance = currentBalance + topUpAmount;
-                        
-                        // Update saldo di Realtime Database
-                        db.ref('users/' + user.uid + '/balance').set(newBalance).then(() => {
-                            // Simpan riwayat transaksi
-                            db.ref('transactions/' + user.uid).push({
-                                type: 'topup',
-                                amount: topUpAmount,
-                                method: 'QRIS',
-                                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                                status: 'success'
-                            }).then(() => {
-                                // Hapus pending top up dari localStorage
-                                localStorage.removeItem('pendingTopUpAmount');
-                                
-                                // Tampilkan pesan sukses
-                                messageEl.textContent = '✅ Pembayaran berhasil! Saldo: Rp ' + newBalance.toLocaleString('id-ID');
-                                messageEl.className = 'message success';
-                                
-                                // Hentikan countdown
-                                if (countdownInterval) clearInterval(countdownInterval);
-                                
-                                // Redirect ke index setelah 2 detik
-                                setTimeout(() => window.location.href = 'index.html', 2000);
-                            });
-                        });
-                    });
-                } else {
-                    // User belum login
-                    messageEl.textContent = '❌ Anda belum login!';
-                    messageEl.className = 'message error';
-                    
-                    // Redirect ke login setelah 1.5 detik
-                    setTimeout(() => window.location.href = 'login.html', 1500);
-                }
+            // Buat transaksi pending
+            db.ref('transactions/' + currentUser.uid).push({
+                type: 'topup',
+                amount: topUpAmount,
+                baseAmount: baseTopUpAmount,
+                method: 'QRIS',
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                status: 'pending',
+                userId: currentUser.uid,
+                userEmail: currentUser.email
+            })
+            .then((ref) => {
+                // Tampilkan status menunggu
+                checkingStatus.style.display = 'block';
+                messageEl.textContent = '';
+                messageEl.className = 'message';
+                
+                // Simpan ID transaksi
+                localStorage.setItem('pendingTransactionId', ref.key);
+                
+                // Mulai polling status
+                startPolling(ref.key);
+            })
+            .catch((error) => {
+                console.error('Error membuat transaksi:', error);
+                messageEl.textContent = '❌ Gagal membuat transaksi: ' + error.message;
+                messageEl.className = 'message error';
+                confirmBtn.disabled = false;
             });
+        }
+
+        function startPolling(transactionId) {
+            const checkingStatus = document.getElementById('checkingStatus');
+            const messageEl = document.getElementById('message');
+            
+            checkingStatus.style.display = 'block';
+            
+            // Polling setiap 3 detik
+            const pollInterval = setInterval(() => {
+                db.ref('transactions/' + currentUser.uid + '/' + transactionId).once('value', (snapshot) => {
+                    const transaction = snapshot.val();
+                    
+                    if (transaction) {
+                        if (transaction.status === 'success') {
+                            // Transaksi berhasil
+                            clearInterval(pollInterval);
+                            
+                            // Update saldo user
+                            db.ref('users/' + currentUser.uid + '/balance').once('value', (balanceSnapshot) => {
+                                const currentBalance = balanceSnapshot.val() || 0;
+                                const newBalance = currentBalance + transaction.amount;
+                                
+                                db.ref('users/' + currentUser.uid + '/balance').set(newBalance).then(() => {
+                                    // Tampilkan pesan sukses
+                                    checkingStatus.style.display = 'none';
+                                    messageEl.textContent = '✅ Pembayaran berhasil! Saldo: Rp ' + newBalance.toLocaleString('id-ID');
+                                    messageEl.className = 'message success';
+                                    
+                                    // Hentikan countdown
+                                    if (countdownInterval) clearInterval(countdownInterval);
+                                    
+                                    // Hapus data dari localStorage
+                                    localStorage.removeItem('pendingTopUpAmount');
+                                    localStorage.removeItem('pendingTopUpBaseAmount');
+                                    localStorage.removeItem('pendingTransactionId');
+                                    
+                                    // Redirect ke index setelah 2 detik
+                                    setTimeout(() => window.location.href = 'index.html', 2000);
+                                });
+                            });
+                        } else if (transaction.status === 'failed') {
+                            // Transaksi gagal
+                            clearInterval(pollInterval);
+                            checkingStatus.style.display = 'none';
+                            messageEl.textContent = '❌ Pembayaran gagal. Silakan coba lagi.';
+                            messageEl.className = 'message error';
+                            document.getElementById('confirmBtn').disabled = false;
+                            
+                            // Hapus data dari localStorage
+                            localStorage.removeItem('pendingTopUpAmount');
+                            localStorage.removeItem('pendingTopUpBaseAmount');
+                            localStorage.removeItem('pendingTransactionId');
+                        }
+                    }
+                });
+            }, 3000);
         }
         
         // Bersihkan interval saat halaman ditutup
