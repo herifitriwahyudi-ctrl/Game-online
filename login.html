@@ -32,8 +32,8 @@
 
         <form id="loginForm">
             <div class="input-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" placeholder="Masukkan email" required autocomplete="username">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Masukkan username" required autocomplete="username">
             </div>
 
             <div class="input-group">
@@ -60,7 +60,7 @@
         function handleLogin(event) {
             event.preventDefault();
 
-            const email = document.getElementById('email').value.trim();
+            const username = document.getElementById('username').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
             const messageEl = document.getElementById('message');
 
@@ -71,8 +71,22 @@
             messageEl.textContent = '⏳ Memproses login...';
             messageEl.className = 'message';
 
-            // Firebase Authentication
-            auth.signInWithEmailAndPassword(email, password)
+            // Cari user berdasarkan username di database
+            db.ref('users').orderByChild('username').equalTo(username).once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        throw new Error('Username tidak ditemukan!');
+                    }
+                    
+                    // Ambil email dummy dari database
+                    let userEmail = null;
+                    snapshot.forEach((child) => {
+                        userEmail = child.val().email;
+                    });
+                    
+                    // Login dengan email dummy
+                    return auth.signInWithEmailAndPassword(userEmail, password);
+                })
                 .then((userCredential) => {
                     const user = userCredential.user;
                     
@@ -83,6 +97,7 @@
                             // Simpan user aktif di localStorage (untuk sesi)
                             localStorage.setItem('dragonsHunterActiveUser', JSON.stringify({
                                 uid: user.uid,
+                                username: userData.username,
                                 email: user.email,
                                 ...userData
                             }));
