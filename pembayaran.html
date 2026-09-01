@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💳 Pembayaran QRIS - Dragons Hunter</title>
     
-    <!-- PWA Manifest -->
+    <!-- PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#8b6914">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -237,7 +237,7 @@
         <div class="amount-display" id="amountDisplay">Rp 0</div>
         
         <div class="qris-box">
-            <!-- Placeholder QRIS - Ganti dengan QRIS merchant Anda -->
+            <!-- Placeholder QRIS -->
             <img src="qris-topup.png" alt="QRIS Pembayaran" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=QRIS-Payment-Test'">
         </div>
         
@@ -264,19 +264,20 @@
         <div class="countdown" id="countdown"></div>
     </div>
 
-    <!-- Firebase SDK - Hanya Realtime Database -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     
     <script src="firebase-config.js"></script>
     
     <script>
-        // Ambil nominal top up dari sessionStorage
+        // State
         let topUpAmount = parseInt(sessionStorage.getItem('pendingTopUpAmount')) || 0;
         let baseTopUpAmount = parseInt(sessionStorage.getItem('pendingTopUpBaseAmount')) || 0;
         let countdownInterval = null;
         let currentUserId = null;
-        let pollInterval = null;
+        let isProcessing = false;
+        let pollTimeout = null;
 
         // Tampilkan nominal
         document.getElementById('amountDisplay').textContent = formatRupiah(topUpAmount);
@@ -289,14 +290,14 @@
             document.getElementById('countdown').textContent = 'Silakan kembali ke game dan pilih nominal top up.';
         } else {
             // Mulai countdown 15 menit
-            startCountdown(15 * 60); // 15 menit dalam detik
+            startCountdown(15 * 60);
             
             // Cek status login
             checkSession();
         }
 
-        function checkSession() {
-            const session = sessionStorage.getItem('dragonsHunterSession');
+        async function checkSession() {
+            const session = await verifySession();
             if (!session) {
                 document.getElementById('message').textContent = '❌ Anda belum login!';
                 document.getElementById('message').className = 'message error';
@@ -306,8 +307,7 @@
                 return;
             }
             
-            const sessionData = JSON.parse(session);
-            currentUserId = sessionData.userId;
+            currentUserId = session.userId;
             
             // Cek apakah sudah ada transaksi pending
             checkPendingTransaction();
@@ -321,11 +321,9 @@
                 .limitToLast(1)
                 .once('value', (snapshot) => {
                     if (snapshot.exists()) {
-                        // Ada transaksi pending
                         snapshot.forEach((child) => {
                             const transaction = child.val();
                             if (transaction.amount === topUpAmount) {
-                                // Transaksi sudah ada, tampilkan status
                                 document.getElementById('checkingStatus').style.display = 'block';
                                 document.getElementById('confirmBtn').disabled = true;
                                 
@@ -355,17 +353,19 @@
                     document.getElementById('message').className = 'message error';
                     document.getElementById('confirmBtn').disabled = true;
                     
-                    // Hapus pending top up
                     sessionStorage.removeItem('pendingTopUpAmount');
                     sessionStorage.removeItem('pendingTopUpBaseAmount');
                     
-                    // Redirect ke index setelah 3 detik
                     setTimeout(() => window.location.href = 'index.html', 3000);
                 }
             }, 1000);
         }
 
         function confirmPayment() {
+            // Prevent double submission
+            if (isProcessing) return;
+            isProcessing = true;
+
             const messageEl = document.getElementById('message');
             const confirmBtn = document.getElementById('confirmBtn');
             const checkingStatus = document.getElementById('checkingStatus');
@@ -378,7 +378,7 @@
             }
 
             // Nonaktifkan tombol
-            confirmBtn.disabled = true;
+            lockButton(confirmBtn);
             messageEl.textContent = '⏳ Memverifikasi pembayaran...';
             messageEl.className = 'message';
 
@@ -408,7 +408,8 @@
                 console.error('Error membuat transaksi:', error);
                 messageEl.textContent = '❌ Gagal membuat transaksi: ' + error.message;
                 messageEl.className = 'message error';
-                confirmBtn.disabled = false;
+                unlockButton(confirmBtn);
+                isProcessing = false;
             });
         }
 
@@ -419,14 +420,27 @@
             checkingStatus.style.display = 'block';
             
             // Gunakan on() untuk real-time update
-            db.ref('transactions/' + currentUserId + '/' + transactionId).on('value', (snapshot) => {
+            const transactionRef = db.ref('transactions/' + currentUserId + '/' + transactionId);
+            
+            // Set timeout untuk polling maksimal 2 menit
+            pollTimeout = setTimeout(() => {
+                transactionRef.off();
+                checkingStatus.style.display = 'none';
+                messageEl.textContent = '⏱️ Waktu verifikasi habis. Hubungi admin.';
+                messageEl.className = 'message error';
+                unlockButton(document.getElementById('confirmBtn'));
+                isProcessing = false;
+            }, 120000); // 2 menit
+
+            transactionRef.on('value', (snapshot) => {
                 const transaction = snapshot.val();
                 
                 if (transaction) {
                     if (transaction.status === 'success') {
                         // Transaksi berhasil
+                        clearTimeout(pollTimeout);
+                        transactionRef.off();
                         clearInterval(countdownInterval);
-                        if (pollInterval) clearInterval(pollInterval);
                         
                         // Update saldo user dengan transaction
                         db.ref('users/' + currentUserId + '/balance').transaction((currentBalance) => {
@@ -437,31 +451,27 @@
                             messageEl.textContent = '✅ Pembayaran berhasil! Saldo telah diperbarui.';
                             messageEl.className = 'message success';
                             
-                            // Hapus data dari sessionStorage
                             sessionStorage.removeItem('pendingTopUpAmount');
                             sessionStorage.removeItem('pendingTopUpBaseAmount');
                             sessionStorage.removeItem('pendingTransactionId');
                             
-                            // Redirect ke index setelah 2 detik
                             setTimeout(() => window.location.href = 'index.html', 2000);
                         });
                     } else if (transaction.status === 'failed') {
                         // Transaksi gagal
+                        clearTimeout(pollTimeout);
+                        transactionRef.off();
                         clearInterval(countdownInterval);
-                        if (pollInterval) clearInterval(pollInterval);
                         
                         checkingStatus.style.display = 'none';
                         messageEl.textContent = '❌ Pembayaran gagal. Silakan coba lagi.';
                         messageEl.className = 'message error';
-                        document.getElementById('confirmBtn').disabled = false;
+                        unlockButton(document.getElementById('confirmBtn'));
+                        isProcessing = false;
                         
-                        // Hapus data dari sessionStorage
                         sessionStorage.removeItem('pendingTopUpAmount');
                         sessionStorage.removeItem('pendingTopUpBaseAmount');
                         sessionStorage.removeItem('pendingTransactionId');
-                        
-                        // Hentikan listener
-                        db.ref('transactions/' + currentUserId + '/' + transactionId).off();
                     }
                 }
             });
@@ -470,11 +480,11 @@
         // Bersihkan interval saat halaman ditutup
         window.addEventListener('beforeunload', () => {
             if (countdownInterval) clearInterval(countdownInterval);
-            if (pollInterval) clearInterval(pollInterval);
+            if (pollTimeout) clearTimeout(pollTimeout);
         });
     </script>
 
-    <!-- Registrasi Service Worker -->
+    <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -486,10 +496,7 @@
                             const newWorker = registration.installing;
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    console.log('Update Service Worker tersedia');
-                                    if (confirm('Versi baru tersedia! Muat ulang halaman?')) {
-                                        window.location.reload();
-                                    }
+                                    newWorker.postMessage({ type: 'SKIP_WAITING' });
                                 }
                             });
                         });
