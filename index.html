@@ -1126,26 +1126,25 @@
         }
 
         function processPayment() {
+   
             if (selectedTopUp === 0) {
                 alert('Pilih nominal top up terlebih dahulu!');
                 return;
             }
 
+    // Hitung bonus
             let bonus = 0;
             if (selectedTopUp >= 200000) bonus = 30;
             else if (selectedTopUp >= 100000) bonus = 20;
             else if (selectedTopUp >= 50000) bonus = 10;
-
+            
             const totalDeposit = selectedTopUp + (selectedTopUp * bonus / 100);
-            
-            balance += totalDeposit;
-            saveBalance();
-            
-            document.getElementById('balance').textContent = balance;
-            
-            alert(`✅ Top up berhasil! Saldo Anda: ${balance}`);
-            
-            closeTopUp();
+    
+    // Simpan nominal yang akan dibayar ke localStorage
+            localStorage.setItem('pendingTopUpAmount', totalDeposit);
+    
+    // Arahkan ke halaman pembayaran QRIS
+            window.location.href = 'pembayaran.html';
         }
 
         // ========== WITHDRAW (PENARIKAN) ==========
