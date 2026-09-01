@@ -4,57 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🐉 Login - Dragons Hunter</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8b6914">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dragons Hunter">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Georgia', serif; background: url('background-dragon.png') no-repeat center center fixed; background-size: cover; background-color: #0a1f14; min-height: 100vh; overflow-x: hidden; color: #fff; display: flex; align-items: center; justify-content: center; }
         body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 31, 20, 0.7); z-index: -1; pointer-events: none; }
         
         /* Intro Video Overlay */
-        .intro-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 99999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.8s ease;
-        }
-        
-        .intro-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .intro-overlay video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .intro-overlay .skip-btn {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid #fff;
-            color: #fff;
-            padding: 10px 25px;
-            font-size: 0.9em;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 2;
-        }
-        
-        .intro-overlay .skip-btn:hover {
-            background: rgba(255,255,255,0.4);
-            transform: scale(1.05);
-        }
+        .intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.8s ease; }
+        .intro-overlay.hidden { opacity: 0; pointer-events: none; }
+        .intro-overlay video { width: 100%; height: 100%; object-fit: cover; }
+        .intro-overlay .skip-btn { position: absolute; bottom: 20px; right: 20px; background: rgba(255,255,255,0.2); border: 2px solid #fff; color: #fff; padding: 10px 25px; font-size: 0.9em; font-weight: bold; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; z-index: 2; }
+        .intro-overlay .skip-btn:hover { background: rgba(255,255,255,0.4); transform: scale(1.05); }
         
         .login-container { max-width: 400px; width: 90%; margin: 20px; padding: 30px; background: linear-gradient(145deg, #2a1f0e, #1a1208); border-radius: 30px; border: 4px solid #8b6914; box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3); text-align: center; position: relative; z-index: 10; }
         .login-container h2 { color: #ffd700; margin-bottom: 10px; font-size: 2em; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
@@ -71,6 +41,13 @@
         .message { margin-top: 15px; padding: 10px; border-radius: 8px; font-size: 0.9em; display: none; }
         .message.error { background: rgba(255,68,68,0.2); border: 2px solid #ff4444; color: #ff6666; display: block; }
         .message.success { background: rgba(0,255,136,0.2); border: 2px solid #00ff88; color: #00ff88; display: block; }
+        
+        .caps-lock-warning { display: none; color: #ffaa00; font-size: 0.8em; margin-top: 5px; }
+        
+        @media (max-width: 480px) {
+            .login-container { margin: 10px; padding: 20px; }
+            .login-container h2 { font-size: 1.5em; }
+        }
     </style>
 </head>
 <body>
@@ -92,11 +69,13 @@
             <div class="input-group">
                 <label for="username">Username</label>
                 <input type="text" id="username" placeholder="Masukkan username" required autocomplete="username">
+                <div class="caps-lock-warning" id="capsLockWarning">⚠️ Caps Lock aktif!</div>
             </div>
 
             <div class="input-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" placeholder="Masukkan password" required autocomplete="current-password">
+                <div class="caps-lock-warning" id="capsLockWarning2">⚠️ Caps Lock aktif!</div>
             </div>
 
             <button type="submit" class="login-btn" id="loginBtn">Masuk</button>
@@ -107,9 +86,8 @@
         <a href="register.html" class="register-link">Belum punya akun? Daftar di sini</a>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK - Hanya Realtime Database -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     
     <script src="firebase-config.js"></script>
@@ -163,8 +141,23 @@
             document.getElementById('username').focus();
         }
 
+        // ========== DETEKSI CAPS LOCK ==========
+        function detectCapsLock(event, warningId) {
+            const warning = document.getElementById(warningId);
+            if (event.getModifierState) {
+                if (event.getModifierState('CapsLock')) {
+                    warning.style.display = 'block';
+                } else {
+                    warning.style.display = 'none';
+                }
+            }
+        }
+
+        document.getElementById('username').addEventListener('keyup', (e) => detectCapsLock(e, 'capsLockWarning'));
+        document.getElementById('password').addEventListener('keyup', (e) => detectCapsLock(e, 'capsLockWarning2'));
+
         // ========== LOGIN ==========
-        function handleLogin(event) {
+        async function handleLogin(event) {
             event.preventDefault();
 
             const username = document.getElementById('username').value.trim().toLowerCase();
@@ -174,58 +167,123 @@
             messageEl.className = 'message';
             messageEl.textContent = '';
 
+            // Validasi input
+            if (!username || !password) {
+                messageEl.textContent = '❌ Username dan password wajib diisi!';
+                messageEl.className = 'message error';
+                return;
+            }
+
             document.getElementById('loginBtn').disabled = true;
             messageEl.textContent = '⏳ Memproses login...';
             messageEl.className = 'message';
 
-            // Cari user berdasarkan username di database
-            db.ref('users').orderByChild('username').equalTo(username).once('value')
-                .then((snapshot) => {
-                    if (!snapshot.exists()) {
-                        throw new Error('Username tidak ditemukan!');
-                    }
-                    
-                    // Ambil email dummy dari database
-                    let userEmail = null;
-                    snapshot.forEach((child) => {
-                        userEmail = child.val().email;
-                    });
-                    
-                    // Login dengan email dummy
-                    return auth.signInWithEmailAndPassword(userEmail, password);
-                })
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    
-                    // Ambil data dari Realtime Database
-                    return db.ref('users/' + user.uid).once('value').then((snapshot) => {
-                        if (snapshot.exists()) {
-                            const userData = snapshot.val();
-                            // Simpan user aktif di localStorage (untuk sesi)
-                            localStorage.setItem('dragonsHunterActiveUser', JSON.stringify({
-                                uid: user.uid,
-                                username: userData.username,
-                                email: user.email,
-                                ...userData
-                            }));
-                        }
-                    });
-                })
-                .then(() => {
-                    messageEl.textContent = '✅ Login berhasil! Mengalihkan ke permainan...';
-                    messageEl.className = 'message success';
-                    setTimeout(() => window.location.href = 'index.html', 1500);
-                })
-                .catch((error) => {
-                    messageEl.textContent = '❌ ' + error.message;
-                    messageEl.className = 'message error';
-                    document.getElementById('loginBtn').disabled = false;
+            try {
+                // Hash password untuk perbandingan
+                const hashedPassword = await hashPassword(password);
+
+                // Cari user berdasarkan username
+                const snapshot = await db.ref('users').orderByChild('username').equalTo(username).once('value');
+                
+                if (!snapshot.exists()) {
+                    throw new Error('Username tidak ditemukan!');
+                }
+
+                // Ambil data user
+                let userData = null;
+                let userId = null;
+                snapshot.forEach((child) => {
+                    userId = child.key;
+                    userData = child.val();
                 });
+
+                // Verifikasi password
+                if (userData.passwordHash !== hashedPassword) {
+                    throw new Error('Password salah!');
+                }
+
+                // Update last login
+                await db.ref('users/' + userId + '/lastLogin').set(firebase.database.ServerValue.TIMESTAMP);
+
+                // Simpan sesi login di sessionStorage
+                const sessionData = {
+                    userId: userId,
+                    username: userData.username,
+                    nama: userData.nama,
+                    balance: userData.balance,
+                    role: userData.role || 'user',
+                    loginTime: Date.now()
+                };
+
+                sessionStorage.setItem('dragonsHunterSession', JSON.stringify(sessionData));
+                localStorage.setItem('dragonsHunterActiveUser', JSON.stringify(sessionData));
+
+                // Update status online
+                await db.ref('users/' + userId + '/online').set(true);
+
+                messageEl.textContent = '✅ Login berhasil! Mengalihkan ke permainan...';
+                messageEl.className = 'message success';
+                
+                // Redirect sesuai role
+                setTimeout(() => {
+                    if (userData.role === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                }, 1500);
+
+            } catch (error) {
+                messageEl.textContent = '❌ ' + error.message;
+                messageEl.className = 'message error';
+                document.getElementById('loginBtn').disabled = false;
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+            // Cek apakah sudah ada sesi aktif
+            const session = sessionStorage.getItem('dragonsHunterSession');
+            if (session) {
+                const sessionData = JSON.parse(session);
+                if (sessionData.userId) {
+                    // Auto redirect jika sudah login
+                    if (sessionData.role === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                }
+            }
         });
+    </script>
+
+    <!-- Registrasi Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker terdaftar:', registration.scope);
+                        
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('Update Service Worker tersedia');
+                                    if (confirm('Versi baru tersedia! Muat ulang halaman?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('Registrasi Service Worker gagal:', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
