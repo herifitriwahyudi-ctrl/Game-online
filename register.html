@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🐉 Daftar Akun - Dragons Hunter</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8b6914">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dragons Hunter">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Georgia', serif; background: url('background-dragon.png') no-repeat center center fixed; background-size: cover; background-color: #0a1f14; min-height: 100vh; overflow-x: hidden; color: #fff; display: flex; align-items: center; justify-content: center; }
@@ -25,6 +35,13 @@
         .message { margin-top: 15px; padding: 10px; border-radius: 8px; font-size: 0.9em; display: none; }
         .message.error { background: rgba(255,68,68,0.2); border: 2px solid #ff4444; color: #ff6666; display: block; }
         .message.success { background: rgba(0,255,136,0.2); border: 2px solid #00ff88; color: #00ff88; display: block; }
+        .strength-bar { height: 4px; background: #333; border-radius: 2px; margin-top: 5px; overflow: hidden; }
+        .strength-fill { height: 100%; width: 0%; background: #ff4444; transition: all 0.3s ease; }
+        
+        @media (max-width: 480px) {
+            .register-container { margin: 10px; padding: 20px; }
+            .register-container h2 { font-size: 1.5em; }
+        }
     </style>
 </head>
 <body>
@@ -35,12 +52,13 @@
         <form id="registerForm">
             <div class="input-group">
                 <label for="nama">Nama Lengkap</label>
-                <input type="text" id="nama" placeholder="Masukkan nama Anda" required>
+                <input type="text" id="nama" placeholder="Masukkan nama Anda" required minlength="3">
             </div>
 
             <div class="input-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" placeholder="Masukkan username (tanpa @)" required minlength="3" maxlength="20" pattern="[a-zA-Z0-9_]+" title="Hanya huruf, angka, dan underscore">
+                <input type="text" id="username" placeholder="Masukkan username" required minlength="3" maxlength="20" pattern="[a-zA-Z0-9_]+">
+                <div style="color: #aaa; font-size: 0.8em; margin-top: 3px;">Minimal 3 karakter, hanya huruf/angka/underscore</div>
             </div>
 
             <div class="input-group">
@@ -59,22 +77,23 @@
 
             <div class="input-group">
                 <label for="withdrawAccount">Nomor / Rekening Tujuan</label>
-                <input type="text" id="withdrawAccount" placeholder="Masukkan nomor e-wallet / rekening" required>
+                <input type="text" id="withdrawAccount" placeholder="Masukkan nomor e-wallet / rekening" required minlength="5">
             </div>
 
             <div class="input-group">
                 <label for="withdrawName">Nama Pemilik Akun Tujuan</label>
-                <input type="text" id="withdrawName" placeholder="Masukkan nama pemilik akun" required>
+                <input type="text" id="withdrawName" placeholder="Masukkan nama pemilik akun" required minlength="3">
             </div>
 
             <div class="input-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Minimal 6 karakter" required autocomplete="new-password">
+                <input type="password" id="password" placeholder="Minimal 6 karakter" required minlength="6">
+                <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
             </div>
 
             <div class="input-group">
                 <label for="confirmPassword">Konfirmasi Password</label>
-                <input type="password" id="confirmPassword" placeholder="Ulangi password" required autocomplete="new-password">
+                <input type="password" id="confirmPassword" placeholder="Ulangi password" required minlength="6">
             </div>
 
             <button type="submit" class="register-btn" id="registerBtn">Daftar Sekarang</button>
@@ -85,15 +104,36 @@
         <a href="login.html" class="login-link">Sudah punya akun? Login di sini</a>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK - Hanya Realtime Database -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     
     <script src="firebase-config.js"></script>
     
     <script>
-        function handleRegister(event) {
+        // Validasi username unik
+        function checkUsernameUnique(username) {
+            return new Promise((resolve, reject) => {
+                db.ref('users').orderByChild('username').equalTo(username).once('value')
+                    .then(snapshot => {
+                        resolve(!snapshot.exists());
+                    })
+                    .catch(error => reject(error));
+            });
+        }
+
+        // Validasi nomor WhatsApp unik
+        function checkWhatsappUnique(noWhatsapp) {
+            return new Promise((resolve, reject) => {
+                db.ref('users').orderByChild('noWhatsapp').equalTo(noWhatsapp).once('value')
+                    .then(snapshot => {
+                        resolve(!snapshot.exists());
+                    })
+                    .catch(error => reject(error));
+            });
+        }
+
+        async function handleRegister(event) {
             event.preventDefault();
 
             const nama = document.getElementById('nama').value.trim();
@@ -111,9 +151,8 @@
 
             // Validasi input
             if (nama.length < 3) { messageEl.textContent = '❌ Nama minimal 3 karakter!'; messageEl.className = 'message error'; return; }
-            if (username.length < 3) { messageEl.textContent = '❌ Username minimal 3 karakter!'; messageEl.className = 'message error'; return; }
-            if (!/^[a-zA-Z0-9_]+$/.test(username)) { messageEl.textContent = '❌ Username hanya boleh huruf, angka, dan underscore!'; messageEl.className = 'message error'; return; }
-            if (!/^[0-9+]{10,15}$/.test(noWhatsapp)) { messageEl.textContent = '❌ Nomor WhatsApp tidak valid!'; messageEl.className = 'message error'; return; }
+            if (!validateUsername(username)) { messageEl.textContent = '❌ Username harus 3-20 karakter, hanya huruf/angka/underscore!'; messageEl.className = 'message error'; return; }
+            if (!validatePhone(noWhatsapp)) { messageEl.textContent = '❌ Nomor WhatsApp tidak valid!'; messageEl.className = 'message error'; return; }
             if (!withdrawMethod) { messageEl.textContent = '❌ Pilih metode penarikan!'; messageEl.className = 'message error'; return; }
             if (withdrawAccount.length < 5) { messageEl.textContent = '❌ Nomor tujuan tidak valid!'; messageEl.className = 'message error'; return; }
             if (withdrawName.length < 3) { messageEl.textContent = '❌ Nama pemilik akun tujuan tidak valid!'; messageEl.className = 'message error'; return; }
@@ -121,53 +160,111 @@
             if (password !== confirmPassword) { messageEl.textContent = '❌ Konfirmasi password tidak cocok!'; messageEl.className = 'message error'; return; }
 
             document.getElementById('registerBtn').disabled = true;
-            messageEl.textContent = '⏳ Membuat akun...';
+            messageEl.textContent = '⏳ Memeriksa ketersediaan...';
             messageEl.className = 'message';
 
-            // Cek apakah username sudah digunakan
-            db.ref('users').orderByChild('username').equalTo(username).once('value')
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        throw new Error('Username sudah digunakan!');
-                    }
-                    
-                    // Buat akun dengan username sebagai email dummy
-                    const dummyEmail = username + '@dragonshunter.com';
-                    
-                    // Firebase Authentication
-                    return auth.createUserWithEmailAndPassword(dummyEmail, password);
-                })
-                .then((userCredential) => {
-                    const user = userCredential.user;
+            try {
+                // Cek username unik
+                const isUsernameUnique = await checkUsernameUnique(username);
+                if (!isUsernameUnique) {
+                    throw new Error('Username sudah digunakan!');
+                }
 
-                    // Simpan data ke Realtime Database
-                    return db.ref('users/' + user.uid).set({
-                        nama: nama,
-                        username: username,
-                        email: dummyEmail,
-                        noWhatsapp: noWhatsapp,
-                        withdrawMethod: withdrawMethod,
-                        withdrawAccount: withdrawAccount,
-                        withdrawName: withdrawName,
-                        balance: 10000,
-                        createdAt: firebase.database.ServerValue.TIMESTAMP
-                    });
-                })
-                .then(() => {
-                    messageEl.textContent = '✅ Akun berhasil dibuat! Mengalihkan ke login...';
-                    messageEl.className = 'message success';
-                    setTimeout(() => window.location.href = 'login.html', 2000);
-                })
-                .catch((error) => {
-                    messageEl.textContent = '❌ ' + error.message;
-                    messageEl.className = 'message error';
-                    document.getElementById('registerBtn').disabled = false;
+                // Cek nomor WhatsApp unik
+                const isWhatsappUnique = await checkWhatsappUnique(noWhatsapp);
+                if (!isWhatsappUnique) {
+                    throw new Error('Nomor WhatsApp sudah terdaftar!');
+                }
+
+                // Hash password
+                const hashedPassword = await hashPassword(password);
+                const userId = generateId('user_');
+
+                // Simpan ke Realtime Database
+                await db.ref('users/' + userId).set({
+                    userId: userId,
+                    nama: nama,
+                    username: username,
+                    noWhatsapp: noWhatsapp,
+                    withdrawMethod: withdrawMethod,
+                    withdrawAccount: withdrawAccount,
+                    withdrawName: withdrawName,
+                    passwordHash: hashedPassword,
+                    balance: 10000,
+                    role: 'user',
+                    createdAt: firebase.database.ServerValue.TIMESTAMP,
+                    lastLogin: null,
+                    online: false
                 });
+
+                // Simpan ke index username untuk pencarian cepat
+                await db.ref('usernameIndex/' + username).set({
+                    userId: userId,
+                    username: username
+                });
+
+                messageEl.textContent = '✅ Akun berhasil dibuat! Mengalihkan ke login...';
+                messageEl.className = 'message success';
+                
+                setTimeout(() => window.location.href = 'login.html', 1500);
+
+            } catch (error) {
+                messageEl.textContent = '❌ ' + error.message;
+                messageEl.className = 'message error';
+                document.getElementById('registerBtn').disabled = false;
+            }
         }
+
+        // Password strength indicator
+        document.getElementById('password').addEventListener('input', function() {
+            const strength = this.value.length;
+            const fill = document.getElementById('strengthFill');
+            
+            if (strength < 6) {
+                fill.style.width = '25%';
+                fill.style.background = '#ff4444';
+            } else if (strength < 8) {
+                fill.style.width = '50%';
+                fill.style.background = '#ffaa00';
+            } else if (strength < 12) {
+                fill.style.width = '75%';
+                fill.style.background = '#00ff88';
+            } else {
+                fill.style.width = '100%';
+                fill.style.background = '#00ff88';
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('registerForm').addEventListener('submit', handleRegister);
         });
+    </script>
+
+    <!-- Registrasi Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker terdaftar:', registration.scope);
+                        
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('Update Service Worker tersedia');
+                                    if (confirm('Versi baru tersedia! Muat ulang halaman?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('Registrasi Service Worker gagal:', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
