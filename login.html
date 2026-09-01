@@ -8,6 +8,54 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Georgia', serif; background: url('background-dragon.png') no-repeat center center fixed; background-size: cover; background-color: #0a1f14; min-height: 100vh; overflow-x: hidden; color: #fff; display: flex; align-items: center; justify-content: center; }
         body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 31, 20, 0.7); z-index: -1; pointer-events: none; }
+        
+        /* Intro Video Overlay */
+        .intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease;
+        }
+        
+        .intro-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .intro-overlay video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .intro-overlay .skip-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 10px 25px;
+            font-size: 0.9em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+        
+        .intro-overlay .skip-btn:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.05);
+        }
+        
         .login-container { max-width: 400px; width: 90%; margin: 20px; padding: 30px; background: linear-gradient(145deg, #2a1f0e, #1a1208); border-radius: 30px; border: 4px solid #8b6914; box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3); text-align: center; position: relative; z-index: 10; }
         .login-container h2 { color: #ffd700; margin-bottom: 10px; font-size: 2em; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
         .login-container p { color: #aaa; margin-bottom: 25px; font-size: 0.9em; }
@@ -26,6 +74,16 @@
     </style>
 </head>
 <body>
+    <!-- Video Intro Overlay -->
+    <div class="intro-overlay" id="introOverlay">
+        <video id="introVideo" autoplay muted playsinline>
+            <source src="intro-dragon.mp4" type="video/mp4">
+            <!-- Fallback jika video tidak ditemukan -->
+            <img src="header-dragon.png" alt="Dragons Hunter" style="width: 100%; height: 100%; object-fit: cover;">
+        </video>
+        <button class="skip-btn" onclick="skipIntro()">⏭️ Lewati</button>
+    </div>
+
     <div class="login-container">
         <h2>🐉 Login</h2>
         <p>Masuk untuk melanjutkan perburuan naga!</p>
@@ -57,6 +115,55 @@
     <script src="firebase-config.js"></script>
     
     <script>
+        // ========== VIDEO INTRO ==========
+        let introVideo = document.getElementById('introVideo');
+        let introOverlay = document.getElementById('introOverlay');
+        let introPlayed = sessionStorage.getItem('introPlayed');
+
+        // Jika video sudah pernah diputar di sesi ini, langsung skip
+        if (introPlayed) {
+            introOverlay.classList.add('hidden');
+            introOverlay.style.display = 'none';
+        } else {
+            // Coba putar video
+            introVideo.play().catch(() => {
+                // Jika autoplay gagal, tampilkan tombol play
+                introVideo.muted = false;
+                introVideo.play();
+            });
+
+            // Auto skip setelah video selesai
+            introVideo.addEventListener('ended', () => {
+                skipIntro();
+            });
+
+            // Auto skip jika video gagal dimuat setelah 5 detik
+            setTimeout(() => {
+                if (!introVideo.ended && !introVideo.paused) {
+                    // Video masih diputar, biarkan
+                } else if (introVideo.readyState === 0) {
+                    // Video gagal dimuat, langsung skip
+                    skipIntro();
+                }
+            }, 5000);
+        }
+
+        function skipIntro() {
+            introOverlay.classList.add('hidden');
+            
+            // Simpan bahwa intro sudah diputar di sesi ini
+            sessionStorage.setItem('introPlayed', 'true');
+            
+            // Sembunyikan setelah transisi
+            setTimeout(() => {
+                introOverlay.style.display = 'none';
+            }, 800);
+            
+            // Fokus ke input username
+            document.getElementById('username').focus();
+        }
+
+        // ========== LOGIN ==========
         function handleLogin(event) {
             event.preventDefault();
 
