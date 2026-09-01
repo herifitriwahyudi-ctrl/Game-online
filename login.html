@@ -1,0 +1,121 @@
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Georgia', serif;
+        /* GANTI BACKGROUND DI SINI */
+        background: url('background-dragon.png') no-repeat center center fixed;
+        background-size: cover; /* Menutupi seluruh layar */
+        
+        /* Overlay gelap agar teks tetap terbaca di atas gambar terang */
+        position: relative;
+        min-height: 100vh;
+        overflow-x: hidden;
+        color: #fff;
+    }
+
+    /* Overlay gelap transparan */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(10, 31, 20, 0.6); /* Hijau tua transparan (sesuai tema awal) */
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    /* Background Hutan (Tetap dipertahankan sebagai elemen dekoratif di atas background gambar) */
+    .forest-bg {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: 0; /* Ubah z-index agar berada di atas overlay, tapi di bawah konten */
+        pointer-events: none;
+    }
+
+    .tree {
+        position: absolute;
+        bottom: 0;
+        width: 120px; height: 200px;
+        background: linear-gradient(180deg, #2d5a27, #1a3d15);
+        border-radius: 10px 10px 0 0;
+        animation: sway 5s ease-in-out infinite;
+    }
+
+    .tree::before {
+        content: '';
+        position: absolute;
+        top: -40px; left: -20px;
+        width: 160px; height: 80px;
+        background: linear-gradient(135deg, #3a7d30, #2d5a27);
+        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    }
+
+    .tree:nth-child(1) { left: 10px; }
+    .tree:nth-child(2) { left: 15%; height: 240px; animation-delay: 1s; }
+    .tree:nth-child(3) { right: 10%; height: 180px; animation-delay: 2s; }
+    .tree:nth-child(4) { right: 20px; height: 260px; animation-delay: 3s; }
+    .tree:nth-child(5) { left: 40%; height: 220px; animation-delay: 4s; }
+    .tree:nth-child(6) { right: 40%; height: 200px; animation-delay: 5s; }
+
+    .fireflies {
+        position: absolute;
+        width: 6px; height: 6px;
+        background: #ffe066;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #ffe066;
+        animation: fly 8s infinite;
+    }
+
+    .fireflies:nth-child(7) { top: 30%; left: 20%; animation-delay: 0s; }
+    .fireflies:nth-child(8) { top: 50%; left: 80%; animation-delay: 2s; }
+    .fireflies:nth-child(9) { top: 70%; left: 50%; animation-delay: 4s; }
+    .fireflies:nth-child(10) { top: 40%; left: 70%; animation-delay: 6s; }
+    .fireflies:nth-child(11) { top: 60%; left: 30%; animation-delay: 1s; }
+    .fireflies:nth-child(12) { top: 20%; left: 60%; animation-delay: 3s; }
+    .fireflies:nth-child(13) { top: 80%; left: 90%; animation-delay: 5s; }
+    .fireflies:nth-child(14) { top: 45%; left: 10%; animation-delay: 7s; }
+
+    .moon {
+        position: absolute;
+        top: 50px; right: 100px;
+        width: 80px; height: 80px;
+        background: radial-gradient(circle, #fff, #f1c40f);
+        border-radius: 50%;
+        box-shadow: 0 0 40px #f1c40f, 0 0 80px rgba(241,196,15,0.3);
+        animation: moonGlow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes sway {
+        0%, 100% { transform: rotate(-2deg); }
+        50% { transform: rotate(2deg); }
+    }
+
+    @keyframes fly {
+        0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+        25% { transform: translate(15px, -20px); opacity: 1; }
+        50% { transform: translate(-10px, -35px); opacity: 0.6; }
+        75% { transform: translate(20px, -15px); opacity: 0.8; }
+    }
+
+    @keyframes moonGlow {
+        from { box-shadow: 0 0 40px #f1c40f; }
+        to { box-shadow: 0 0 60px #f1c40f, 0 0 100px rgba(241,196,15,0.5); }
+    }
+
+    /* Container Utama (Dinaikkan z-index-nya agar di atas background) */
+    .game-container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background: linear-gradient(145deg, #2a1f0e, #1a1208);
+        border-radius: 30px;
+        border: 4px solid #8b6914;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+        position: relative;
+        z-index: 10;
+    }
+
+    /* ... (Sisa CSS lainnya tetap sama seperti sebelumnya) ... */
+      </style>
