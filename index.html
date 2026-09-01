@@ -1334,6 +1334,63 @@
 
             runCardAnimation(result, isWin, winAmount, selectedAnimal, selectedBonus, betAmount);
         }
+        // ========== WITHDRAW (PENARIKAN) ==========
+let selectedWithdraw = 0;
+
+function openWithdraw() {
+    document.getElementById('withdrawAccount').value = '';
+    selectedWithdraw = 0;
+    
+    // Reset pilihan
+    const options = document.querySelectorAll('#withdrawOptions .topup-option');
+    options.forEach(option => option.classList.remove('selected'));
+    
+    document.getElementById('withdrawModal').classList.add('show');
+}
+
+function closeWithdraw() {
+    document.getElementById('withdrawModal').classList.remove('show');
+}
+
+function selectWithdraw(amount) {
+    selectedWithdraw = amount;
+    const options = document.querySelectorAll('#withdrawOptions .topup-option');
+    options.forEach(option => {
+        option.classList.remove('selected');
+        if (option.querySelector('.amount').textContent.includes(amount.toLocaleString('id-ID'))) {
+            option.classList.add('selected');
+        }
+    });
+}
+
+function processWithdraw() {
+    const account = document.getElementById('withdrawAccount').value.trim();
+    
+    if (!account) {
+        alert('Masukkan nomor tujuan penarikan!');
+        return;
+    }
+
+    if (selectedWithdraw === 0) {
+        alert('Pilih nominal penarikan terlebih dahulu!');
+        return;
+    }
+
+    if (selectedWithdraw > balance) {
+        alert('Saldo tidak mencukupi untuk penarikan!');
+        return;
+    }
+
+    // Proses penarikan
+    balance -= selectedWithdraw;
+    saveBalance();
+    
+    document.getElementById('balance').textContent = balance;
+    
+    alert(`✅ Penarikan Rp ${selectedWithdraw.toLocaleString('id-ID')} berhasil dikirim ke ${account}!`);
+    
+    closeWithdraw();
+}
 
         // ========== INISIALISASI ==========
         function init() {
