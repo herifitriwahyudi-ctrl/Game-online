@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dragons-hunter-v5';
+const CACHE_NAME = 'dragons-hunter-v6';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -10,6 +10,18 @@ const urlsToCache = [
   '/firebase-config.js',
   '/background-dragon.png',
   '/header-dragon.png',
+  '/rubah.png',
+  '/serigala.png',
+  '/panda.png',
+  '/beruang.png',
+  '/gajah.png',
+  '/singa.png',
+  '/rusa.png',
+  '/kucing.png',
+  '/burung.png',
+  '/kelinci.png',
+  '/naga.mp4',
+  '/harimau.mp4',
   '/icon-192.png',
   '/icon-512.png',
   '/intro-dragon.mp4',
@@ -60,7 +72,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network First untuk halaman penting (admin, login)
+  // Network First untuk halaman penting
   const importantFiles = ['/login.html', '/admin.html', '/register.html', '/firebase-config.js', '/manifest.json'];
   
   if (importantFiles.some(file => event.request.url.includes(file))) {
@@ -78,34 +90,50 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache First dengan revalidation untuk file lainnya
+  // Cache First dengan revalidation untuk file statis
+  if (event.request.url.includes('/')) {
+    event.respondWith(
+      caches.match(event.request)
+        .then((cachedResponse) => {
+          const fetchPromise = fetch(event.request)
+            .then((response) => {
+              if (response && response.status === 200 && response.type !== 'opaque') {
+                const responseToCache = response.clone();
+                caches.open(CACHE_NAME).then((cache) => {
+                  cache.put(event.request, responseToCache);
+                });
+              }
+              return response;
+            })
+            .catch(() => cachedResponse);
+
+          // Return cached response immediately, update in background
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+
+          return fetchPromise;
+        })
+        .catch(() => {
+          if (event.request.mode === 'navigate') {
+            return caches.match('/login.html');
+          }
+        })
+    );
+    return;
+  }
+
+  // Network First untuk file lainnya
   event.respondWith(
-    caches.match(event.request)
-      .then((cachedResponse) => {
-        const fetchPromise = fetch(event.request)
-          .then((response) => {
-            if (response && response.status === 200 && response.type !== 'opaque') {
-              const responseToCache = response.clone();
-              caches.open(CACHE_NAME).then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-            }
-            return response;
-          })
-          .catch(() => cachedResponse);
-
-        // Return cached response immediately, update in background
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-
-        return fetchPromise;
+    fetch(event.request)
+      .then((response) => {
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
+        });
+        return response;
       })
-      .catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match('/login.html');
-        }
-      })
+      .catch(() => caches.match(event.request))
   );
 });
 
@@ -114,24 +142,54 @@ self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') {
     self.skipWaiting();
   }
+  
+  // Handle cache update messages
+  if (event.data && event.data.type === 'CACHE_URLS') {
+    event.waitUntil(
+      caches.open(CACHE_NAME).then((cache) => {
+        return cache.addAll(event.data.urls);
+      })
+    );
+  }
 });
 
 // Push notification
 self.addEventListener('push', (event) => {
-  const data = event.data.json();
+  let data = {};
+  
+  try {
+    data = event.data.json();
+  } catch (error) {
+    data = {
+      title: 'Dragons Hunter',
+      body: event.data.text(),
+      icon: 'icon-192.png',
+      url: '/'
+    };
+  }
   
   const options = {
-    body: data.body,
+    body: data.body || 'Anda memiliki notifikasi baru',
     icon: data.icon || 'icon-192.png',
     badge: 'icon-192.png',
     vibrate: [100, 50, 100],
     data: {
       url: data.url || '/'
-    }
+    },
+    actions: [
+      {
+        action: 'open',
+        title: 'Buka'
+      },
+      {
+        action: 'close',
+        title: 'Tutup'
+      }
+    ]
   };
   
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    self.registration.showNotification(data.title || 'Dragons Hunter', options)
   );
 });
 
@@ -139,16 +197,26 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   
+  if (event.action === 'close') {
+    return;
+  }
+  
   event.waitUntil(
-    clients.matchAll({ type: 'window' })
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then((clientList) => {
+        const url = event.notification.data.url || '/';
+        
+        // Cek apakah ada window yang sudah terbuka
         for (const client of clientList) {
-          if (client.url === event.notification.data.url && 'focus' in client) {
+          if ('focus' in client) {
+            client.navigate(url);
             return client.focus();
           }
         }
+        
+        // Buka window baru jika tidak ada
         if (clients.openWindow) {
-          return clients.openWindow(event.notification.data.url);
+          return clients.openWindow(url);
         }
       })
   );
@@ -158,6 +226,17 @@ self.addEventListener('notificationclick', (event) => {
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-transactions') {
     event.waitUntil(syncPendingTransactions());
+  }
+  
+  if (event.tag === 'sync-game-data') {
+    event.waitUntil(syncGameData());
+  }
+});
+
+// Periodik Sync untuk update data
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'update-game-data') {
+    event.waitUntil(updateGameData());
   }
 });
 
@@ -172,7 +251,8 @@ async function syncPendingTransactions() {
       const transaction = await response.json();
       
       // Kirim ke Firebase
-      const fetchResponse = await fetch('https://dragons-hunter-12345-default-rtdb.firebaseio.com/transactions.json', {
+      const dbUrl = await getFirebaseUrl();
+      const fetchResponse = await fetch(dbUrl + '/transactions.json', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -200,3 +280,125 @@ async function syncPendingTransactions() {
     return false;
   }
 }
+
+// Fungsi sinkronisasi data game
+async function syncGameData() {
+  try {
+    const cache = await caches.open('game-data');
+    const cachedData = await cache.match('/game-data.json');
+    
+    if (cachedData) {
+      const data = await cachedData.json();
+      
+      // Kirim data ke Firebase
+      const dbUrl = await getFirebaseUrl();
+      const fetchResponse = await fetch(dbUrl + '/game-stats.json', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      
+      return fetchResponse.ok;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Sync game data error:', error);
+    return false;
+  }
+}
+
+// Fungsi update data game
+async function updateGameData() {
+  try {
+    const cache = await caches.open('game-data');
+    const dbUrl = await getFirebaseUrl();
+    
+    // Fetch data terbaru dari Firebase
+    const response = await fetch(dbUrl + '/config/rtp.json');
+    if (response.ok) {
+      const data = await response.json();
+      await cache.put('/rtp-config.json', new Response(JSON.stringify(data), {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }));
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Update game data error:', error);
+    return false;
+  }
+}
+
+// Fungsi mendapatkan URL Firebase dari config
+async function getFirebaseUrl() {
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    const configResponse = await cache.match('/firebase-config.js');
+    
+    if (configResponse) {
+      const configText = await configResponse.text();
+      // Extract databaseURL dari config
+      const match = configText.match(/databaseURL\s*:\s*['"]([^'"]+)['"]/);
+      if (match) {
+        return match[1];
+      }
+    }
+    
+    // Fallback URL (ganti dengan URL Firebase Anda)
+    return 'https://dragons-hunter-12345-default-rtdb.firebaseio.com';
+  } catch (error) {
+    console.error('Get Firebase URL error:', error);
+    return 'https://dragons-hunter-12345-default-rtdb.firebaseio.com';
+  }
+}
+
+// Precache semua asset game
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return Promise.all([
+        cache.addAll(urlsToCache),
+        // Precache gambar hewan
+        cache.addAll([
+          '/rubah.png',
+          '/serigala.png',
+          '/panda.png',
+          '/beruang.png',
+          '/gajah.png',
+          '/singa.png',
+          '/rusa.png',
+          '/kucing.png',
+          '/burung.png',
+          '/kelinci.png'
+        ]).catch(() => {}),
+        // Precache video
+        cache.addAll([
+          '/naga.mp4',
+          '/harimau.mp4',
+          '/intro-dragon.mp4'
+        ]).catch(() => {})
+      ]);
+    })
+  );
+});
+
+// Handle offline fallback
+self.addEventListener('fetch', (event) => {
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match('/index.html').then((cachedPage) => {
+          if (cachedPage) {
+            return cachedPage;
+          }
+          return caches.match('/login.html');
+        });
+      })
+    );
+  }
+});
