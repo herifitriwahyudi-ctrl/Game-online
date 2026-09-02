@@ -3,8 +3,8 @@
   "name": "Dragons Hunter",
   "short_name": "Dragons Hunter",
   "description": "Game Petualangan Dragons Hunter - Buru Naga dan Menangkan Hadiah!",
-  "start_url": "/index.html",
-  "scope": "/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "fullscreen",
   "display_override": ["fullscreen", "standalone", "minimal-ui"],
   "orientation": "portrait",
@@ -19,25 +19,25 @@
   },
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "./icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "./icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-192.png",
+      "src": "./icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "./icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -48,10 +48,10 @@
       "name": "Mulai Game",
       "short_name": "Game",
       "description": "Langsung mulai bermain",
-      "url": "/index.html",
+      "url": "./index.html",
       "icons": [
         {
-          "src": "/icon-192.png",
+          "src": "./icon-192.png",
           "sizes": "192x192"
         }
       ]
@@ -60,10 +60,10 @@
       "name": "Top Up",
       "short_name": "Top Up",
       "description": "Isi saldo deposit",
-      "url": "/pembayaran.html",
+      "url": "./pembayaran.html",
       "icons": [
         {
-          "src": "/icon-192.png",
+          "src": "./icon-192.png",
           "sizes": "192x192"
         }
       ]
@@ -72,10 +72,10 @@
       "name": "Login",
       "short_name": "Login",
       "description": "Masuk ke akun Anda",
-      "url": "/login.html",
+      "url": "./login.html",
       "icons": [
         {
-          "src": "/icon-192.png",
+          "src": "./icon-192.png",
           "sizes": "192x192"
         }
       ]
@@ -83,7 +83,7 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshot-game.png",
+      "src": "./screenshot-game.png",
       "sizes": "1080x1920",
       "type": "image/png",
       "label": "Tampilan Utama Game"
