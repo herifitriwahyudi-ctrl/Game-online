@@ -394,26 +394,38 @@
             checkPendingTransaction();
         }
 
-        function checkPendingTransaction() {
+        async function checkPendingTransaction() {
             if (!currentUserId) return;
             
-            // Cek apakah ada transaksi pending untuk user ini
-            db.ref('transactions/' + currentUserId).orderByChild('status').equalTo('pending')
-                .limitToLast(1)
-                .once('value', (snapshot) => {
-                    if (snapshot.exists()) {
-                        snapshot.forEach((child) => {
-                            const transaction = child.val();
-                            if (transaction.amount === topUpAmount) {
-                                document.getElementById('checkingStatus').style.display = 'block';
-                                document.getElementById('confirmBtn').disabled = true;
-                                
-                                // Mulai polling untuk cek status
-                                startPolling(child.key);
-                            }
-                        });
+            try {
+                // Cek apakah ada transaksi pending dengan nominal yang sama
+                const snapshot = await db.ref('transactions/' + currentUserId)
+                    .orderByChild('status')
+                    .equalTo('pending')
+                    .limitToLast(5)
+                    .once('value');
+                
+                if (snapshot.exists()) {
+                    let hasPending = false;
+                    snapshot.forEach((child) => {
+                        const transaction = child.val();
+                        if (transaction.amount === topUpAmount && transaction.type === 'topup') {
+                            hasPending = true;
+                            document.getElementById('checkingStatus').style.display = 'block';
+                            document.getElementById('confirmBtn').disabled = true;
+                            
+                            // Mulai polling untuk cek status
+                            startPolling(child.key);
+                        }
+                    });
+                    
+                    if (hasPending) {
+                        console.log('Transaksi pending ditemukan, polling dimulai');
                     }
-                });
+                }
+            } catch (error) {
+                console.error('Error checking pending transaction:', error);
+            }
         }
 
         function startCountdown(seconds) {
@@ -436,13 +448,14 @@
                     
                     sessionStorage.removeItem('pendingTopUpAmount');
                     sessionStorage.removeItem('pendingTopUpBaseAmount');
+                    sessionStorage.removeItem('pendingTransactionId');
                     
                     setTimeout(() => window.location.href = 'index.html', 3000);
                 }
             }, 1000);
         }
 
-        function confirmPayment() {
+        async function confirmPayment() {
             // Prevent double submission
             if (isProcessing) return;
             isProcessing = true;
@@ -464,22 +477,26 @@
             messageEl.className = 'message';
 
             // Ambil transaction ID dari sessionStorage
-            const transactionId = sessionStorage.getItem('pendingTransactionId');
+            const transactionId = sessionStorage.getItem('pendingTransactionId') || generateId('topup_');
 
-            // Buat transaksi pending
-            const transactionRef = db.ref('transactions/' + currentUserId + '/' + transactionId);
-            
-            transactionRef.set({
-                type: 'topup',
-                amount: topUpAmount,
-                baseAmount: baseTopUpAmount,
-                method: 'QRIS',
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                status: 'pending',
-                userId: currentUserId,
-                username: currentUserData.username
-            })
-            .then(() => {
+            try {
+                // Cek apakah transaksi sudah ada
+                const existingTxn = await db.ref('transactions/' + currentUserId + '/' + transactionId).once('value');
+                
+                if (!existingTxn.exists()) {
+                    // Buat transaksi pending baru
+                    await db.ref('transactions/' + currentUserId + '/' + transactionId).set({
+                        type: 'topup',
+                        amount: topUpAmount,
+                        baseAmount: baseTopUpAmount,
+                        method: 'QRIS',
+                        timestamp: firebase.database.ServerValue.TIMESTAMP,
+                        status: 'pending',
+                        userId: currentUserId,
+                        username: currentUserData.username
+                    });
+                }
+                
                 // Tampilkan status menunggu
                 checkingStatus.style.display = 'block';
                 messageEl.textContent = '';
@@ -490,14 +507,14 @@
                 
                 // Mulai polling status
                 startPolling(transactionId);
-            })
-            .catch((error) => {
+                
+            } catch (error) {
                 console.error('Error membuat transaksi:', error);
                 messageEl.textContent = '❌ Gagal membuat transaksi: ' + error.message;
                 messageEl.className = 'message error';
                 unlockButton(confirmBtn);
                 isProcessing = false;
-            });
+            }
         }
 
         function startPolling(transactionId) {
@@ -523,7 +540,7 @@
                 const transaction = snapshot.val();
                 
                 if (transaction) {
-                    if (transaction.status === 'approved') {
+                    if (transaction.status === 'completed' || transaction.status === 'approved') {
                         // Transaksi berhasil
                         clearTimeout(pollTimeout);
                         transactionRef.off();
@@ -576,11 +593,18 @@
         function lockButton(btn) {
             btn.disabled = true;
             btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
         }
         
         function unlockButton(btn) {
             btn.disabled = false;
             btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+        }
+        
+        // Generate ID
+        function generateId(prefix) {
+            return prefix + Date.now() + Math.random().toString(36).substr(2, 9);
         }
         
         // Bersihkan interval saat halaman ditutup
