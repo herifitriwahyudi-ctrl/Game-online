@@ -1088,27 +1088,59 @@
             }
         }
 
-        // ========== DISPLAY USER INFO ==========
-        function displayUserInfo() {
-            const userInfoSection = document.getElementById('userInfoSection');
-            userInfoSection.classList.add('show');
-            
-            // Avatar
-            document.getElementById('userAvatar').textContent = (currentUserData.username || 'U').charAt(0).toUpperCase();
-            
-            // Nama dan username
-            document.getElementById('userName').textContent = currentUserData.nama || '-';
-            document.getElementById('userUsername').textContent = '@' + (currentUserData.username || '-');
-            
-            // Saldo
-            document.getElementById('userBalance').textContent = formatRupiah(currentUserData.balance);
-            
-            // Detail
-            document.getElementById('userWhatsapp').textContent = currentUserData.noWhatsapp || '-';
-            document.getElementById('userWithdrawMethod').textContent = currentUserData.withdrawMethod || '-';
-            document.getElementById('userWithdrawAccount').textContent = currentUserData.withdrawAccount || '-';
-            document.getElementById('userWithdrawName').textContent = currentUserData.withdrawName || '-';
+        // ========== FORMAT RUPIAH ACCOUNTING ==========
+function formatRupiah(number) {
+    return 'Rp ' + (number || 0).toLocaleString('id-ID', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+}
+
+// ========== TAMPILKAN SALDO ==========
+function displayUserInfo() {
+    const userInfoSection = document.getElementById('userInfoSection');
+    userInfoSection.classList.add('show');
+    
+    // Avatar
+    document.getElementById('userAvatar').textContent = (currentUserData.username || 'U').charAt(0).toUpperCase();
+    
+    // Nama dan username
+    document.getElementById('userName').textContent = currentUserData.nama || '-';
+    document.getElementById('userUsername').textContent = '@' + (currentUserData.username || '-');
+    
+    // Saldo
+    document.getElementById('userBalance').textContent = formatRupiah(currentUserData.balance);
+    
+    // Detail
+    document.getElementById('userWhatsapp').textContent = currentUserData.noWhatsapp || '-';
+    document.getElementById('userWithdrawMethod').textContent = currentUserData.withdrawMethod || '-';
+    document.getElementById('userWithdrawAccount').textContent = currentUserData.withdrawAccount || '-';
+    document.getElementById('userWithdrawName').textContent = currentUserData.withdrawName || '-';
+}
+
+// ========== UPDATE SUMMARY ==========
+function updateSummary() {
+    let totalDeposit = 0;
+    let totalWithdraw = 0;
+    let totalPending = 0;
+    
+    allTransactions.forEach(trans => {
+        if (trans.type === 'topup' && trans.status === 'approved') {
+            totalDeposit += trans.amount || 0;
         }
+        if (trans.type === 'withdraw' && trans.status === 'approved') {
+            totalWithdraw += trans.amount || 0;
+        }
+        if (trans.status === 'pending') {
+            totalPending++;
+        }
+    });
+    
+    document.getElementById('totalDeposit').textContent = formatRupiah(totalDeposit);
+    document.getElementById('totalWithdraw').textContent = formatRupiah(totalWithdraw);
+    document.getElementById('totalPending').textContent = totalPending;
+    document.getElementById('totalTransactions').textContent = allTransactions.length;
+}
 
         // ========== LOAD USER TRANSACTIONS ==========
         async function loadUserTransactions() {
