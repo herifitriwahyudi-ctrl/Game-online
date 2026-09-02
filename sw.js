@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dragons-hunter-v6';
+const CACHE_NAME = 'dragons-hunter-v7';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -350,10 +350,10 @@ async function getFirebaseUrl() {
     }
     
     // Fallback URL (ganti dengan URL Firebase Anda)
-    return 'https://dragons-hunter-12345-default-rtdb.firebaseio.com';
+    return 'https://dragonhunter-2fdb7-default-rtdb.asia-southeast1.firebasedatabase.app';
   } catch (error) {
     console.error('Get Firebase URL error:', error);
-    return 'https://dragons-hunter-12345-default-rtdb.firebaseio.com';
+    return 'https://dragonhunter-2fdb7-default-rtdb.asia-southeast1.firebasedatabase.app';
   }
 }
 
@@ -401,4 +401,26 @@ self.addEventListener('fetch', (event) => {
       })
     );
   }
+});
+
+// Cek update service worker secara berkala
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    (async () => {
+      // Cek update config
+      const cache = await caches.open(CACHE_NAME);
+      const configResponse = await cache.match('/firebase-config.js');
+      
+      if (configResponse) {
+        try {
+          const networkResponse = await fetch('/firebase-config.js');
+          if (networkResponse && networkResponse.ok) {
+            await cache.put('/firebase-config.js', networkResponse.clone());
+          }
+        } catch (error) {
+          console.log('Offline - menggunakan cache config');
+        }
+      }
+    })()
+  );
 });
