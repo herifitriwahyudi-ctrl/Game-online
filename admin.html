@@ -889,8 +889,12 @@
         // ========== APPROVE TRANSACTION ==========
         async function approveTransaction(userId, transId) {
             try {
-                // Update status transaksi
-                await db.ref('transactions/' + userId + '/' + transId + '/status').set('approved');
+                // Cek apakah transaksi sudah diproses
+                const alreadyProcessed = await isTransactionProcessed(userId, transId);
+                if (alreadyProcessed) {
+                    alert('⚠️ Transaksi ini sudah diproses sebelumnya!');
+                    return;
+                }
                 
                 // Ambil data transaksi
                 const transSnapshot = await db.ref('transactions/' + userId + '/' + transId).once('value');
@@ -913,29 +917,28 @@
                     });
                 }
                 
-                // Ambil saldo user saat ini
-                const balanceSnapshot = await db.ref('users/' + userId + '/balance').once('value');
-                const currentBalance = balanceSnapshot.val() || 0;
-                
+                // Proses sesuai jenis transaksi
                 if (trans.type === 'topup') {
-                    // Top up: tambah saldo
-                    const newBalance = currentBalance + trans.amount;
-                    await db.ref('users/' + userId + '/balance').set(newBalance);
-                    alert('✅ Top Up disetujui! Saldo: Rp ' + newBalance.toLocaleString('id-ID'));
-                } else if (trans.type === 'withdraw') {
-                    // Withdraw: kurangi saldo
-                    if (currentBalance >= trans.amount) {
-                        const newBalance = currentBalance - trans.amount;
-                        await db.ref('users/' + userId + '/balance').set(newBalance);
-                        alert('✅ Withdraw disetujui! Saldo: Rp ' + newBalance.toLocaleString('id-ID'));
+                    // Gunakan fungsi aman dari firebase-config.js
+                    const result = await processTopUpApproval(userId, transId, trans.amount);
+                    
+                    if (result.success) {
+                        alert('✅ Top Up disetujui! Saldo berhasil ditambahkan.');
                     } else {
-                        alert('⚠️ Saldo tidak mencukupi untuk withdraw!');
-                        await db.ref('transactions/' + userId + '/' + transId + '/status').set('rejected');
+                        alert('⚠️ ' + result.message);
+                    }
+                } else if (trans.type === 'withdraw') {
+                    // Gunakan fungsi aman dari firebase-config.js
+                    const result = await processWithdrawApproval(userId, transId, trans.amount);
+                    if (result.success) {
+                        alert('✅ Withdraw disetujui! Saldo berhasil dikurangi.');
+                    } else {
+                        alert('⚠️ ' + result.message);
                     }
                 } else {
                     alert('⚠️ Jenis transaksi tidak dikenal!');
                 }
-                
+                // Refresh data
                 loadTransactions();
                 loadStats();
                 loadUsers();
