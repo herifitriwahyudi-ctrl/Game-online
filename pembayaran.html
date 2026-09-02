@@ -296,6 +296,48 @@
             checkSession();
         }
 
+        // Fungsi format Rupiah
+        function formatRupiah(number) {
+            return 'Rp ' + number.toLocaleString('id-ID');
+        }
+
+        // Verifikasi session dari localStorage
+        async function verifySession() {
+            try {
+                // Cek session di sessionStorage
+                const session = sessionStorage.getItem('dragonsHunterSession');
+                if (session) {
+                    const sessionData = JSON.parse(session);
+                    if (sessionData.userId && sessionData.username) {
+                        return sessionData;
+                    }
+                }
+                
+                // Cek di localStorage sebagai backup
+                const localSession = localStorage.getItem('dragonsHunterSession');
+                if (localSession) {
+                    const sessionData = JSON.parse(localSession);
+                    if (sessionData.userId && sessionData.username) {
+                        return sessionData;
+                    }
+                }
+                
+                // Jika tidak ada session, cek query params
+                const urlParams = new URLSearchParams(window.location.search);
+                const userId = urlParams.get('userId');
+                const username = urlParams.get('username');
+                
+                if (userId && username) {
+                    return { userId: userId, username: username };
+                }
+                
+                return null;
+            } catch (error) {
+                console.error('Error verifying session:', error);
+                return null;
+            }
+        }
+
         async function checkSession() {
             const session = await verifySession();
             if (!session) {
@@ -390,7 +432,8 @@
                 method: 'QRIS',
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 status: 'pending',
-                userId: currentUserId
+                userId: currentUserId,
+                username: sessionStorage.getItem('dragonsHunterSession') ? JSON.parse(sessionStorage.getItem('dragonsHunterSession')).username : ''
             })
             .then((ref) => {
                 // Tampilkan status menunggu
@@ -446,6 +489,13 @@
                         db.ref('users/' + currentUserId + '/balance').transaction((currentBalance) => {
                             return (currentBalance || 0) + transaction.amount;
                         }).then(() => {
+                            // Update saldo di session jika ada
+                            const session = JSON.parse(sessionStorage.getItem('dragonsHunterSession'));
+                            if (session) {
+                                session.balance = (session.balance || 0) + transaction.amount;
+                                sessionStorage.setItem('dragonsHunterSession', JSON.stringify(session));
+                            }
+                            
                             // Tampilkan pesan sukses
                             checkingStatus.style.display = 'none';
                             messageEl.textContent = '✅ Pembayaran berhasil! Saldo telah diperbarui.';
@@ -475,6 +525,17 @@
                     }
                 }
             });
+        }
+        
+        // Fungsi lock/unlock button
+        function lockButton(btn) {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+        }
+        
+        function unlockButton(btn) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
         }
         
         // Bersihkan interval saat halaman ditutup
