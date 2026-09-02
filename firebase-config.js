@@ -125,10 +125,16 @@ function clearSession() {
   localStorage.removeItem('dragonsHunterActiveUser');
 }
 
-// Verifikasi session dengan database
+// Verifikasi session dengan database (DIPERBAIKI - tambah expired check)
 async function verifySession() {
   const session = getSession();
   if (!session || !session.userId) return null;
+  
+  // Cek expired (24 jam)
+  if (Date.now() - session.loginTime > 24 * 60 * 60 * 1000) {
+    clearSession();
+    return null;
+  }
   
   try {
     const snapshot = await db.ref('users/' + session.userId).once('value');
@@ -136,6 +142,8 @@ async function verifySession() {
       const userData = snapshot.val();
       // Update balance di session
       session.balance = userData.balance;
+      session.role = userData.role || 'user';
+      session.status = userData.status || 'active';
       sessionStorage.setItem('dragonsHunterSession', JSON.stringify(session));
       localStorage.setItem('dragonsHunterActiveUser', JSON.stringify(session));
       return session;
@@ -191,6 +199,28 @@ async function updateTransactionStatus(userId, transactionId, status) {
   await db.ref('transactions/' + userId + '/' + transactionId + '/status').set(status);
 }
 
+// Cek apakah transaksi duplikat
+async function checkDuplicateTransaction(userId, type, amount) {
+  const snapshot = await db.ref('transactions/' + userId)
+    .orderByChild('type')
+    .equalTo(type)
+    .limitToLast(5)
+    .once('value');
+  
+  if (snapshot.exists()) {
+    let hasDuplicate = false;
+    snapshot.forEach((child) => {
+      const txn = child.val();
+      if (txn.status === 'pending' && txn.amount === amount && 
+          Date.now() - txn.timestamp < 5 * 60 * 1000) { // 5 menit
+        hasDuplicate = true;
+      }
+    });
+    return hasDuplicate;
+  }
+  return false;
+}
+
 // ========== SETUP DEFAULT CONFIG ==========
 async function setupDefaultConfig() {
   try {
@@ -220,9 +250,26 @@ async function setupDefaultConfig() {
   }
 }
 
+// Setup admin password jika belum ada
+async function setupAdminPassword(password = 'admin123') {
+  const hashedPassword = await hashPassword(password);
+  await db.ref('adminConfig').set({
+    passwordHash: hashedPassword,
+    createdAt: firebase.database.ServerValue.TIMESTAMP
+  });
+  console.log('✅ Admin password berhasil disetup!');
+}
+
 // Auto setup default config saat pertama kali
 db.ref('config').once('value').then(snapshot => {
   if (!snapshot.exists()) {
     setupDefaultConfig();
+  }
+});
+
+// Auto setup admin password saat pertama kali
+db.ref('adminConfig/passwordHash').once('value').then(snapshot => {
+  if (!snapshot.exists()) {
+    setupAdminPassword();
   }
 });
