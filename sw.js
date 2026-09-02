@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dragons-hunter-v7';
+const CACHE_NAME = 'dragons-hunter-v8';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -6,11 +6,12 @@ const urlsToCache = [
   '/register.html',
   '/index.html',
   '/admin.html',
+  '/admin-user-history.html',
   '/pembayaran.html',
   '/firebase-config.js',
   '/background-dragon.png',
   '/header-dragon.png',
-  '/rubah.png',
+  '/monyet.png',
   '/serigala.png',
   '/panda.png',
   '/beruang.png',
@@ -73,7 +74,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Network First untuk halaman penting
-  const importantFiles = ['/login.html', '/admin.html', '/register.html', '/firebase-config.js', '/manifest.json'];
+  const importantFiles = ['/login.html', '/admin.html', '/register.html', '/firebase-config.js', '/manifest.json', '/admin-user-history.html'];
   
   if (importantFiles.some(file => event.request.url.includes(file))) {
     event.respondWith(
@@ -365,7 +366,7 @@ self.addEventListener('install', (event) => {
         cache.addAll(urlsToCache),
         // Precache gambar hewan
         cache.addAll([
-          '/rubah.png',
+          '/monyet.png',
           '/serigala.png',
           '/panda.png',
           '/beruang.png',
@@ -424,3 +425,27 @@ self.addEventListener('activate', (event) => {
     })()
   );
 });
+
+// Periodic cache cleanup
+setInterval(async () => {
+  const cache = await caches.open(CACHE_NAME);
+  const keys = await cache.keys();
+  
+  // Hapus cache yang sudah tidak digunakan (lebih dari 7 hari)
+  for (const key of keys) {
+    const response = await cache.match(key);
+    if (response) {
+      const dateHeader = response.headers.get('date');
+      if (dateHeader) {
+        const cacheDate = new Date(dateHeader);
+        const now = new Date();
+        const diffDays = (now - cacheDate) / (1000 * 60 * 60 * 24);
+        
+        if (diffDays > 7) {
+          await cache.delete(key);
+          console.log('Cache dihapus:', key.url);
+        }
+      }
+    }
+  }
+}, 1000 * 60 * 60); // Setiap 1 jam
