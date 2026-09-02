@@ -19,7 +19,8 @@
         body { 
             font-family: 'Georgia', serif; 
             background: url('background-dragon.png') no-repeat center center fixed; 
-            background-size: 100% 100%; /* Gambar fit penuh, tidak terpotong */
+            background-size: cover; /* Ubah dari 100% 100% menjadi cover */
+            background-position: center center;
             background-color: #0a1f14; 
             min-height: 100vh; 
             overflow-x: hidden; 
@@ -292,6 +293,89 @@
         const MAX_LOGIN_ATTEMPTS = 5;
         let lockoutTime = 0;
 
+        // ========== FUNGSI HASH PASSWORD (SAMA DENGAN INDEX.HTML) ==========
+        async function hashPassword(password) {
+            try {
+                // Gunakan Web Crypto API jika tersedia
+                if (window.crypto && window.crypto.subtle) {
+                    const data = new TextEncoder().encode(password);
+                    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                    const hashArray = Array.from(new Uint8Array(hashBuffer));
+                    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                    return hashHex;
+                }
+                
+                // Fallback jika Web Crypto tidak tersedia
+                let hash = 0;
+                for (let i = 0; i < password.length; i++) {
+                    const char = password.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                return hash.toString(16);
+            } catch (error) {
+                console.error('Hash error:', error);
+                throw error;
+            }
+        }
+
+        // ========== FUNGSI SESSION (SAMA DENGAN INDEX.HTML) ==========
+        function saveSession(sessionData) {
+            const session = {
+                userId: sessionData.userId,
+                username: sessionData.username,
+                nama: sessionData.nama,
+                balance: sessionData.balance,
+                role: sessionData.role || 'user',
+                loginTime: Date.now()
+            };
+            
+            sessionStorage.setItem('dragonsHunterSession', JSON.stringify(session));
+            localStorage.setItem('dragonsHunterSession', JSON.stringify(session));
+            
+            return session;
+        }
+
+        function getSession() {
+            try {
+                const session = sessionStorage.getItem('dragonsHunterSession');
+                if (session) return JSON.parse(session);
+                
+                // Fallback ke localStorage
+                const localSession = localStorage.getItem('dragonsHunterSession');
+                if (localSession) return JSON.parse(localSession);
+                
+                return null;
+            } catch (error) {
+                console.error('Get session error:', error);
+                return null;
+            }
+        }
+
+        async function verifySession() {
+            const session = getSession();
+            if (!session || !session.userId) return null;
+            
+            try {
+                // Verifikasi user masih ada di database
+                const snapshot = await db.ref('users/' + session.userId).once('value');
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    return {
+                        userId: session.userId,
+                        username: userData.username,
+                        nama: userData.nama,
+                        balance: userData.balance,
+                        role: userData.role || 'user'
+                    };
+                }
+            } catch (error) {
+                console.error('Verify session error:', error);
+            }
+            
+            return null;
+        }
+
         // ========== VIDEO INTRO ==========
         let introVideo = document.getElementById('introVideo');
         let introOverlay = document.getElementById('introOverlay');
@@ -345,6 +429,19 @@
         document.getElementById('username').addEventListener('keyup', (e) => detectCapsLock(e, 'capsLockWarning'));
         document.getElementById('password').addEventListener('keyup', (e) => detectCapsLock(e, 'capsLockWarning2'));
 
+        // ========== LOCK/UNLOCK BUTTON ==========
+        function lockButton(btn) {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+        }
+
+        function unlockButton(btn) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+        }
+
         // ========== LOGIN ==========
         async function handleLogin(event) {
             event.preventDefault();
@@ -385,7 +482,7 @@
             messageEl.className = 'message';
 
             try {
-                // Hash password
+                // Hash password (sama dengan index.html)
                 const hashedPassword = await hashPassword(password);
 
                 // Cari user berdasarkan username
@@ -422,14 +519,16 @@
                 // Update status online
                 await db.ref('users/' + userId + '/online').set(true);
 
-                // Simpan session
-                const sessionData = await saveSession({
+                // Simpan session (sama dengan index.html)
+                const sessionData = {
                     userId: userId,
                     username: userData.username,
                     nama: userData.nama,
                     balance: userData.balance,
                     role: userData.role || 'user'
-                });
+                };
+                
+                saveSession(sessionData);
 
                 messageEl.textContent = '✅ Login berhasil! Mengalihkan...';
                 messageEl.className = 'message success';
@@ -452,6 +551,7 @@
             }
         }
 
+        // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
 
@@ -468,6 +568,11 @@
                     }
                 });
             }
+        });
+
+        // Bersihkan interval saat halaman ditutup
+        window.addEventListener('beforeunload', () => {
+            // Tidak perlu cleanup khusus
         });
     </script>
 
