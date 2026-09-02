@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💳 Pembayaran QRIS - Dragons Hunter</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8b6914">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dragons Hunter">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: url('background-dragon.png') no-repeat center center fixed;
+            background-size: cover;
+            background-color: #0a1f14;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 31, 20, 0.85);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .payment-container {
+            max-width: 480px;
+            width: 90%;
+            margin: 20px;
+            padding: 25px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .payment-container h2 {
+            color: #ffd700;
+            margin-bottom: 5px;
+            font-size: 1.8em;
+            text-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .payment-container p {
+            color: #ccc;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        
+        .user-info {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            color: #ffd700;
+            text-align: left;
+        }
+        
+        .user-info strong {
+            color: #fff;
+        }
+        
+        .amount-display {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #00ff88;
+            margin: 10px 0 20px;
+            text-shadow: 0 0 15px rgba(0,255,136,0.4);
+            background: rgba(0,255,136,0.1);
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid rgba(0,255,136,0.3);
+        }
+        
+        .qris-box {
+            background: #fff;
+            border-radius: 20px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 4px solid #ffd700;
+            box-shadow: 0 0 20px rgba(255,215,0,0.3);
+        }
+        
+        .qris-box img {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            border-radius: 10px;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .instructions {
+            text-align: left;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            line-height: 1.6;
+            color: #ddd;
+        }
+        
+        .instructions h4 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .confirm-btn {
+            width: 100%;
+            background: linear-gradient(145deg, #00ff88, #00cc66);
+            border: none;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,255,136,0.4);
+            transition: all 0.3s ease;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+        
+        .confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,255,136,0.6);
+        }
+        
+        .confirm-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .back-btn {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #ff4444;
+            color: #ff4444;
+            padding: 12px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,68,68,0.2);
+        }
+        
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            display: none;
+        }
+        
+        .message.error {
+            background: rgba(255,68,68,0.2);
+            border: 2px solid #ff4444;
+            color: #ff6666;
+            display: block;
+        }
+        
+        .message.success {
+            background: rgba(0,255,136,0.2);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            display: block;
+        }
+        
+        .countdown {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #aaa;
+        }
+        
+        .checking-status {
+            display: none;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ffd700;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 480px) {
+            .payment-container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .amount-display {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Payment Container -->
+    <div class="payment-container">
+        <h2>💳 Pembayaran QRIS</h2>
+        <p>Scan kode di bawah untuk menyelesaikan top up</p>
+        
+        <!-- Info User -->
+        <div class="user-info">
+            <strong>👤 User:</strong> <span id="usernameDisplay">-</span>
+        </div>
+        
+        <div class="amount-display" id="amountDisplay">Rp 0</div>
+        
+        <div class="qris-box">
+            <img src="qris-topup.png" alt="QRIS Pembayaran" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=QRIS-Payment-Test'">
+        </div>
+        
+        <div class="instructions">
+            <h4>📌 Cara Pembayaran:</h4>
+            <ol>
+                <li>Buka aplikasi e-wallet (GoPay, OVO, DANA, ShopeePay) atau Mobile Banking Anda.</li>
+                <li>Pilih menu <strong>Scan QRIS</strong> atau <strong>QR Payment</strong>.</li>
+                <li>Scan kode QRIS di atas.</li>
+                <li>Pastikan nominal sesuai, lalu konfirmasi dan bayar.</li>
+                <li>Klik tombol <strong>"Saya Sudah Bayar"</strong> di bawah setelah pembayaran berhasil.</li>
+            </ol>
+        </div>
+        
+        <button class="confirm-btn" id="confirmBtn" onclick="confirmPayment()">✅ Saya Sudah Bayar</button>
+        <button class="back-btn" onclick="window.location.href='index.html'">⬅ Kembali ke Game</button>
+        
+        <div class="checking-status" id="checkingStatus">
+            <p>⏳ Menunggu konfirmasi pembayaran...</p>
+            <div class="spinner"></div>
+        </div>
+        
+        <div class="message" id="message"></div>
+        <div class="countdown" id="countdown"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        let topUpAmount = parseInt(sessionStorage.getItem('pendingTopUpAmount')) || 0;
+        let baseTopUpAmount = parseInt(sessionStorage.getItem('pendingTopUpBaseAmount')) || 0;
+        let countdownInterval = null;
+        let currentUserId = null;
+        let currentUserData = null;
+        let isProcessing = false;
+        let pollTimeout = null;
+
+        function getSession() {
+            try {
+                const session = sessionStorage.getItem('dragonsHunterSession');
+                if (session) return JSON.parse(session);
+                
+                const localSession = localStorage.getItem('dragonsHunterSession');
+                if (localSession) return JSON.parse(localSession);
+                
+                return null;
+            } catch (error) {
+                console.error('Get session error:', error);
+                return null;
+            }
+        }
+
+        async function verifySession() {
+            const session = getSession();
+            if (!session || !session.userId) return null;
+            
+            try {
+                const snapshot = await db.ref('users/' + session.userId).once('value');
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    return {
+                        userId: session.userId,
+                        username: userData.username,
+                        nama: userData.nama,
+                        balance: userData.balance,
+                        role: userData.role || 'user'
+                    };
+                }
+            } catch (error) {
+                console.error('Verify session error:', error);
+            }
+            
+            return null;
+        }
+
+        function formatRupiah(number) {
+            return 'Rp ' + number.toLocaleString('id-ID');
+        }
+
+        async function displayUserInfo() {
+            const session = getSession();
+            if (session) {
+                document.getElementById('usernameDisplay').textContent = session.username || '-';
+            }
+        }
+
+        async function init() {
+            document.getElementById('amountDisplay').textContent = formatRupiah(topUpAmount);
+            await displayUserInfo();
+            
+            if (topUpAmount === 0) { 
+                document.getElementById('message').textContent = '❌ Tidak ada nominal top up!'; 
+                document.getElementById('message').className = 'message error'; 
+                document.getElementById('confirmBtn').disabled = true; 
+                document.getElementById('countdown').textContent = 'Silakan kembali ke game dan pilih nominal top up.';
+            } else {
+                startCountdown(15 * 60);
+                checkSession();
+            }
+        }
+
+        async function checkSession() {
+            const session = await verifySession();
+            if (!session) {
+                document.getElementById('message').textContent = '❌ Anda belum login!';
+                document.getElementById('message').className = 'message error';
+                document.getElementById('confirmBtn').disabled = true;
+                
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
+            
+            currentUserId = session.userId;
+            currentUserData = session;
+            
+            checkPendingTransaction();
+        }
+
+        function checkPendingTransaction() {
+            if (!currentUserId) return;
+            
+            db.ref('transactions/' + currentUserId).orderByChild('status').equalTo('pending')
+                .limitToLast(1)
+                .once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        snapshot.forEach((child) => {
+                            const transaction = child.val();
+                            if (transaction.amount === topUpAmount) {
+                                document.getElementById('checkingStatus').style.display = 'block';
+                                document.getElementById('confirmBtn').disabled = true;
+                                
+                                startPolling(child.key);
+                            }
+                        });
+                    }
+                });
+        }
+
+        function startCountdown(seconds) {
+            const countdownEl = document.getElementById('countdown');
+            
+            countdownInterval = setInterval(() => {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                
+                countdownEl.textContent = `⏱️ Sisa waktu: ${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+                
+                seconds--;
+                
+                if (seconds < 0) {
+                    clearInterval(countdownInterval);
+                    countdownEl.textContent = '⏱️ Waktu habis!';
+                    document.getElementById('message').textContent = '❌ Waktu pembayaran habis!';
+                    document.getElementById('message').className = 'message error';
+                    document.getElementById('confirmBtn').disabled = true;
+                    
+                    sessionStorage.removeItem('pendingTopUpAmount');
+                    sessionStorage.removeItem('pendingTopUpBaseAmount');
+                    
+                    setTimeout(() => window.location.href = 'index.html', 3000);
+                }
+            }, 1000);
+        }
+
+        function confirmPayment() {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            const messageEl = document.getElementById('message');
+            const confirmBtn = document.getElementById('confirmBtn');
+            const checkingStatus = document.getElementById('checkingStatus');
+
+            if (!currentUserId) {
+                messageEl.textContent = '❌ Anda belum login!';
+                messageEl.className = 'message error';
+                setTimeout(() => window.location.href = 'login.html', 1500);
+                return;
+            }
+
+            lockButton(confirmBtn);
+            messageEl.textContent = '⏳ Memverifikasi pembayaran...';
+            messageEl.className = 'message';
+
+            db.ref('transactions/' + currentUserId).push({
+                type: 'topup',
+                amount: topUpAmount,
+                baseAmount: baseTopUpAmount,
+                method: 'QRIS',
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                status: 'pending',
+                userId: currentUserId,
+                username: currentUserData.username
+            })
+            .then((ref) => {
+                checkingStatus.style.display = 'block';
+                messageEl.textContent = '';
+                messageEl.className = 'message';
+                
+                sessionStorage.setItem('pendingTransactionId', ref.key);
+                
+                startPolling(ref.key);
+            })
+            .catch((error) => {
+                console.error('Error membuat transaksi:', error);
+                messageEl.textContent = '❌ Gagal membuat transaksi: ' + error.message;
+                messageEl.className = 'message error';
+                unlockButton(confirmBtn);
+                isProcessing = false;
+            });
+        }
+
+        function startPolling(transactionId) {
+            const checkingStatus = document.getElementById('checkingStatus');
+            const messageEl = document.getElementById('message');
+            
+            checkingStatus.style.display = 'block';
+            
+            const transactionRef = db.ref('transactions/' + currentUserId + '/' + transactionId);
+            
+            pollTimeout = setTimeout(() => {
+                transactionRef.off();
+                checkingStatus.style.display = 'none';
+                messageEl.textContent = '⏱️ Waktu verifikasi habis. Hubungi admin.';
+                messageEl.className = 'message error';
+                unlockButton(document.getElementById('confirmBtn'));
+                isProcessing = false;
+            }, 120000);
+
+            transactionRef.on('value', (snapshot) => {
+                const transaction = snapshot.val();
+                
+                if (transaction) {
+                    if (transaction.status === 'approved') {
+                        clearTimeout(pollTimeout);
+                        transactionRef.off();
+                        clearInterval(countdownInterval);
+                        
+                        db.ref('users/' + currentUserId + '/balance').transaction((currentBalance) => {
+                            return (currentBalance || 0) + transaction.amount;
+                        }).then(() => {
+                            const session = getSession();
+                            if (session) {
+                                session.balance = (session.balance || 0) + transaction.amount;
+                                sessionStorage.setItem('dragonsHunterSession', JSON.stringify(session));
+                                localStorage.setItem('dragonsHunterSession', JSON.stringify(session));
+                            }
+                            
+                            checkingStatus.style.display = 'none';
+                            messageEl.textContent = '✅ Pembayaran berhasil! Saldo telah diperbarui.';
+                            messageEl.className = 'message success';
+                            
+                            sessionStorage.removeItem('pendingTopUpAmount');
+                            sessionStorage.removeItem('pendingTopUpBaseAmount');
+                            sessionStorage.removeItem('pendingTransactionId');
+                            
+                            setTimeout(() => window.location.href = 'index.html', 2000);
+                        });
+                    } else if (transaction.status === 'rejected') {
+                        clearTimeout(pollTimeout);
+                        transactionRef.off();
+                        clearInterval(countdownInterval);
+                        
+                        checkingStatus.style.display = 'none';
+                        messageEl.textContent = '❌ Pembayaran gagal. Silakan coba lagi.';
+                        messageEl.className = 'message error';
+                        unlockButton(document.getElementById('confirmBtn'));
+                        isProcessing = false;
+                        
+                        sessionStorage.removeItem('pendingTopUpAmount');
+                        sessionStorage.removeItem('pendingTopUpBaseAmount');
+                        sessionStorage.removeItem('pendingTransactionId');
+                    }
+                }
+            });
+        }
+        
+        function lockButton(btn) {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+        }
+        
+        function unlockButton(btn) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }
+        
+        window.addEventListener('beforeunload', () => {
+            if (countdownInterval) clearInterval(countdownInterval);
+            if (pollTimeout) clearTimeout(pollTimeout);
+        });
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker terdaftar:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.error('Registrasi Service Worker gagal:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+  </html>
