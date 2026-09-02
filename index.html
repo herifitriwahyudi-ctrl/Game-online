@@ -2294,55 +2294,91 @@
             }
         }
 
-        // ========== INISIALISASI ==========
-        async function init() {
-            document.addEventListener('click', function initAudioOnce() {
-                initAudio();
-                document.removeEventListener('click', initAudioOnce);
-            });
-
-            await loadRTP();
-
-            // Cek session menggunakan fungsi dari firebase-config.js
-            const session = await verifySession();
-            
-            if (session && session.userId) {
-                currentUserId = session.userId;
-                currentUserData = session;
-                
-                // Sembunyikan tombol register jika sudah login
-                const registerBtn = document.querySelector('.register-btn');
-                if (registerBtn) {
-                    registerBtn.style.display = 'none';
-                }
-                
-                db.ref('users/' + currentUserId + '/balance').on('value', (snapshot) => {
-                    balance = snapshot.val() || 0;
-                    updateBalanceDisplay();
-                    
-                    if (balance < 100 && balance > 0) {
-                        setTimeout(checkLowBalance, 1000);
-                    }
-                });
-            } else {
-                // Jika belum login, arahkan ke login
-                window.location.href = 'login.html';
-                return;
+        // ========== RTP CONFIG - REALTIME LISTENER ==========
+async function loadRTP() {
+    try {
+        db.ref('config/rtp').on('value', (snapshot) => {
+            if (snapshot.exists()) {
+                rtpConfig = snapshot.val();
+                // Ganti console.log agar bisa dilihat dengan lebih baik
+                console.log('✅ RTP Config loaded:', JSON.stringify(rtpConfig));
             }
+        });
+    } catch (error) {
+        console.error('❌ Error loading RTP:', error);
+    }
+}
 
-            db.ref('history').on('value', (snapshot) => {
-                history = snapshot.val() || [];
-                if (history.length === 0) {
-                    history = generateInitialHistory();
-                    db.ref('history').set(history);
+// ========== INISIALISASI ==========
+async function init() {
+    console.log('🚀 Init dimulai...');
+    
+    try {
+        // Setup audio
+        document.addEventListener('click', function initAudioOnce() {
+            initAudio();
+            document.removeEventListener('click', initAudioOnce);
+        });
+
+        console.log('📡 Loading RTP...');
+        await loadRTP();
+        console.log('✅ RTP loaded');
+
+        // Cek session menggunakan fungsi dari firebase-config.js
+        console.log('🔍 Verifying session...');
+        const session = await verifySession();
+        console.log('✅ Session verified:', session ? 'User ditemukan' : 'Tidak ada session');
+        
+        if (session && session.userId) {
+            currentUserId = session.userId;
+            currentUserData = session;
+            
+            // Sembunyikan tombol register jika sudah login
+            const registerBtn = document.querySelector('.register-btn');
+            if (registerBtn) {
+                registerBtn.style.display = 'none';
+            }
+            
+            console.log('💰 Loading balance...');
+            db.ref('users/' + currentUserId + '/balance').on('value', (snapshot) => {
+                balance = snapshot.val() || 0;
+                updateBalanceDisplay();
+                console.log('💰 Balance updated:', formatRupiah(balance));
+                
+                if (balance < 100 && balance > 0) {
+                    setTimeout(checkLowBalance, 1000);
                 }
-                generateBoard();
             });
-
-            generateDropdowns();
+        } else {
+            // Jika belum login, arahkan ke login
+            console.log('⚠️ Tidak ada session, redirect ke login...');
+            window.location.href = 'login.html';
+            return;
         }
 
-        init();
+        console.log('📊 Loading history...');
+        db.ref('history').on('value', (snapshot) => {
+            history = snapshot.val() || [];
+            if (history.length === 0) {
+                history = generateInitialHistory();
+                db.ref('history').set(history);
+            }
+            generateBoard();
+            console.log('✅ History loaded:', history.length, 'items');
+        });
+
+        console.log('🐾 Generating dropdowns...');
+        generateDropdowns();
+        
+        console.log('✅ Init selesai! Game siap dimainkan.');
+        
+    } catch (error) {
+        console.error('❌ Error saat init:', error);
+    }
+}
+
+// Jalankan init
+init();
     </script>
 </body>
   </html>
