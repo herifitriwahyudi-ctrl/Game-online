@@ -3,7 +3,7 @@
   "name": "Dragons Hunter",
   "short_name": "Dragons Hunter",
   "description": "Game Petualangan Dragons Hunter - Buru Naga dan Menangkan Hadiah!",
-  "start_url": "./index.html",
+  "start_url": "./login.html",
   "scope": "./",
   "display": "fullscreen",
   "display_override": ["fullscreen", "standalone", "minimal-ui"],
