@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🐉 Daftar Akun - Dragons Hunter</title>
     
-    <!-- PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#8b6914">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -274,79 +273,6 @@
         // State untuk mencegah double submit
         let isSubmitting = false;
 
-        // ========== FUNGSI HASH PASSWORD (SAMA DENGAN LOGIN.HTML) ==========
-        async function hashPassword(password) {
-            try {
-                // Gunakan Web Crypto API jika tersedia
-                if (window.crypto && window.crypto.subtle) {
-                    const data = new TextEncoder().encode(password);
-                    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                    const hashArray = Array.from(new Uint8Array(hashBuffer));
-                    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                    return hashHex;
-                }
-                
-                // Fallback jika Web Crypto tidak tersedia
-                let hash = 0;
-                for (let i = 0; i < password.length; i++) {
-                    const char = password.charCodeAt(i);
-                    hash = ((hash << 5) - hash) + char;
-                    hash = hash & hash;
-                }
-                return hash.toString(16);
-            } catch (error) {
-                console.error('Hash error:', error);
-                throw error;
-            }
-        }
-
-        // ========== FUNGSI SESSION (SAMA DENGAN INDEX.HTML) ==========
-        function saveSession(sessionData) {
-            const session = {
-                userId: sessionData.userId,
-                username: sessionData.username,
-                nama: sessionData.nama,
-                balance: sessionData.balance,
-                role: sessionData.role || 'user',
-                loginTime: Date.now()
-            };
-            
-            sessionStorage.setItem('dragonsHunterSession', JSON.stringify(session));
-            localStorage.setItem('dragonsHunterSession', JSON.stringify(session));
-            
-            return session;
-        }
-
-        function getSession() {
-            try {
-                const session = sessionStorage.getItem('dragonsHunterSession');
-                if (session) return JSON.parse(session);
-                
-                // Fallback ke localStorage
-                const localSession = localStorage.getItem('dragonsHunterSession');
-                if (localSession) return JSON.parse(localSession);
-                
-                return null;
-            } catch (error) {
-                console.error('Get session error:', error);
-                return null;
-            }
-        }
-
-        // ========== GENERATE ID (SAMA DENGAN INDEX.HTML) ==========
-        function generateId(prefix) {
-            return prefix + Date.now() + Math.random().toString(36).substr(2, 9);
-        }
-
-        // ========== VALIDASI ==========
-        function validateUsername(username) {
-            return /^[a-zA-Z0-9_]{3,20}$/.test(username);
-        }
-
-        function validatePhone(phone) {
-            return /^[0-9+]{10,15}$/.test(phone);
-        }
-
         // ========== LOCK/UNLOCK BUTTON ==========
         function lockButton(btn) {
             btn.disabled = true;
@@ -369,56 +295,60 @@
             document.getElementById('loadingSpinner').style.display = 'none';
         }
 
-        // ========== VALIDASI UNIK (MANUAL - TANPA QUERY ERROR) ==========
-        // Validasi username unik
+        // ========== VALIDASI UNIK ==========
+        const usernameCache = new Map();
         async function checkUsernameUnique(username) {
-            try {
-                // Ambil semua users, lalu cek manual
-                const snapshot = await db.ref('users').once('value');
-                if (snapshot.exists()) {
-                    let isDuplicate = false;
-                    snapshot.forEach((child) => {
-                        const userData = child.val();
-                        if (userData.username === username) {
-                            isDuplicate = true;
-                        }
-                    });
-                    return !isDuplicate;
-                }
-                return true; // Jika belum ada user, berarti unik
-            } catch (error) {
-                console.error('Error checking username:', error);
-                return true; // Jika error, anggap unik (agar tidak block)
+            if (usernameCache.has(username)) {
+                return usernameCache.get(username);
             }
+            
+            const result = await new Promise((resolve) => {
+                db.ref('usernameIndex/' + username).once('value')
+                    .then(snapshot => {
+                        resolve(!snapshot.exists());
+                    })
+                    .catch(() => resolve(false));
+            });
+            
+            usernameCache.set(username, result);
+            return result;
         }
 
-        // Validasi WhatsApp unik (manual)
         async function checkWhatsappUnique(noWhatsapp) {
-            try {
-                // Ambil semua users, lalu cek manual
-                const snapshot = await db.ref('users').once('value');
-                if (snapshot.exists()) {
-                    let isDuplicate = false;
-                    snapshot.forEach((child) => {
-                        const userData = child.val();
-                        if (userData.noWhatsapp === noWhatsapp) {
-                            isDuplicate = true;
-                        }
-                    });
-                    return !isDuplicate;
-                }
-                return true; // Jika belum ada user, berarti unik
-            } catch (error) {
-                console.error('Error checking whatsapp:', error);
-                return true; // Jika error, anggap unik (agar tidak block)
-            }
+            const result = await new Promise((resolve) => {
+                db.ref('users').orderByChild('noWhatsapp').equalTo(noWhatsapp).once('value')
+                    .then(snapshot => {
+                        resolve(!snapshot.exists());
+                    })
+                    .catch(() => resolve(false));
+            });
+            return result;
         }
+
+        // Validasi real-time username
+        let usernameCheckTimeout;
+        document.getElementById('username').addEventListener('input', function() {
+            clearTimeout(usernameCheckTimeout);
+            const username = this.value.toLowerCase();
+            
+            usernameCheckTimeout = setTimeout(async () => {
+                if (username.length >= 3) {
+                    const isUnique = await checkUsernameUnique(username);
+                    if (!isUnique) {
+                        this.style.borderColor = '#ff4444';
+                        this.title = 'Username sudah digunakan';
+                    } else {
+                        this.style.borderColor = '#8b6914';
+                        this.title = '';
+                    }
+                }
+            }, 500);
+        });
 
         // ========== REGISTER ==========
         async function handleRegister(event) {
             event.preventDefault();
             
-            // Prevent double submit
             if (isSubmitting) return;
             isSubmitting = true;
 
@@ -433,7 +363,6 @@
             const messageEl = document.getElementById('message');
             const registerBtn = document.getElementById('registerBtn');
 
-            // Reset message
             messageEl.className = 'message';
             messageEl.textContent = '';
 
@@ -494,7 +423,6 @@
                 return; 
             }
 
-            // Lock button
             lockButton(registerBtn);
             showLoading();
             messageEl.textContent = '⏳ Memeriksa ketersediaan...';
@@ -513,11 +441,11 @@
                     throw new Error('Nomor WhatsApp sudah terdaftar!');
                 }
 
-                // Hash password (sama dengan login.html)
+                // Hash password menggunakan fungsi dari firebase-config.js
                 const hashedPassword = await hashPassword(password);
                 const userId = generateId('user_');
 
-                // Simpan ke Realtime Database (struktur sama dengan yang dipakai admin)
+                // Simpan ke Realtime Database
                 await db.ref('users/' + userId).set({
                     userId: userId,
                     nama: nama,
@@ -529,10 +457,10 @@
                     passwordHash: hashedPassword,
                     balance: 10000,
                     role: 'user',
-                    status: 'active',
                     createdAt: firebase.database.ServerValue.TIMESTAMP,
                     lastLogin: null,
                     online: false,
+                    status: 'active',
                     gameStats: {
                         totalBets: 0,
                         totalWins: 0,
@@ -541,28 +469,18 @@
                     }
                 });
 
-                // Simpan ke index username (untuk admin)
+                // Simpan ke index username
                 await db.ref('usernameIndex/' + username).set({
                     userId: userId,
                     username: username
                 });
 
-                messageEl.textContent = '✅ Akun berhasil dibuat! Mengalihkan ke game...';
+                messageEl.textContent = '✅ Akun berhasil dibuat! Mengalihkan ke login...';
                 messageEl.className = 'message success';
                 
-                // Auto-login setelah registrasi (sama dengan index.html)
-                setTimeout(async () => {
-                    // Simpan session
-                    await saveSession({
-                        userId: userId,
-                        username: username,
-                        nama: nama,
-                        balance: 10000,
-                        role: 'user'
-                    });
-                    
-                    // REDIRECT KE GAME (BUKAN ADMIN)
-                    window.location.href = 'index.html';
+                // Redirect ke login
+                setTimeout(() => {
+                    window.location.href = 'login.html?registered=true';
                 }, 1500);
 
             } catch (error) {
@@ -622,6 +540,14 @@
             if (session && session.userId) {
                 window.location.href = 'index.html';
             }
+            
+            // Tampilkan pesan jika diarahkan dari login
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('registered') === 'true') {
+                const messageEl = document.getElementById('message');
+                messageEl.textContent = '✅ Registrasi berhasil! Silakan login.';
+                messageEl.className = 'message success';
+            }
         });
     </script>
 
@@ -650,4 +576,4 @@
         }
     </script>
 </body>
-  </html>
+</html>
