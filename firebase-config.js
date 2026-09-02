@@ -15,18 +15,35 @@ const db = firebase.database();
 
 // ========== UTILITAS ==========
 
-// Hash password dengan SHA-256 + salt
+// Hash password dengan SHA-256 (TANPA SALT - SAMA DENGAN LOGIN/REGISTER)
 async function hashPassword(password) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password + 'dragons_hunter_salt_2024');
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  try {
+    // Gunakan Web Crypto API jika tersedia
+    if (window.crypto && window.crypto.subtle) {
+      const data = new TextEncoder().encode(password);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return hashHex;
+    }
+    
+    // Fallback jika Web Crypto tidak tersedia
+    let hash = 0;
+    for (let i = 0; i < password.length; i++) {
+      const char = password.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return hash.toString(16);
+  } catch (error) {
+    console.error('Hash error:', error);
+    throw error;
+  }
 }
 
-// Generate ID unik
+// Generate ID unik (SAMA DENGAN INDEX.HTML)
 function generateId(prefix = '') {
-  return prefix + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  return prefix + Date.now() + Math.random().toString(36).substr(2, 9);
 }
 
 // Validasi username
@@ -70,7 +87,7 @@ function formatDateTime(timestamp) {
 
 // ========== SESSION MANAGEMENT ==========
 
-// Simpan session
+// Simpan session (SAMA DENGAN LOGIN/REGISTER)
 function saveSession(userData) {
   const sessionData = {
     userId: userData.userId,
@@ -78,21 +95,26 @@ function saveSession(userData) {
     nama: userData.nama,
     balance: userData.balance,
     role: userData.role || 'user',
-    loginTime: Date.now(),
-    sessionId: generateId('sess_')
+    loginTime: Date.now()
   };
   
   sessionStorage.setItem('dragonsHunterSession', JSON.stringify(sessionData));
-  localStorage.setItem('dragonsHunterActiveUser', JSON.stringify(sessionData));
+  localStorage.setItem('dragonsHunterSession', JSON.stringify(sessionData));
   
   return sessionData;
 }
 
-// Ambil session
+// Ambil session (SAMA DENGAN LOGIN/REGISTER)
 function getSession() {
   try {
     const session = sessionStorage.getItem('dragonsHunterSession');
-    return session ? JSON.parse(session) : null;
+    if (session) return JSON.parse(session);
+    
+    // Fallback ke localStorage
+    const localSession = localStorage.getItem('dragonsHunterSession');
+    if (localSession) return JSON.parse(localSession);
+    
+    return null;
   } catch (error) {
     console.error('Error parsing session:', error);
     return null;
@@ -102,7 +124,7 @@ function getSession() {
 // Hapus session
 function clearSession() {
   sessionStorage.removeItem('dragonsHunterSession');
-  localStorage.removeItem('dragonsHunterActiveUser');
+  localStorage.removeItem('dragonsHunterSession');
 }
 
 // Verifikasi session dengan database
@@ -117,6 +139,7 @@ async function verifySession() {
       // Update balance di session
       session.balance = userData.balance;
       sessionStorage.setItem('dragonsHunterSession', JSON.stringify(session));
+      localStorage.setItem('dragonsHunterSession', JSON.stringify(session));
       return session;
     }
     return null;
