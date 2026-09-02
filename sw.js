@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dragons-hunter-v4';
+const CACHE_NAME = 'dragons-hunter-v5';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -60,8 +60,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Gunakan Network First untuk file penting
-  const importantFiles = ['/login.html', '/admin.html', '/firebase-config.js', '/manifest.json'];
+  // Network First untuk halaman penting (admin, login)
+  const importantFiles = ['/login.html', '/admin.html', '/register.html', '/firebase-config.js', '/manifest.json'];
   
   if (importantFiles.some(file => event.request.url.includes(file))) {
     event.respondWith(
@@ -153,3 +153,50 @@ self.addEventListener('notificationclick', (event) => {
       })
   );
 });
+
+// Background Sync untuk transaksi pending
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-transactions') {
+    event.waitUntil(syncPendingTransactions());
+  }
+});
+
+// Fungsi sinkronisasi transaksi pending
+async function syncPendingTransactions() {
+  try {
+    const cache = await caches.open('pending-transactions');
+    const pendingTransactions = await cache.keys();
+    
+    for (const request of pendingTransactions) {
+      const response = await cache.match(request);
+      const transaction = await response.json();
+      
+      // Kirim ke Firebase
+      const fetchResponse = await fetch('https://dragons-hunter-12345-default-rtdb.firebaseio.com/transactions.json', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(transaction)
+      });
+      
+      if (fetchResponse.ok) {
+        await cache.delete(request);
+      }
+    }
+    
+    // Notify clients
+    const clients = await self.clients.matchAll();
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'SYNC_COMPLETE',
+        message: 'Transaksi pending berhasil disinkronkan'
+      });
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Sync error:', error);
+    return false;
+  }
+}
