@@ -396,146 +396,150 @@
         }
 
         // ========== FUNGSI CONFIRM PAYMENT (PERBAIKAN) ==========
-        function confirmPayment() {
-            // Prevent double submission
-            if (isProcessing) return;
-            
-            // Cek nominal
-            if (topUpAmount === 0) {
-                document.getElementById('message').textContent = '❌ Tidak ada nominal top up! Silakan kembali ke game.';
-                document.getElementById('message').className = 'message error';
-                setTimeout(() => window.location.href = 'index.html', 2000);
-                return;
-            }
+        // ========== PROCESS TOP UP ==========
+function confirmPayment() {
+    // Prevent double submission
+    if (isProcessing) return;
+    
+    // Cek nominal
+    if (topUpAmount === 0) {
+        document.getElementById('message').textContent = '❌ Tidak ada nominal top up! Silakan kembali ke game.';
+        document.getElementById('message').className = 'message error';
+        setTimeout(() => window.location.href = 'index.html', 2000);
+        return;
+    }
 
-            isProcessing = true;
+    isProcessing = true;
 
-            const messageEl = document.getElementById('message');
-            const confirmBtn = document.getElementById('confirmBtn');
-            const checkingStatus = document.getElementById('checkingStatus');
+    const messageEl = document.getElementById('message');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const checkingStatus = document.getElementById('checkingStatus');
 
-            // Cek session
-            if (!currentUserId) {
-                messageEl.textContent = '❌ Anda belum login!';
-                messageEl.className = 'message error';
-                setTimeout(() => window.location.href = 'login.html', 1500);
-                return;
-            }
+    // Cek session
+    if (!currentUserId) {
+        messageEl.textContent = '❌ Anda belum login!';
+        messageEl.className = 'message error';
+        setTimeout(() => window.location.href = 'login.html', 1500);
+        return;
+    }
 
-            // Disable tombol
-            lockButton(confirmBtn);
-            messageEl.textContent = '⏳ Memverifikasi pembayaran...';
-            messageEl.className = 'message';
+    // Disable tombol
+    lockButton(confirmBtn);
+    messageEl.textContent = '⏳ Memverifikasi pembayaran...';
+    messageEl.className = 'message';
 
-            // Ambil transaction ID dari sessionStorage
-            const transactionId = sessionStorage.getItem('pendingTransactionId');
+    // Ambil transaction ID dari sessionStorage
+    const transactionId = sessionStorage.getItem('pendingTransactionId');
 
-            // Buat transaksi pending
-            const transactionRef = db.ref('transactions/' + currentUserId + '/' + transactionId);
-            
-            transactionRef.set({
-                type: 'topup',
-                amount: topUpAmount,
-                baseAmount: baseTopUpAmount,
-                method: 'QRIS',
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                status: 'pending',
-                userId: currentUserId,
-                username: currentUserData.username
-            })
-            .then(() => {
-                // Tampilkan status menunggu
-                checkingStatus.style.display = 'block';
-                messageEl.textContent = '';
-                messageEl.className = 'message';
-                
-                // Simpan ID transaksi
-                sessionStorage.setItem('pendingTransactionId', transactionId);
-                
-                // Mulai polling status
-                startPolling(transactionId);
-            })
-            .catch((error) => {
-                console.error('Error membuat transaksi:', error);
-                messageEl.textContent = '❌ Gagal membuat transaksi: ' + error.message;
-                messageEl.className = 'message error';
-                unlockButton(confirmBtn);
-                isProcessing = false;
-            });
-        }
+    // Buat transaksi pending
+    const transactionRef = db.ref('transactions/' + currentUserId + '/' + transactionId);
+    
+    transactionRef.set({
+        type: 'topup',
+        amount: topUpAmount,
+        baseAmount: topUpAmount,
+        method: 'QRIS',
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        status: 'pending',
+        userId: currentUserId,
+        username: currentUserData.username,
+        transactionId: transactionId,
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+    })
+    .then(() => {
+        // Tampilkan status menunggu
+        checkingStatus.style.display = 'block';
+        messageEl.textContent = '';
+        messageEl.className = 'message';
+        
+        // Simpan ID transaksi
+        sessionStorage.setItem('pendingTransactionId', transactionId);
+        
+        // Mulai polling status
+        startPolling(transactionId);
+    })
+    .catch((error) => {
+        console.error('Error membuat transaksi:', error);
+        messageEl.textContent = '❌ Gagal membuat transaksi: ' + error.message;
+        messageEl.className = 'message error';
+        unlockButton(confirmBtn);
+        isProcessing = false;
+    });
+}
 
-        function startPolling(transactionId) {
-            const checkingStatus = document.getElementById('checkingStatus');
-            const messageEl = document.getElementById('message');
-            
-            checkingStatus.style.display = 'block';
-            
-            // Gunakan on() untuk real-time update
-            const transactionRef = db.ref('transactions/' + currentUserId + '/' + transactionId);
-            
-            // Set timeout untuk polling maksimal 2 menit
-            pollTimeout = setTimeout(() => {
+// ========== START POLLING ==========
+function startPolling(transactionId) {
+    const checkingStatus = document.getElementById('checkingStatus');
+    const messageEl = document.getElementById('message');
+    
+    checkingStatus.style.display = 'block';
+    
+    // Gunakan on() untuk real-time update
+    const transactionRef = db.ref('transactions/' + currentUserId + '/' + transactionId);
+    
+    // Set timeout untuk polling maksimal 2 menit
+    pollTimeout = setTimeout(() => {
+        transactionRef.off();
+        checkingStatus.style.display = 'none';
+        messageEl.textContent = '⏱️ Waktu verifikasi habis. Hubungi admin.';
+        messageEl.className = 'message error';
+        unlockButton(document.getElementById('confirmBtn'));
+        isProcessing = false;
+    }, 120000); // 2 menit
+
+    transactionRef.on('value', (snapshot) => {
+        const transaction = snapshot.val();
+        
+        if (transaction) {
+            if (transaction.status === 'approved') {
+                // Transaksi berhasil
+                clearTimeout(pollTimeout);
                 transactionRef.off();
+                clearInterval(countdownInterval);
+                
+                // Update saldo user dengan transaction (atomic)
+                db.ref('users/' + currentUserId + '/balance').transaction((currentBalance) => {
+                    return (currentBalance || 0) + transaction.amount;
+                }).then(() => {
+                    // Update saldo di session jika ada
+                    const session = getSession();
+                    if (session) {
+                        session.balance = (session.balance || 0) + transaction.amount;
+                        sessionStorage.setItem('dragonsHunterSession', JSON.stringify(session));
+                        localStorage.setItem('dragonsHunterActiveUser', JSON.stringify(session));
+                    }
+                    
+                    // Tampilkan pesan sukses
+                    checkingStatus.style.display = 'none';
+                    messageEl.textContent = '✅ Pembayaran berhasil! Saldo telah diperbarui.';
+                    messageEl.className = 'message success';
+                    
+                    // Hapus session data
+                    sessionStorage.removeItem('pendingTopUpAmount');
+                    sessionStorage.removeItem('pendingTopUpBaseAmount');
+                    sessionStorage.removeItem('pendingTransactionId');
+                    
+                    setTimeout(() => window.location.href = 'index.html', 2000);
+                });
+            } else if (transaction.status === 'rejected') {
+                // Transaksi gagal
+                clearTimeout(pollTimeout);
+                transactionRef.off();
+                clearInterval(countdownInterval);
+                
                 checkingStatus.style.display = 'none';
-                messageEl.textContent = '⏱️ Waktu verifikasi habis. Hubungi admin.';
+                messageEl.textContent = '❌ Pembayaran gagal. Silakan coba lagi.';
                 messageEl.className = 'message error';
                 unlockButton(document.getElementById('confirmBtn'));
                 isProcessing = false;
-            }, 120000); // 2 menit
-
-            transactionRef.on('value', (snapshot) => {
-                const transaction = snapshot.val();
                 
-                if (transaction) {
-                    if (transaction.status === 'approved') {
-                        // Transaksi berhasil
-                        clearTimeout(pollTimeout);
-                        transactionRef.off();
-                        clearInterval(countdownInterval);
-                        
-                        // Update saldo user dengan transaction
-                        db.ref('users/' + currentUserId + '/balance').transaction((currentBalance) => {
-                            return (currentBalance || 0) + transaction.amount;
-                        }).then(() => {
-                            // Update saldo di session jika ada
-                            const session = getSession();
-                            if (session) {
-                                session.balance = (session.balance || 0) + transaction.amount;
-                                sessionStorage.setItem('dragonsHunterSession', JSON.stringify(session));
-                                localStorage.setItem('dragonsHunterActiveUser', JSON.stringify(session));
-                            }
-                            
-                            // Tampilkan pesan sukses
-                            checkingStatus.style.display = 'none';
-                            messageEl.textContent = '✅ Pembayaran berhasil! Saldo telah diperbarui.';
-                            messageEl.className = 'message success';
-                            
-                            // Hapus session data
-                            sessionStorage.removeItem('pendingTopUpAmount');
-                            sessionStorage.removeItem('pendingTopUpBaseAmount');
-                            sessionStorage.removeItem('pendingTransactionId');
-                            
-                            setTimeout(() => window.location.href = 'index.html', 2000);
-                        });
-                    } else if (transaction.status === 'rejected') {
-                        // Transaksi gagal
-                        clearTimeout(pollTimeout);
-                        transactionRef.off();
-                        clearInterval(countdownInterval);
-                        
-                        checkingStatus.style.display = 'none';
-                        messageEl.textContent = '❌ Pembayaran gagal. Silakan coba lagi.';
-                        messageEl.className = 'message error';
-                        unlockButton(document.getElementById('confirmBtn'));
-                        isProcessing = false;
-                        
-                        sessionStorage.removeItem('pendingTopUpAmount');
-                        sessionStorage.removeItem('pendingTopUpBaseAmount');
-                        sessionStorage.removeItem('pendingTransactionId');
-                    }
-                }
-            });
+                sessionStorage.removeItem('pendingTopUpAmount');
+                sessionStorage.removeItem('pendingTopUpBaseAmount');
+                sessionStorage.removeItem('pendingTransactionId');
+            }
         }
+    });
+}
         
         // Fungsi lock/unlock button
         function lockButton(btn) {
