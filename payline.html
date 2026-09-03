@@ -197,15 +197,59 @@
             padding: 20px;
             margin-bottom: 20px;
             border: 2px solid #8b6914;
+            position: relative;
         }
 
-        .section h2 {
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .section-header h2 {
             color: #ffd700;
             font-size: 1.5em;
-            margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
+            margin: 0;
+        }
+
+        .minimize-btn {
+            background: linear-gradient(145deg, #8b6914, #6b4914);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .minimize-btn:hover {
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            color: #3d1e00;
+            transform: scale(1.1);
+        }
+
+        .section-content {
+            transition: all 0.3s ease;
+        }
+
+        .section.minimized .section-content {
+            display: none;
+        }
+
+        .section.minimized .minimize-btn {
+            transform: rotate(180deg);
         }
 
         .section h3 {
@@ -292,47 +336,14 @@
             font-weight: bold;
         }
 
-        /* Multiplier Info */
-        .multiplier-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .multiplier-card {
-            background: linear-gradient(145deg, #3a2a15, #2a1a0e);
-            border: 2px solid #8b6914;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-        }
-
-        .multiplier-card.special {
-            border-color: #ff4444;
-            box-shadow: 0 0 15px rgba(255,68,68,0.3);
-        }
-
-        .multiplier-card.naga {
+        .animal-card.naga {
             border-color: #ffd700;
             box-shadow: 0 0 15px rgba(255,215,0,0.3);
         }
 
-        .multiplier-card.harimau {
+        .animal-card.harimau {
             border-color: #ff8c00;
             box-shadow: 0 0 15px rgba(255,140,0,0.3);
-        }
-
-        .multiplier-card .multiplier-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #ffd700;
-            margin-bottom: 10px;
-        }
-
-        .multiplier-card .multiplier-label {
-            color: #ccc;
-            font-size: 0.9em;
         }
 
         /* Step List */
@@ -401,6 +412,10 @@
             color: #00ff88;
         }
 
+        .example-box .formula.lose {
+            color: #ff4444;
+        }
+
         /* Peringatan */
         .warning-box {
             background: rgba(255,68,68,0.1);
@@ -441,16 +456,6 @@
             line-height: 1.6;
         }
 
-        /* Animasi */
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .pulse-animation {
-            animation: pulse 2s ease-in-out infinite;
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
             .main-container {
@@ -470,10 +475,6 @@
                 grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             }
 
-            .multiplier-info {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            }
-
             .nav-buttons {
                 flex-direction: column;
                 align-items: center;
@@ -482,6 +483,16 @@
             .nav-btn {
                 width: 100%;
                 text-align: center;
+            }
+
+            .section-header h2 {
+                font-size: 1.2em;
+            }
+
+            .minimize-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 1em;
             }
         }
     </style>
@@ -522,326 +533,220 @@
         </div>
 
         <!-- Section 1: Cara Bermain -->
-        <div class="section">
-            <h2>🎮 Cara Bermain</h2>
-            
-            <h3>Langkah-langkah Bermain:</h3>
-            <ol class="step-list">
-                <li><strong>Login</strong> ke akun Anda atau daftar jika belum memiliki akun.</li>
-                <li><strong>Top Up Saldo</strong> melalui menu "Top Up" untuk mengisi saldo deposit.</li>
-                <li><strong>Pilih Taruhan:</strong>
-                    <ul>
-                        <li>Pilih <strong>Hewan</strong> (Monyet, Serigala, Panda, dll) dengan multiplier 2x</li>
-                        <li>Atau pilih <strong>Naga</strong> (multiplier 100x) atau <strong>Harimau</strong> (multiplier 50x)</li>
-                    </ul>
-                </li>
-                <li><strong>Set Nominal Taruhan:</strong>
-                    <ul>
-                        <li>Untuk hewan: Minimal Rp 100, kelipatan Rp 100</li>
-                        <li>Untuk Naga/Harimau: Minimal Rp 2.000, kelipatan Rp 1.000</li>
-                    </ul>
-                </li>
-                <li><strong>Klik "Buka Kartu"</strong> untuk memulai permainan.</li>
-                <li><strong>Tunggu Hasil:</strong> Sistem akan mengacak dan menampilkan kartu hasil.</li>
-                <li><strong>Menang atau Kalah:</strong>
-                    <ul>
-                        <li>Jika kartu sesuai pilihan Anda, Anda <strong>MENANG</strong> sesuai multiplier</li>
-                        <li>Jika kartu tidak sesuai, Anda <strong>KALAH</strong> dan taruhan hangus</li>
-                    </ul>
-                </li>
-            </ol>
+        <div class="section" id="section-cara-bermain">
+            <div class="section-header" onclick="toggleSection('section-cara-bermain')">
+                <h2>🎮 Cara Bermain</h2>
+                <button class="minimize-btn" onclick="event.stopPropagation(); toggleSection('section-cara-bermain')">−</button>
+            </div>
+            <div class="section-content">
+                <h3>Langkah-langkah Bermain:</h3>
+                <ol class="step-list">
+                    <li><strong>Login</strong> ke akun Anda atau daftar jika belum memiliki akun.</li>
+                    <li><strong>Top Up Saldo</strong> melalui menu "Top Up" untuk mengisi saldo deposit.</li>
+                    <li><strong>Pilih Taruhan:</strong>
+                        <ul>
+                            <li>Pilih <strong>Hewan</strong> (Monyet, Serigala, Panda, dll) dengan multiplier 2x</li>
+                            <li>Atau pilih <strong>Naga</strong> (multiplier 100x) atau <strong>Harimau</strong> (multiplier 50x)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Set Nominal Taruhan:</strong>
+                        <ul>
+                            <li>Untuk hewan: Minimal Rp 100, kelipatan Rp 100</li>
+                            <li>Untuk Naga/Harimau: Minimal Rp 2.000, kelipatan Rp 1.000</li>
+                        </ul>
+                    </li>
+                    <li><strong>Klik "Buka Kartu"</strong> untuk memulai permainan.</li>
+                    <li><strong>Tunggu Hasil:</strong> Sistem akan mengacak dan menampilkan kartu hasil.</li>
+                    <li><strong>Menang atau Kalah:</strong>
+                        <ul>
+                            <li>Jika kartu sesuai pilihan Anda, Anda <strong>MENANG</strong> sesuai multiplier</li>
+                            <li>Jika kartu tidak sesuai, Anda <strong>KALAH</strong> dan taruhan hangus</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
         </div>
 
         <!-- Section 2: Daftar Hewan & Multiplier -->
-        <div class="section">
-            <h2>🐾 Daftar Hewan & Multiplier</h2>
-            
-            <h3>Hewan Biasa (Multiplier 2x)</h3>
-            <div class="animal-grid">
-                <div class="animal-card">
-                    <img src="monyet.png" alt="Monyet">
-                    <div class="animal-name">Monyet</div>
-                    <div class="animal-multiplier">x2</div>
+        <div class="section" id="section-daerah-hewan">
+            <div class="section-header" onclick="toggleSection('section-daerah-hewan')">
+                <h2>🐾 Daftar Hewan & Multiplier</h2>
+                <button class="minimize-btn" onclick="event.stopPropagation(); toggleSection('section-daerah-hewan')">−</button>
+            </div>
+            <div class="section-content">
+                <h3>Hewan Biasa (Multiplier 2x)</h3>
+                <div class="animal-grid">
+                    <div class="animal-card">
+                        <img src="monyet.png" alt="Monyet">
+                        <div class="animal-name">Monyet</div>
+                        <div class="animal-multiplier">x2</div>
+                    </div>
+                    <div class="animal-card">
+                        <img src="serigala.png" alt="Serigala">
+                        <div class="animal-name">Serigala</div>
+                        <div class="animal-multiplier">x2</div>
+                    </div>
+                    <div class="animal-card">
+                        <img src="panda.png" alt="Panda">
+                        <div class="animal-name">Panda</div>
+                        <div class="animal-multiplier">x2</div>
+                    </div>
+                    <div class="animal-card">
+                        <img src="beruang.png" alt="Beruang">
+                        <div class="animal-name">Beruang</div>
+                        <div class="animal-multiplier">x2</div>
+                    </div>
+                    <div class="animal-card">
+                        <img src="gajah.png" alt="Gajah">
+                        <div class="animal-name">Gajah</div>
+                        <div class="animal-multiplier">x2</div>
+                    </div>
+                    <div class="animal-card">
+                        <img src="singa.png" alt="Singa">
+                        <div class="animal-name">Singa</div>
+                        <div class="animal-multiplier">x2</div>
+                    </div>
+                    <div class="animal-card">
+                        <img src="rusa.png" alt="Rusa">
+                        <div class="animal-name">Rusa</div>
+                        <div class="animal-multiplier">x2</div>
+                    </div>
+                    <div class="animal-card">
+                        <img src="kucing.png" alt="Kucing">
+                        <div class="animal-name">Kucing</div>
+                        <div class="animal-multiplier">x2</div>
+                    </div>
+                    <div class="animal-card">
+                        <img src="burung.png" alt="Burung">
+                        <div class="animal-name">Burung</div>
+                        <div class="animal-multiplier">x2</div>
+                    </div>
+                    <div class="animal-card">
+                        <img src="kelinci.png" alt="Kelinci">
+                        <div class="animal-name">Kelinci</div>
+                        <div class="animal-multiplier">x2</div>
+                    </div>
                 </div>
-                <div class="animal-card">
-                    <img src="serigala.png" alt="Serigala">
-                    <div class="animal-name">Serigala</div>
-                    <div class="animal-multiplier">x2</div>
-                </div>
-                <div class="animal-card">
-                    <img src="panda.png" alt="Panda">
-                    <div class="animal-name">Panda</div>
-                    <div class="animal-multiplier">x2</div>
-                </div>
-                <div class="animal-card">
-                    <img src="beruang.png" alt="Beruang">
-                    <div class="animal-name">Beruang</div>
-                    <div class="animal-multiplier">x2</div>
-                </div>
-                <div class="animal-card">
-                    <img src="gajah.png" alt="Gajah">
-                    <div class="animal-name">Gajah</div>
-                    <div class="animal-multiplier">x2</div>
-                </div>
-                <div class="animal-card">
-                    <img src="singa.png" alt="Singa">
-                    <div class="animal-name">Singa</div>
-                    <div class="animal-multiplier">x2</div>
-                </div>
-                <div class="animal-card">
-                    <img src="rusa.png" alt="Rusa">
-                    <div class="animal-name">Rusa</div>
-                    <div class="animal-multiplier">x2</div>
-                </div>
-                <div class="animal-card">
-                    <img src="kucing.png" alt="Kucing">
-                    <div class="animal-name">Kucing</div>
-                    <div class="animal-multiplier">x2</div>
-                </div>
-                <div class="animal-card">
-                    <img src="burung.png" alt="Burung">
-                    <div class="animal-name">Burung</div>
-                    <div class="animal-multiplier">x2</div>
-                </div>
-                <div class="animal-card">
-                    <img src="kelinci.png" alt="Kelinci">
-                    <div class="animal-name">Kelinci</div>
-                    <div class="animal-multiplier">x2</div>
+
+                <h3>Hewan Spesial (Multiplier Tinggi)</h3>
+                <div class="animal-grid">
+                    <div class="animal-card naga">
+                        <video src="naga.mp4" autoplay loop muted playsinline style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;"></video>
+                        <div class="animal-name">🐉 Naga</div>
+                        <div class="animal-multiplier" style="color: #ffd700;">x100</div>
+                    </div>
+                    <div class="animal-card harimau">
+                        <video src="harimau.mp4" autoplay loop muted playsinline style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;"></video>
+                        <div class="animal-name">🐯 Harimau</div>
+                        <div class="animal-multiplier" style="color: #ff8c00;">x50</div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <h3>Hewan Spesial (Multiplier Tinggi)</h3>
-            <div class="animal-grid">
-                <div class="animal-card naga">
-                    <video src="naga.mp4" autoplay loop muted playsinline style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;"></video>
-                    <div class="animal-name">🐉 Naga</div>
-                    <div class="animal-multiplier" style="color: #ffd700;">x100</div>
+        <!-- Section 3: Contoh Perhitungan -->
+        <div class="section" id="section-contoh-perhitungan">
+            <div class="section-header" onclick="toggleSection('section-contoh-perhitungan')">
+                <h2>🧮 Contoh Perhitungan</h2>
+                <button class="minimize-btn" onclick="event.stopPropagation(); toggleSection('section-contoh-perhitungan')">−</button>
+            </div>
+            <div class="section-content">
+                <h3>Contoh 1: Menang Hewan Biasa</h3>
+                <div class="example-box">
+                    <h4>✅ Skenario Menang</h4>
+                    <p><strong>Taruhan:</strong> Pilih <strong>Monyet</strong> dengan nominal Rp 5.000</p>
+                    <p><strong>Hasil Kartu:</strong> <strong>Monyet</strong> keluar</p>
+                    <div class="formula">
+                        Perhitungan:<br>
+                        Rp 5.000 × 2 = Rp 10.000<br>
+                        <span style="color: #00ff88;">✅ Anda Menang Rp 10.000!</span>
+                    </div>
+                    <p>Keuntungan: Rp 10.000 - Rp 5.000 = <strong>Rp 5.000</strong></p>
                 </div>
-                <div class="animal-card harimau">
-                    <video src="harimau.mp4" autoplay loop muted playsinline style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;"></video>
-                    <div class="animal-name">🐯 Harimau</div>
-                    <div class="animal-multiplier" style="color: #ff8c00;">x50</div>
+
+                <h3>Contoh 2: Kalah Hewan Biasa</h3>
+                <div class="example-box lose-example">
+                    <h4>❌ Skenario Kalah</h4>
+                    <p><strong>Taruhan:</strong> Pilih <strong>Singa</strong> dengan nominal Rp 5.000</p>
+                    <p><strong>Hasil Kartu:</strong> <strong>Panda</strong> keluar</p>
+                    <div class="formula lose">
+                        Perhitungan:<br>
+                        Rp 5.000 × 0 = Rp 0<br>
+                        <span style="color: #ff4444;">❌ Anda Kalah Rp 5.000!</span>
+                    </div>
+                    <p>Kerugian: Rp 5.000 hangus</p>
+                </div>
+
+                <h3>Contoh 3: Menang Naga</h3>
+                <div class="example-box">
+                    <h4>✅ Skenario Jackpot Naga</h4>
+                    <p><strong>Taruhan:</strong> Pilih <strong>Naga</strong> dengan nominal Rp 10.000</p>
+                    <p><strong>Hasil Kartu:</strong> <strong>Naga</strong> keluar</p>
+                    <div class="formula">
+                        Perhitungan:<br>
+                        Rp 10.000 × 100 = Rp 1.000.000<br>
+                        <span style="color: #00ff88;">🔥 JACKPOT! Anda Menang Rp 1.000.000!</span>
+                    </div>
+                    <p>Keuntungan: Rp 1.000.000 - Rp 10.000 = <strong>Rp 990.000</strong></p>
+                </div>
+
+                <h3>Contoh 4: Menang Harimau</h3>
+                <div class="example-box">
+                    <h4>✅ Skenario Jackpot Harimau</h4>
+                    <p><strong>Taruhan:</strong> Pilih <strong>Harimau</strong> dengan nominal Rp 10.000</p>
+                    <p><strong>Hasil Kartu:</strong> <strong>Harimau</strong> keluar</p>
+                    <div class="formula">
+                        Perhitungan:<br>
+                        Rp 10.000 × 50 = Rp 500.000<br>
+                        <span style="color: #00ff88;">💥 JACKPOT! Anda Menang Rp 500.000!</span>
+                    </div>
+                    <p>Keuntungan: Rp 500.000 - Rp 10.000 = <strong>Rp 490.000</strong></p>
+                </div>
+
+                <h3>Contoh 5: Multiple Bet</h3>
+                <div class="example-box">
+                    <h4>✅ Skenario Taruhan Ganda</h4>
+                    <p><strong>Taruhan 1:</strong> Pilih <strong>Gajah</strong> dengan nominal Rp 5.000</p>
+                    <p><strong>Taruhan 2:</strong> Pilih <strong>Naga</strong> dengan nominal Rp 10.000</p>
+                    <p><strong>Hasil Kartu:</strong> <strong>Naga</strong> keluar</p>
+                    <div class="formula">
+                        Perhitungan:<br>
+                        Taruhan Gajah (kalah): Rp 5.000 × 0 = Rp 0 ❌<br>
+                        Taruhan Naga (menang): Rp 10.000 × 100 = Rp 1.000.000 ✅<br>
+                        <span style="color: #00ff88;">Total Menang: Rp 1.000.000</span>
+                    </div>
+                    <p>Keuntungan Bersih: Rp 1.000.000 - Rp 15.000 = <strong>Rp 985.000</strong></p>
                 </div>
             </div>
         </div>
 
-        <!-- Section 3: Sistem Pembayaran -->
-        <div class="section">
-            <h2>💰 Sistem Pembayaran</h2>
-            
-            <div class="multiplier-info">
-                <div class="multiplier-card">
-                    <div class="multiplier-value">x2</div>
-                    <div class="multiplier-label">Hewan Biasa</div>
-                    <div style="font-size: 0.8em; color: #aaa; margin-top: 5px;">10 Jenis Hewan</div>
+        <!-- Section 4: Aturan Penting -->
+        <div class="section" id="section-aturan-penting">
+            <div class="section-header" onclick="toggleSection('section-aturan-penting')">
+                <h2>📋 Aturan Penting</h2>
+                <button class="minimize-btn" onclick="event.stopPropagation(); toggleSection('section-aturan-penting')">−</button>
+            </div>
+            <div class="section-content">
+                <div class="warning-box">
+                    <h4>⚠️ Peringatan!</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>❌ <strong>Dilarang curang</strong> - Akun akan dibanned permanen</li>
+                        <li>❌ <strong>Multiple account</strong> - Dilarang menggunakan lebih dari 1 akun</li>
+                        <li>❌ <strong>Manipulasi sistem</strong> - Akan ditindak tegas</li>
+                        <li>❌ <strong>Betting tidak wajar</strong> - Dapat mengakibatkan pembekuan akun</li>
+                    </ul>
                 </div>
-                <div class="multiplier-card naga">
-                    <div class="multiplier-value" style="color: #ffd700;">x100</div>
-                    <div class="multiplier-label">🐉 Naga</div>
-                    <div style="font-size: 0.8em; color: #aaa; margin-top: 5px;">Sangat Langka</div>
+
+                <div class="info-box">
+                    <h4>ℹ️ Ketentuan Taruhan</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>✅ <strong>Hewan Biasa:</strong> Minimal taruhan Rp 100</li>
+                        <li>✅ <strong>Naga/Harimau:</strong> Minimal taruhan Rp 2.000</li>
+                        <li>✅ <strong>Kenaikan taruhan:</strong> Rp 100 untuk hewan, Rp 1.000 untuk Naga/Harimau</li>
+                        <li>✅ <strong>Maksimal taruhan:</strong> Sesuai saldo yang tersedia</li>
+                        <li>✅ <strong>Saldo minimal:</strong> Rp 100 untuk bermain</li>
+                    </ul>
                 </div>
-                <div class="multiplier-card harimau">
-                    <div class="multiplier-value" style="color: #ff8c00;">x50</div>
-                    <div class="multiplier-label">🐯 Harimau</div>
-                    <div style="font-size: 0.8em; color: #aaa; margin-top: 5px;">Sangat Langka</div>
-                </div>
-            </div>
-
-            <h3>Aturan Pembayaran:</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tipe Taruhan</th>
-                        <th>Multiplier</th>
-                        <th>Contoh Taruhan</th>
-                        <th>Contoh Menang</th>
-                        <th>Peluang Menang</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Hewan Biasa</td>
-                        <td style="color: #00ff88; font-weight: bold;">x2</td>
-                        <td>Rp 1.000</td>
-                        <td style="color: #00ff88; font-weight: bold;">Rp 2.000</td>
-                        <td>1/10 (10%)</td>
-                    </tr>
-                    <tr>
-                        <td>🐉 Naga</td>
-                        <td style="color: #ffd700; font-weight: bold;">x100</td>
-                        <td>Rp 10.000</td>
-                        <td style="color: #ffd700; font-weight: bold;">Rp 1.000.000</td>
-                        <td>Sangat Rendah</td>
-                    </tr>
-                    <tr>
-                        <td>🐯 Harimau</td>
-                        <td style="color: #ff8c00; font-weight: bold;">x50</td>
-                        <td>Rp 10.000</td>
-                        <td style="color: #ff8c00; font-weight: bold;">Rp 500.000</td>
-                        <td>Sangat Rendah</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Section 4: Contoh Perhitungan -->
-        <div class="section">
-            <h2>🧮 Contoh Perhitungan</h2>
-
-            <h3>Contoh 1: Menang Hewan Biasa</h3>
-            <div class="example-box">
-                <h4>✅ Skenario Menang</h4>
-                <p><strong>Taruhan:</strong> Pilih <strong>Monyet</strong> dengan nominal Rp 5.000</p>
-                <p><strong>Hasil Kartu:</strong> <strong>Monyet</strong> keluar</p>
-                <div class="formula">
-                    Perhitungan:<br>
-                    Rp 5.000 × 2 = Rp 10.000<br>
-                    <span style="color: #00ff88;">✅ Anda Menang Rp 10.000!</span>
-                </div>
-                <p>Keuntungan: Rp 10.000 - Rp 5.000 = <strong>Rp 5.000</strong></p>
-            </div>
-
-            <h3>Contoh 2: Kalah Hewan Biasa</h3>
-            <div class="example-box lose-example">
-                <h4>❌ Skenario Kalah</h4>
-                <p><strong>Taruhan:</strong> Pilih <strong>Singa</strong> dengan nominal Rp 5.000</p>
-                <p><strong>Hasil Kartu:</strong> <strong>Panda</strong> keluar</p>
-                <div class="formula" style="color: #ff4444;">
-                    Perhitungan:<br>
-                    Rp 5.000 × 0 = Rp 0<br>
-                    <span style="color: #ff4444;">❌ Anda Kalah Rp 5.000!</span>
-                </div>
-                <p>Kerugian: Rp 5.000 hangus</p>
-            </div>
-
-            <h3>Contoh 3: Menang Naga</h3>
-            <div class="example-box">
-                <h4>✅ Skenario Jackpot Naga</h4>
-                <p><strong>Taruhan:</strong> Pilih <strong>Naga</strong> dengan nominal Rp 10.000</p>
-                <p><strong>Hasil Kartu:</strong> <strong>Naga</strong> keluar</p>
-                <div class="formula">
-                    Perhitungan:<br>
-                    Rp 10.000 × 100 = Rp 1.000.000<br>
-                    <span style="color: #00ff88;">🔥 JACKPOT! Anda Menang Rp 1.000.000!</span>
-                </div>
-                <p>Keuntungan: Rp 1.000.000 - Rp 10.000 = <strong>Rp 990.000</strong></p>
-            </div>
-
-            <h3>Contoh 4: Menang Harimau</h3>
-            <div class="example-box">
-                <h4>✅ Skenario Jackpot Harimau</h4>
-                <p><strong>Taruhan:</strong> Pilih <strong>Harimau</strong> dengan nominal Rp 10.000</p>
-                <p><strong>Hasil Kartu:</strong> <strong>Harimau</strong> keluar</p>
-                <div class="formula">
-                    Perhitungan:<br>
-                    Rp 10.000 × 50 = Rp 500.000<br>
-                    <span style="color: #00ff88;">💥 JACKPOT! Anda Menang Rp 500.000!</span>
-                </div>
-                <p>Keuntungan: Rp 500.000 - Rp 10.000 = <strong>Rp 490.000</strong></p>
-            </div>
-
-            <h3>Contoh 5: Multiple Bet</h3>
-            <div class="example-box">
-                <h4>✅ Skenario Taruhan Ganda</h4>
-                <p><strong>Taruhan 1:</strong> Pilih <strong>Gajah</strong> dengan nominal Rp 5.000</p>
-                <p><strong>Taruhan 2:</strong> Pilih <strong>Naga</strong> dengan nominal Rp 10.000</p>
-                <p><strong>Hasil Kartu:</strong> <strong>Naga</strong> keluar</p>
-                <div class="formula">
-                    Perhitungan:<br>
-                    Taruhan Gajah (kalah): Rp 5.000 × 0 = Rp 0 ❌<br>
-                    Taruhan Naga (menang): Rp 10.000 × 100 = Rp 1.000.000 ✅<br>
-                    <span style="color: #00ff88;">Total Menang: Rp 1.000.000</span>
-                </div>
-                <p>Keuntungan Bersih: Rp 1.000.000 - Rp 15.000 = <strong>Rp 985.000</strong></p>
-            </div>
-        </div>
-
-        <!-- Section 5: Aturan Penting -->
-        <div class="section">
-            <h2>📋 Aturan Penting</h2>
-
-            <div class="info-box">
-                <h4>ℹ️ Ketentuan Taruhan</h4>
-                <ul style="list-style: none; padding: 0;">
-                    <li>✅ <strong>Hewan Biasa:</strong> Minimal taruhan Rp 100</li>
-                    <li>✅ <strong>Naga/Harimau:</strong> Minimal taruhan Rp 2.000</li>
-                    <li>✅ <strong>Kenaikan taruhan:</strong> Rp 100 untuk hewan, Rp 1.000 untuk Naga/Harimau</li>
-                    <li>✅ <strong>Maksimal taruhan:</strong> Sesuai saldo yang tersedia</li>
-                    <li>✅ <strong>Saldo minimal:</strong> Rp 100 untuk bermain</li>
-                </ul>
-            </div>
-
-            <div class="warning-box">
-                <h4>⚠️ Peringatan!</h4>
-                <ul style="list-style: none; padding: 0;">
-                    <li>❌ <strong>Dilarang curang</strong> - Akun akan dibanned permanen</li>
-                    <li>❌ <strong>Multiple account</strong> - Dilarang menggunakan lebih dari 1 akun</li>
-                    <li>❌ <strong>Manipulasi sistem</strong> - Akan ditindak tegas</li>
-                    <li>❌ <strong>Betting tidak wajar</strong> - Dapat mengakibatkan pembekuan akun</li>
-                </ul>
-            </div>
-
-            <div class="info-box">
-                <h4>📌 Catatan Penting</h4>
-                <ul style="list-style: none; padding: 0;">
-                    <li>🔹 Hasil permainan menggunakan <strong>RNG (Random Number Generator)</strong> yang fair</li>
-                    <li>🔹 Peluang menang <strong>Hewan Biasa</strong> adalah 1/10 (10%)</li>
-                    <li>🔹 Peluang <strong>Naga</strong> dan <strong>Harimau</strong> sangat rendah</li>
-                    <li>🔹 Semua hasil permainan <strong>dicatat</strong> dan dapat dilacak</li>
-                    <li>🔹 <strong>RTP (Return to Player)</strong> diatur oleh sistem</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Section 6: RTP Config -->
-        <div class="section">
-            <h2>📊 Informasi RTP (Return to Player)</h2>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Jenis Taruhan</th>
-                            <th>Multiplier</th>
-                            <th>RTP</th>
-                            <th>Peluang Menang</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rtpTable">
-                        <tr>
-                            <td>Hewan Biasa</td>
-                            <td>x2</td>
-                            <td>50%</td>
-                            <td>25%</td>
-                        </tr>
-                        <tr>
-                            <td>🐉 Naga</td>
-                            <td>x100</td>
-                            <td>50%</td>
-                            <td>0.5%</td>
-                        </tr>
-                        <tr>
-                            <td>🐯 Harimau</td>
-                            <td>x50</td>
-                            <td>50%</td>
-                            <td>1%</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="info-box">
-                <h4>📈 Tentang RTP</h4>
-                <p>
-                    <strong>RTP (Return to Player)</strong> adalah persentase total taruhan yang akan dikembalikan 
-                    kepada pemain dalam jangka panjang. Semakin tinggi RTP, semakin besar peluang pemain untuk menang.
-                </p>
-                <p style="margin-top: 10px;">
-                    RTP dihitung dari total kemenangan dibagi total taruhan. Contoh:
-                    <br>- Total taruhan: Rp 10.000.000
-                    <br>- Total kemenangan: Rp 5.000.000
-                    <br>- RTP: 50%
-                </p>
             </div>
         </div>
 
@@ -855,47 +760,19 @@
         </div>
     </div>
 
-    <!-- Script untuk RTP -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script src="firebase-config.js"></script>
-
+    <!-- Script untuk Minimize -->
     <script>
-        // ========== AMBIL DATA RTP DARI FIREBASE ==========
-        function loadRTPInfo() {
-            try {
-                db.ref('config/rtp').on('value', (snapshot) => {
-                    if (snapshot.exists()) {
-                        const rtpConfig = snapshot.val();
-                        
-                        // Update tabel RTP
-                        const rtpTable = document.getElementById('rtpTable');
-                        rtpTable.innerHTML = `
-                            <tr>
-                                <td>Hewan Biasa</td>
-                                <td>x2</td>
-                                <td>${rtpConfig.hewan || 50}%</td>
-                                <td>${((rtpConfig.hewan || 50) / 100 / 2 * 100).toFixed(1)}%</td>
-                            </tr>
-                            <tr>
-                                <td>🐉 Naga</td>
-                                <td>x100</td>
-                                <td>${rtpConfig.naga || 50}%</td>
-                                <td>${((rtpConfig.naga || 50) / 100 / 100 * 100).toFixed(2)}%</td>
-                            </tr>
-                            <tr>
-                                <td>🐯 Harimau</td>
-                                <td>x50</td>
-                                <td>${rtpConfig.harimau || 50}%</td>
-                                <td>${((rtpConfig.harimau || 50) / 100 / 50 * 100).toFixed(2)}%</td>
-                            </tr>
-                        `;
-                        
-                        console.log('✅ RTP Data loaded:', JSON.stringify(rtpConfig));
-                    }
-                });
-            } catch (error) {
-                console.error('❌ Error loading RTP:', error);
+        // ========== FUNGSI TOGGLE SECTION ==========
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.toggle('minimized');
+                
+                // Update tombol minimize
+                const btn = section.querySelector('.minimize-btn');
+                if (btn) {
+                    btn.textContent = section.classList.contains('minimized') ? '+' : '−';
+                }
             }
         }
 
@@ -903,13 +780,16 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Payline page loaded...');
             
-            // Load RTP data
-            if (typeof db !== 'undefined') {
-                loadRTPInfo();
-            } else {
-                console.warn('⚠️ Firebase tidak terinisialisasi, menggunakan data default');
-            }
+            // Pastikan semua section terbuka saat load
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.remove('minimized');
+                const btn = section.querySelector('.minimize-btn');
+                if (btn) {
+                    btn.textContent = '−';
+                }
+            });
         });
     </script>
 </body>
-          </html>
+                            </html>
