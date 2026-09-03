@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <title>📊 Payline & Aturan Main - Dragons Hunter</title>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: url('background-dragon.png') no-repeat center center fixed;
+            background-size: cover;
+            background-color: #0a1f14;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 31, 20, 0.6);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Background Hutan */
+        .forest-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .tree {
+            position: absolute;
+            bottom: 0;
+            width: 120px; height: 200px;
+            background: linear-gradient(180deg, #2d5a27, #1a3d15);
+            border-radius: 10px 10px 0 0;
+            animation: sway 5s ease-in-out infinite;
+        }
+
+        .tree::before {
+            content: '';
+            position: absolute;
+            top: -40px; left: -20px;
+            width: 160px; height: 80px;
+            background: linear-gradient(135deg, #3a7d30, #2d5a27);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .tree:nth-child(1) { left: 10px; }
+        .tree:nth-child(2) { left: 15%; height: 240px; animation-delay: 1s; }
+        .tree:nth-child(3) { right: 10%; height: 180px; animation-delay: 2s; }
+        .tree:nth-child(4) { right: 20px; height: 260px; animation-delay: 3s; }
+        .tree:nth-child(5) { left: 40%; height: 220px; animation-delay: 4s; }
+        .tree:nth-child(6) { right: 40%; height: 200px; animation-delay: 5s; }
+
+        .fireflies {
+            position: absolute;
+            width: 6px; height: 6px;
+            background: #ffe066;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffe066;
+            animation: fly 8s infinite;
+        }
+
+        .fireflies:nth-child(7) { top: 30%; left: 20%; animation-delay: 0s; }
+        .fireflies:nth-child(8) { top: 50%; left: 80%; animation-delay: 2s; }
+        .fireflies:nth-child(9) { top: 70%; left: 50%; animation-delay: 4s; }
+        .fireflies:nth-child(10) { top: 40%; left: 70%; animation-delay: 6s; }
+        .fireflies:nth-child(11) { top: 60%; left: 30%; animation-delay: 1s; }
+        .fireflies:nth-child(12) { top: 20%; left: 60%; animation-delay: 3s; }
+        .fireflies:nth-child(13) { top: 80%; left: 90%; animation-delay: 5s; }
+        .fireflies:nth-child(14) { top: 45%; left: 10%; animation-delay: 7s; }
+
+        .moon {
+            position: absolute;
+            top: 50px; right: 100px;
+            width: 80px; height: 80px;
+            background: radial-gradient(circle, #fff, #f1c40f);
+            border-radius: 50%;
+            box-shadow: 0 0 40px #f1c40f, 0 0 80px rgba(241,196,15,0.3);
+            animation: moonGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        @keyframes fly {
+            0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+            25% { transform: translate(15px, -20px); opacity: 1; }
+            50% { transform: translate(-10px, -35px); opacity: 0.6; }
+            75% { transform: translate(20px, -15px); opacity: 0.8; }
+        }
+
+        @keyframes moonGlow {
+            from { box-shadow: 0 0 40px #f1c40f; }
+            to { box-shadow: 0 0 60px #f1c40f, 0 0 100px rgba(241,196,15,0.5); }
+        }
+
+        /* Container Utama */
+        .main-container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #8b6914;
+        }
+
+        .page-header img {
+            width: 100%;
+            max-height: 180px;
+            object-fit: contain;
+            border-radius: 26px 26px 0 0;
+            border-bottom: 4px solid #8b6914;
+            display: block;
+            margin: 0 auto 15px;
+        }
+
+        .page-header h1 {
+            color: #ffd700;
+            font-size: 2em;
+            text-shadow: 0 0 20px rgba(255,215,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            color: #ccc;
+            font-size: 0.9em;
+        }
+
+        /* Navigasi */
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none;
+            padding: 10px 25px;
+            font-size: 0.9em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(255,215,0,0.4);
+            transition: all 0.3s ease;
+            color: #3d1e00;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,215,0,0.6);
+        }
+
+        .nav-btn.back-btn {
+            background: linear-gradient(145deg, #00bfff, #0080ff);
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(0,191,255,0.4);
+        }
+
+        .nav-btn.back-btn:hover {
+            box-shadow: 0 5px 15px rgba(0,191,255,0.6);
+        }
+
+        /* Section Styling */
+        .section {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #8b6914;
+        }
+
+        .section h2 {
+            color: #ffd700;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h3 {
+            color: #ffd700;
+            font-size: 1.1em;
+            margin: 15px 0 10px;
+        }
+
+        /* Tabel */
+        .table-container {
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(145deg, #3a2a15, #2a1a0e);
+            color: #ffd700;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.9em;
+            border-bottom: 2px solid #8b6914;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid rgba(139,105,20,0.3);
+            color: #fff;
+            font-size: 0.9em;
+        }
+
+        tr:hover {
+            background: rgba(255,215,0,0.05);
+        }
+
+        /* Informasi Hewan */
+        .animal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .animal-card {
+            background: linear-gradient(145deg, #3a2a15, #2a1a0e);
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .animal-card:hover {
+            transform: translateY(-5px);
+            border-color: #ffd700;
+            box-shadow: 0 5px 15px rgba(255,215,0,0.3);
+        }
+
+        .animal-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .animal-card .animal-name {
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .animal-card .animal-multiplier {
+            color: #00ff88;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        /* Multiplier Info */
+        .multiplier-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .multiplier-card {
+            background: linear-gradient(145deg, #3a2a15, #2a1a0e);
+            border: 2px solid #8b6914;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .multiplier-card.special {
+            border-color: #ff4444;
+            box-shadow: 0 0 15px rgba(255,68,68,0.3);
+        }
+
+        .multiplier-card.naga {
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255,215,0,0.3);
+        }
+
+        .multiplier-card.harimau {
+            border-color: #ff8c00;
+            box-shadow: 0 0 15px rgba(255,140,0,0.3);
+        }
+
+        .multiplier-card .multiplier-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .multiplier-card .multiplier-label {
+            color: #ccc;
+            font-size: 0.9em;
+        }
+
+        /* Step List */
+        .step-list {
+            list-style: none;
+            counter-reset: step-counter;
+            margin: 20px 0;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            margin-bottom: 15px;
+            padding-left: 45px;
+            position: relative;
+            color: #ccc;
+            line-height: 1.6;
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3d1e00;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        /* Contoh Perhitungan */
+        .example-box {
+            background: rgba(0,255,136,0.1);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-box.lose-example {
+            background: rgba(255,68,68,0.1);
+            border-color: #ff4444;
+        }
+
+        .example-box h4 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .example-box p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+
+        .example-box .formula {
+            background: rgba(0,0,0,0.3);
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            color: #00ff88;
+        }
+
+        /* Peringatan */
+        .warning-box {
+            background: rgba(255,68,68,0.1);
+            border: 2px solid #ff4444;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .warning-box h4 {
+            color: #ff4444;
+            margin-bottom: 10px;
+        }
+
+        .warning-box p {
+            color: #ff6666;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: rgba(0,191,255,0.1);
+            border: 2px solid #00bfff;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .info-box h4 {
+            color: #00bfff;
+            margin-bottom: 10px;
+        }
+
+        .info-box p {
+            color: #ccc;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        /* Animasi */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .pulse-animation {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 10px;
+                padding: 10px;
+            }
+
+            .page-header h1 {
+                font-size: 1.5em;
+            }
+
+            .page-header img {
+                max-height: 140px;
+            }
+
+            .animal-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+
+            .multiplier-info {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="forest-bg">
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="fireflies"></div>
+        <div class="moon"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Header -->
+        <div class="page-header">
+            <img src="header-dragon.png" alt="Dragons Hunter">
+            <h1>📊 Payline & Aturan Main</h1>
+            <p>Informasi lengkap tentang cara bermain dan sistem pembayaran</p>
+        </div>
+
+        <!-- Navigasi -->
+        <div class="nav-buttons">
+            <a href="index.html" class="nav-btn back-btn">🏠 Kembali ke Game</a>
+            <a href="payline.html" class="nav-btn">📊 Payline</a>
+        </div>
+
+        <!-- Section 1: Cara Bermain -->
+        <div class="section">
+            <h2>🎮 Cara Bermain</h2>
+            
+            <h3>Langkah-langkah Bermain:</h3>
+            <ol class="step-list">
+                <li><strong>Login</strong> ke akun Anda atau daftar jika belum memiliki akun.</li>
+                <li><strong>Top Up Saldo</strong> melalui menu "Top Up" untuk mengisi saldo deposit.</li>
+                <li><strong>Pilih Taruhan:</strong>
+                    <ul>
+                        <li>Pilih <strong>Hewan</strong> (Monyet, Serigala, Panda, dll) dengan multiplier 2x</li>
+                        <li>Atau pilih <strong>Naga</strong> (multiplier 100x) atau <strong>Harimau</strong> (multiplier 50x)</li>
+                    </ul>
+                </li>
+                <li><strong>Set Nominal Taruhan:</strong>
+                    <ul>
+                        <li>Untuk hewan: Minimal Rp 100, kelipatan Rp 100</li>
+                        <li>Untuk Naga/Harimau: Minimal Rp 2.000, kelipatan Rp 1.000</li>
+                    </ul>
+                </li>
+                <li><strong>Klik "Buka Kartu"</strong> untuk memulai permainan.</li>
+                <li><strong>Tunggu Hasil:</strong> Sistem akan mengacak dan menampilkan kartu hasil.</li>
+                <li><strong>Menang atau Kalah:</strong>
+                    <ul>
+                        <li>Jika kartu sesuai pilihan Anda, Anda <strong>MENANG</strong> sesuai multiplier</li>
+                        <li>Jika kartu tidak sesuai, Anda <strong>KALAH</strong> dan taruhan hangus</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <!-- Section 2: Daftar Hewan & Multiplier -->
+        <div class="section">
+            <h2>🐾 Daftar Hewan & Multiplier</h2>
+            
+            <h3>Hewan Biasa (Multiplier 2x)</h3>
+            <div class="animal-grid">
+                <div class="animal-card">
+                    <img src="monyet.png" alt="Monyet">
+                    <div class="animal-name">Monyet</div>
+                    <div class="animal-multiplier">x2</div>
+                </div>
+                <div class="animal-card">
+                    <img src="serigala.png" alt="Serigala">
+                    <div class="animal-name">Serigala</div>
+                    <div class="animal-multiplier">x2</div>
+                </div>
+                <div class="animal-card">
+                    <img src="panda.png" alt="Panda">
+                    <div class="animal-name">Panda</div>
+                    <div class="animal-multiplier">x2</div>
+                </div>
+                <div class="animal-card">
+                    <img src="beruang.png" alt="Beruang">
+                    <div class="animal-name">Beruang</div>
+                    <div class="animal-multiplier">x2</div>
+                </div>
+                <div class="animal-card">
+                    <img src="gajah.png" alt="Gajah">
+                    <div class="animal-name">Gajah</div>
+                    <div class="animal-multiplier">x2</div>
+                </div>
+                <div class="animal-card">
+                    <img src="singa.png" alt="Singa">
+                    <div class="animal-name">Singa</div>
+                    <div class="animal-multiplier">x2</div>
+                </div>
+                <div class="animal-card">
+                    <img src="rusa.png" alt="Rusa">
+                    <div class="animal-name">Rusa</div>
+                    <div class="animal-multiplier">x2</div>
+                </div>
+                <div class="animal-card">
+                    <img src="kucing.png" alt="Kucing">
+                    <div class="animal-name">Kucing</div>
+                    <div class="animal-multiplier">x2</div>
+                </div>
+                <div class="animal-card">
+                    <img src="burung.png" alt="Burung">
+                    <div class="animal-name">Burung</div>
+                    <div class="animal-multiplier">x2</div>
+                </div>
+                <div class="animal-card">
+                    <img src="kelinci.png" alt="Kelinci">
+                    <div class="animal-name">Kelinci</div>
+                    <div class="animal-multiplier">x2</div>
+                </div>
+            </div>
+
+            <h3>Hewan Spesial (Multiplier Tinggi)</h3>
+            <div class="animal-grid">
+                <div class="animal-card naga">
+                    <video src="naga.mp4" autoplay loop muted playsinline style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;"></video>
+                    <div class="animal-name">🐉 Naga</div>
+                    <div class="animal-multiplier" style="color: #ffd700;">x100</div>
+                </div>
+                <div class="animal-card harimau">
+                    <video src="harimau.mp4" autoplay loop muted playsinline style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;"></video>
+                    <div class="animal-name">🐯 Harimau</div>
+                    <div class="animal-multiplier" style="color: #ff8c00;">x50</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Sistem Pembayaran -->
+        <div class="section">
+            <h2>💰 Sistem Pembayaran</h2>
+            
+            <div class="multiplier-info">
+                <div class="multiplier-card">
+                    <div class="multiplier-value">x2</div>
+                    <div class="multiplier-label">Hewan Biasa</div>
+                    <div style="font-size: 0.8em; color: #aaa; margin-top: 5px;">10 Jenis Hewan</div>
+                </div>
+                <div class="multiplier-card naga">
+                    <div class="multiplier-value" style="color: #ffd700;">x100</div>
+                    <div class="multiplier-label">🐉 Naga</div>
+                    <div style="font-size: 0.8em; color: #aaa; margin-top: 5px;">Sangat Langka</div>
+                </div>
+                <div class="multiplier-card harimau">
+                    <div class="multiplier-value" style="color: #ff8c00;">x50</div>
+                    <div class="multiplier-label">🐯 Harimau</div>
+                    <div style="font-size: 0.8em; color: #aaa; margin-top: 5px;">Sangat Langka</div>
+                </div>
+            </div>
+
+            <h3>Aturan Pembayaran:</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tipe Taruhan</th>
+                        <th>Multiplier</th>
+                        <th>Contoh Taruhan</th>
+                        <th>Contoh Menang</th>
+                        <th>Peluang Menang</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Hewan Biasa</td>
+                        <td style="color: #00ff88; font-weight: bold;">x2</td>
+                        <td>Rp 1.000</td>
+                        <td style="color: #00ff88; font-weight: bold;">Rp 2.000</td>
+                        <td>1/10 (10%)</td>
+                    </tr>
+                    <tr>
+                        <td>🐉 Naga</td>
+                        <td style="color: #ffd700; font-weight: bold;">x100</td>
+                        <td>Rp 10.000</td>
+                        <td style="color: #ffd700; font-weight: bold;">Rp 1.000.000</td>
+                        <td>Sangat Rendah</td>
+                    </tr>
+                    <tr>
+                        <td>🐯 Harimau</td>
+                        <td style="color: #ff8c00; font-weight: bold;">x50</td>
+                        <td>Rp 10.000</td>
+                        <td style="color: #ff8c00; font-weight: bold;">Rp 500.000</td>
+                        <td>Sangat Rendah</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section 4: Contoh Perhitungan -->
+        <div class="section">
+            <h2>🧮 Contoh Perhitungan</h2>
+
+            <h3>Contoh 1: Menang Hewan Biasa</h3>
+            <div class="example-box">
+                <h4>✅ Skenario Menang</h4>
+                <p><strong>Taruhan:</strong> Pilih <strong>Monyet</strong> dengan nominal Rp 5.000</p>
+                <p><strong>Hasil Kartu:</strong> <strong>Monyet</strong> keluar</p>
+                <div class="formula">
+                    Perhitungan:<br>
+                    Rp 5.000 × 2 = Rp 10.000<br>
+                    <span style="color: #00ff88;">✅ Anda Menang Rp 10.000!</span>
+                </div>
+                <p>Keuntungan: Rp 10.000 - Rp 5.000 = <strong>Rp 5.000</strong></p>
+            </div>
+
+            <h3>Contoh 2: Kalah Hewan Biasa</h3>
+            <div class="example-box lose-example">
+                <h4>❌ Skenario Kalah</h4>
+                <p><strong>Taruhan:</strong> Pilih <strong>Singa</strong> dengan nominal Rp 5.000</p>
+                <p><strong>Hasil Kartu:</strong> <strong>Panda</strong> keluar</p>
+                <div class="formula" style="color: #ff4444;">
+                    Perhitungan:<br>
+                    Rp 5.000 × 0 = Rp 0<br>
+                    <span style="color: #ff4444;">❌ Anda Kalah Rp 5.000!</span>
+                </div>
+                <p>Kerugian: Rp 5.000 hangus</p>
+            </div>
+
+            <h3>Contoh 3: Menang Naga</h3>
+            <div class="example-box">
+                <h4>✅ Skenario Jackpot Naga</h4>
+                <p><strong>Taruhan:</strong> Pilih <strong>Naga</strong> dengan nominal Rp 10.000</p>
+                <p><strong>Hasil Kartu:</strong> <strong>Naga</strong> keluar</p>
+                <div class="formula">
+                    Perhitungan:<br>
+                    Rp 10.000 × 100 = Rp 1.000.000<br>
+                    <span style="color: #00ff88;">🔥 JACKPOT! Anda Menang Rp 1.000.000!</span>
+                </div>
+                <p>Keuntungan: Rp 1.000.000 - Rp 10.000 = <strong>Rp 990.000</strong></p>
+            </div>
+
+            <h3>Contoh 4: Menang Harimau</h3>
+            <div class="example-box">
+                <h4>✅ Skenario Jackpot Harimau</h4>
+                <p><strong>Taruhan:</strong> Pilih <strong>Harimau</strong> dengan nominal Rp 10.000</p>
+                <p><strong>Hasil Kartu:</strong> <strong>Harimau</strong> keluar</p>
+                <div class="formula">
+                    Perhitungan:<br>
+                    Rp 10.000 × 50 = Rp 500.000<br>
+                    <span style="color: #00ff88;">💥 JACKPOT! Anda Menang Rp 500.000!</span>
+                </div>
+                <p>Keuntungan: Rp 500.000 - Rp 10.000 = <strong>Rp 490.000</strong></p>
+            </div>
+
+            <h3>Contoh 5: Multiple Bet</h3>
+            <div class="example-box">
+                <h4>✅ Skenario Taruhan Ganda</h4>
+                <p><strong>Taruhan 1:</strong> Pilih <strong>Gajah</strong> dengan nominal Rp 5.000</p>
+                <p><strong>Taruhan 2:</strong> Pilih <strong>Naga</strong> dengan nominal Rp 10.000</p>
+                <p><strong>Hasil Kartu:</strong> <strong>Naga</strong> keluar</p>
+                <div class="formula">
+                    Perhitungan:<br>
+                    Taruhan Gajah (kalah): Rp 5.000 × 0 = Rp 0 ❌<br>
+                    Taruhan Naga (menang): Rp 10.000 × 100 = Rp 1.000.000 ✅<br>
+                    <span style="color: #00ff88;">Total Menang: Rp 1.000.000</span>
+                </div>
+                <p>Keuntungan Bersih: Rp 1.000.000 - Rp 15.000 = <strong>Rp 985.000</strong></p>
+            </div>
+        </div>
+
+        <!-- Section 5: Aturan Penting -->
+        <div class="section">
+            <h2>📋 Aturan Penting</h2>
+
+            <div class="info-box">
+                <h4>ℹ️ Ketentuan Taruhan</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li>✅ <strong>Hewan Biasa:</strong> Minimal taruhan Rp 100</li>
+                    <li>✅ <strong>Naga/Harimau:</strong> Minimal taruhan Rp 2.000</li>
+                    <li>✅ <strong>Kenaikan taruhan:</strong> Rp 100 untuk hewan, Rp 1.000 untuk Naga/Harimau</li>
+                    <li>✅ <strong>Maksimal taruhan:</strong> Sesuai saldo yang tersedia</li>
+                    <li>✅ <strong>Saldo minimal:</strong> Rp 100 untuk bermain</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <h4>⚠️ Peringatan!</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li>❌ <strong>Dilarang curang</strong> - Akun akan dibanned permanen</li>
+                    <li>❌ <strong>Multiple account</strong> - Dilarang menggunakan lebih dari 1 akun</li>
+                    <li>❌ <strong>Manipulasi sistem</strong> - Akan ditindak tegas</li>
+                    <li>❌ <strong>Betting tidak wajar</strong> - Dapat mengakibatkan pembekuan akun</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h4>📌 Catatan Penting</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li>🔹 Hasil permainan menggunakan <strong>RNG (Random Number Generator)</strong> yang fair</li>
+                    <li>🔹 Peluang menang <strong>Hewan Biasa</strong> adalah 1/10 (10%)</li>
+                    <li>🔹 Peluang <strong>Naga</strong> dan <strong>Harimau</strong> sangat rendah</li>
+                    <li>🔹 Semua hasil permainan <strong>dicatat</strong> dan dapat dilacak</li>
+                    <li>🔹 <strong>RTP (Return to Player)</strong> diatur oleh sistem</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 6: RTP Config -->
+        <div class="section">
+            <h2>📊 Informasi RTP (Return to Player)</h2>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Jenis Taruhan</th>
+                            <th>Multiplier</th>
+                            <th>RTP</th>
+                            <th>Peluang Menang</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rtpTable">
+                        <tr>
+                            <td>Hewan Biasa</td>
+                            <td>x2</td>
+                            <td>50%</td>
+                            <td>25%</td>
+                        </tr>
+                        <tr>
+                            <td>🐉 Naga</td>
+                            <td>x100</td>
+                            <td>50%</td>
+                            <td>0.5%</td>
+                        </tr>
+                        <tr>
+                            <td>🐯 Harimau</td>
+                            <td>x50</td>
+                            <td>50%</td>
+                            <td>1%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <h4>📈 Tentang RTP</h4>
+                <p>
+                    <strong>RTP (Return to Player)</strong> adalah persentase total taruhan yang akan dikembalikan 
+                    kepada pemain dalam jangka panjang. Semakin tinggi RTP, semakin besar peluang pemain untuk menang.
+                </p>
+                <p style="margin-top: 10px;">
+                    RTP dihitung dari total kemenangan dibagi total taruhan. Contoh:
+                    <br>- Total taruhan: Rp 10.000.000
+                    <br>- Total kemenangan: Rp 5.000.000
+                    <br>- RTP: 50%
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #8b6914;">
+            <p style="color: #aaa; font-size: 0.8em;">
+                © 2024 Dragons Hunter. Semua hak dilindungi.<br>
+                Bermainlah dengan bijak dan bertanggung jawab.
+            </p>
+            <a href="index.html" class="nav-btn back-btn" style="margin-top: 15px;">🏠 Kembali ke Game</a>
+        </div>
+    </div>
+
+    <!-- Script untuk RTP -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        // ========== AMBIL DATA RTP DARI FIREBASE ==========
+        function loadRTPInfo() {
+            try {
+                db.ref('config/rtp').on('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        const rtpConfig = snapshot.val();
+                        
+                        // Update tabel RTP
+                        const rtpTable = document.getElementById('rtpTable');
+                        rtpTable.innerHTML = `
+                            <tr>
+                                <td>Hewan Biasa</td>
+                                <td>x2</td>
+                                <td>${rtpConfig.hewan || 50}%</td>
+                                <td>${((rtpConfig.hewan || 50) / 100 / 2 * 100).toFixed(1)}%</td>
+                            </tr>
+                            <tr>
+                                <td>🐉 Naga</td>
+                                <td>x100</td>
+                                <td>${rtpConfig.naga || 50}%</td>
+                                <td>${((rtpConfig.naga || 50) / 100 / 100 * 100).toFixed(2)}%</td>
+                            </tr>
+                            <tr>
+                                <td>🐯 Harimau</td>
+                                <td>x50</td>
+                                <td>${rtpConfig.harimau || 50}%</td>
+                                <td>${((rtpConfig.harimau || 50) / 100 / 50 * 100).toFixed(2)}%</td>
+                            </tr>
+                        `;
+                        
+                        console.log('✅ RTP Data loaded:', JSON.stringify(rtpConfig));
+                    }
+                });
+            } catch (error) {
+                console.error('❌ Error loading RTP:', error);
+            }
+        }
+
+        // ========== INISIALISASI ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Payline page loaded...');
+            
+            // Load RTP data
+            if (typeof db !== 'undefined') {
+                loadRTPInfo();
+            } else {
+                console.warn('⚠️ Firebase tidak terinisialisasi, menggunakan data default');
+            }
+        });
+    </script>
+</body>
+          </html>
