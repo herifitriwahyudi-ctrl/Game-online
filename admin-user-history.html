@@ -504,41 +504,6 @@
             font-weight: bold;
         }
 
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-        }
-
-        .action-btn {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.8em;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
-        .action-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .btn-approve {
-            background: #00ff88;
-            color: #1a1a1a;
-        }
-
-        .btn-reject {
-            background: #ff4444;
-            color: #fff;
-        }
-
-        .btn-view {
-            background: rgba(255,255,255,0.2);
-            color: #fff;
-        }
-
         /* Pagination */
         .pagination {
             display: flex;
@@ -681,16 +646,6 @@
             font-size: 1em;
             font-weight: bold;
             transition: all 0.3s ease;
-        }
-
-        .modal-approve {
-            background: #00ff88;
-            color: #1a1a1a;
-        }
-
-        .modal-reject {
-            background: #ff4444;
-            color: #fff;
         }
 
         .modal-close {
@@ -1437,7 +1392,6 @@
                         <th>Status</th>
                         <th>Tanggal</th>
                         <th>Detail</th>
-                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1489,23 +1443,6 @@
                     `;
                 }
                 
-                let actionButtons = '';
-                if (trans.status === 'pending') {
-                    actionButtons = `
-                        <div class="action-buttons">
-                            <button class="action-btn btn-approve" onclick="approveTransaction('${currentUserId}', '${trans._id}')">✅</button>
-                            <button class="action-btn btn-reject" onclick="rejectTransaction('${currentUserId}', '${trans._id}')">❌</button>
-                            <button class="action-btn btn-view" onclick="showTransactionDetail('${trans._id}')">👁️</button>
-                        </div>
-                    `;
-                } else {
-                    actionButtons = `
-                        <div class="action-buttons">
-                            <button class="action-btn btn-view" onclick="showTransactionDetail('${trans._id}')">👁️</button>
-                        </div>
-                    `;
-                }
-                
                 html += `
                     <tr>
                         <td>${formatTransactionId(trans.transactionId || trans._id)}</td>
@@ -1514,7 +1451,6 @@
                         <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
                         <td>${formatDateTime(trans.timestamp)}</td>
                         <td>${detailHTML}</td>
-                        <td>${actionButtons}</td>
                     </tr>
                 `;
             });
@@ -1544,71 +1480,6 @@
             
             currentPage = newPage;
             renderTransactions();
-        }
-
-        // ========== APPROVE TRANSACTION ==========
-        async function approveTransaction(userId, transId) {
-            try {
-                const alreadyProcessed = await isTransactionProcessed(userId, transId);
-                
-                if (alreadyProcessed) {
-                    alert('⚠️ Transaksi ini sudah diproses sebelumnya!');
-                    return;
-                }
-                
-                const transSnapshot = await db.ref('transactions/' + userId + '/' + transId).once('value');
-                const trans = transSnapshot.val();
-                
-                if (!trans) {
-                    alert('❌ Transaksi tidak ditemukan!');
-                    return;
-                }
-                
-                if (trans.type === 'topup') {
-                    const result = await processTopUpApproval(userId, transId, trans.amount);
-                    
-                    if (result.success) {
-                        alert('✅ Top Up disetujui! Saldo berhasil ditambahkan.');
-                    } else {
-                        alert('⚠️ ' + result.message);
-                    }
-                } else if (trans.type === 'withdraw') {
-                    const result = await processWithdrawApproval(userId, transId, trans.amount);
-                    
-                    if (result.success) {
-                        alert('✅ Withdraw disetujui! Saldo berhasil dikurangi.');
-                    } else {
-                        alert('⚠️ ' + result.message);
-                    }
-                } else {
-                    alert('⚠️ Jenis transaksi tidak dikenal!');
-                }
-                
-                loadUserTransactions();
-                loadUserInfo();
-            } catch (error) {
-                console.error('Error approving transaction:', error);
-                alert('❌ Gagal menyetujui transaksi! Error: ' + error.message);
-            }
-        }
-
-        // ========== REJECT TRANSACTION ==========
-        async function rejectTransaction(userId, transId) {
-            try {
-                const alreadyProcessed = await isTransactionProcessed(userId, transId);
-                
-                if (alreadyProcessed) {
-                    alert('⚠️ Transaksi ini sudah diproses sebelumnya!');
-                    return;
-                }
-                
-                await db.ref('transactions/' + userId + '/' + transId + '/status').set('rejected');
-                alert('❌ Transaksi ditolak!');
-                loadUserTransactions();
-            } catch (error) {
-                console.error('Error rejecting transaction:', error);
-                alert('❌ Gagal menolak transaksi! Error: ' + error.message);
-            }
         }
 
         // ========== SHOW TRANSACTION DETAIL ==========
@@ -1671,15 +1542,6 @@
                     <div class="modal-detail-item">
                         <div class="modal-detail-label">WhatsApp</div>
                         <div class="modal-detail-value">${trans.noWhatsapp || '-'}</div>
-                    </div>
-                `;
-            }
-            
-            if (trans.status === 'pending') {
-                detailHTML += `
-                    <div class="modal-actions">
-                        <button class="modal-approve" onclick="approveTransaction('${currentUserId}', '${trans._id}')">✅ Setujui</button>
-                        <button class="modal-reject" onclick="rejectTransaction('${currentUserId}', '${trans._id}')">❌ Tolak</button>
                     </div>
                 `;
             }
@@ -1769,4 +1631,4 @@
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
-                                                                                           </html>
+                </html>
