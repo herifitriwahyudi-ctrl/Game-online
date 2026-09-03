@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💳 Pembayaran QRIS - Dragons Hunter</title>
+    
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8b6914">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dragons Hunter">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: url('background-dragon.png') no-repeat center center fixed;
+            background-size: cover;
+            background-color: #0a1f14;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 31, 20, 0.85);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .payment-container {
+            max-width: 480px;
+            width: 90%;
+            margin: 20px;
+            padding: 25px;
+            background: linear-gradient(145deg, #2a1f0e, #1a1208);
+            border-radius: 30px;
+            border: 4px solid #8b6914;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 50px rgba(139,105,20,0.3);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .payment-container h2 {
+            color: #ffd700;
+            margin-bottom: 5px;
+            font-size: 1.8em;
+            text-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        .payment-container p {
+            color: #ccc;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        
+        .user-info {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            color: #ffd700;
+            text-align: left;
+        }
+        
+        .user-info strong {
+            color: #fff;
+        }
+        
+        .amount-display {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #00ff88;
+            margin: 10px 0 20px;
+            text-shadow: 0 0 15px rgba(0,255,136,0.4);
+            background: rgba(0,255,136,0.1);
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid rgba(0,255,136,0.3);
+        }
+        
+        .qris-box {
+            background: #fff;
+            border-radius: 20px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 4px solid #ffd700;
+            box-shadow: 0 0 20px rgba(255,215,0,0.3);
+        }
+        
+        .qris-box img {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            border-radius: 10px;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .instructions {
+            text-align: left;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            line-height: 1.6;
+            color: #ddd;
+        }
+        
+        .instructions h4 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        /* Tombol WhatsApp */
+        .whatsapp-btn {
+            width: 100%;
+            background: linear-gradient(145deg, #25d366, #128c7e);
+            border: none;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(37,211,102,0.4);
+            transition: all 0.3s ease;
+            color: #fff;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        
+        .whatsapp-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(37,211,102,0.6);
+        }
+        
+        .whatsapp-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .whatsapp-icon {
+            font-size: 1.3em;
+        }
+        
+        /* Tombol Konfirmasi */
+        .confirm-btn {
+            width: 100%;
+            background: linear-gradient(145deg, #00ff88, #00cc66);
+            border: none;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,255,136,0.4);
+            transition: all 0.3s ease;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+        
+        .confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,255,136,0.6);
+        }
+        
+        .confirm-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .back-btn {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #ff4444;
+            color: #ff4444;
+            padding: 12px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,68,68,0.2);
+        }
+        
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            display: none;
+        }
+        
+        .message.error {
+            background: rgba(255,68,68,0.2);
+            border: 2px solid #ff4444;
+            color: #ff6666;
+            display: block;
+        }
+        
+        .message.success {
+            background: rgba(0,255,136,0.2);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            display: block;
+        }
+        
+        .countdown {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #aaa;
+        }
+        
+        .checking-status {
+            display: none;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ffd700;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .whatsapp-note {
+            font-size: 0.8em;
+            color: #aaa;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        @media (max-width: 480px) {
+            .payment-container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .amount-display {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Payment Container -->
+    <div class="payment-container">
+        <h2>💳 Pembayaran QRIS</h2>
+        <p>Scan kode di bawah untuk menyelesaikan top up</p>
+        
+        <!-- Info User -->
+        <div class="user-info">
+            <strong>👤 User:</strong> <span id="usernameDisplay">-</span>
+        </div>
+        
+        <div class="amount-display" id="amountDisplay">Rp 0</div>
+        
+        <div class="qris-box">
+            <img src="qris-topup.png" alt="QRIS Pembayaran" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=QRIS-Payment-Test'">
+        </div>
+        
+        <div class="instructions">
+            <h4>📌 Cara Pembayaran:</h4>
+            <ol>
+                <li>Buka aplikasi e-wallet (GoPay, OVO, DANA, ShopeePay) atau Mobile Banking Anda.</li>
+                <li>Pilih menu <strong>Scan QRIS</strong> atau <strong>QR Payment</strong>.</li>
+                <li>Scan kode QRIS di atas.</li>
+                <li>Pastikan nominal sesuai, lalu konfirmasi dan bayar.</li>
+                <li>Setelah pembayaran berhasil, klik tombol <strong>"Kirim Bukti ke WhatsApp"</strong> di bawah.</li>
+            </ol>
+        </div>
+        
+        <!-- Tombol WhatsApp -->
+        <a href="https://wa.me/6282145111853?text=Halo%20Admin%2C%20saya%20sudah%20melakukan%20pembayaran%20top%20up" 
+           class="whatsapp-btn" 
+           id="whatsappBtn" 
+           target="_blank" 
+           rel="noopener noreferrer">
+            <span class="whatsapp-icon">📱</span>
+            Kirim Bukti ke WhatsApp
+        </a>
+        
+        <div class="whatsapp-note">
+            💬 Setelah klik, Anda akan diarahkan ke WhatsApp admin untuk konfirmasi pembayaran
+        </div>
+        
+        <!-- Tombol Konfirmasi -->
+        <button class="confirm-btn" id="confirmBtn" onclick="confirmPayment()">✅ Saya Sudah Bayar</button>
+        <a href="index.html" class="back-btn" onclick="cancelPayment()">⬅ Kembali ke Game</a>
+        
+        <div class="checking-status" id="checkingStatus">
+            <p>⏳ Menunggu konfirmasi pembayaran...</p>
+            <div class="spinner"></div>
+        </div>
+        
+        <div class="message" id="message"></div>
+        <div class="countdown" id="countdown"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        // State
+        let topUpAmount = 0;
+        let baseTopUpAmount = 0;
+        let countdownInterval = null;
+        let currentUserId = null;
+        let currentUserData = null;
+        let isProcessing = false;
+        let pollTimeout = null;
+
+        // Format Rupiah
+        function formatRupiah(number) {
+            return 'Rp ' + number.toLocaleString('id-ID');
+        }
+
+        // ========== TAMPILKAN DATA USER ==========
+        async function displayUserInfo() {
+            // Gunakan fungsi getSession dari firebase-config.js
+            const session = getSession();
+            if (session) {
+                document.getElementById('usernameDisplay').textContent = session.username || '-';
+            }
+        }
+
+        // ========== VERIFIKASI SESSION ==========
+        async function checkSession() {
+            // Gunakan fungsi verifySession dari firebase-config.js
+            const session = await verifySession();
+            if (!session) {
+                document.getElementById('message').textContent = '❌ Anda belum login!';
+                document.getElementById('message').className = 'message error';
+                document.getElementById('confirmBtn').disabled = true;
+                
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
+            
+            currentUserId = session.userId;
+            currentUserData = session;
+            
+            // Cek apakah sudah ada transaksi pending
+            checkPendingTransaction();
+        }
+
+        function checkPendingTransaction() {
+            if (!currentUserId) return;
+            
+            // Cek apakah ada transaksi pending untuk user ini
+            db.ref('transactions/' + currentUserId).orderByChild('status').equalTo('pending')
+                .limitToLast(1)
+                .once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        snapshot.forEach((child) => {
+                            const transaction = child.val();
+                            if (transaction.amount === topUpAmount) {
+                                document.getElementById('checkingStatus').style.display = 'block';
+                                document.getElementById('confirmBtn').disabled = true;
+                                
+                                // Mulai polling untuk cek status
+                                startPolling(child.key);
+                            }
+                        });
+                    }
+                });
+        }
+
+        function startCountdown(seconds) {
+            const countdownEl = document.getElementById('countdown');
+            
+            countdownInterval = setInterval(() => {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                
+                countdownEl.textContent = `⏱️ Sisa waktu: ${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+                
+                seconds--;
+                
+                if (seconds < 0) {
+                    clearInterval(countdownInterval);
+                    countdownEl.textContent = '⏱️ Waktu habis!';
+                    document.getElementById('message').textContent = '❌ Waktu pembayaran habis!';
+                    document.getElementById('message').className = 'message error';
+                    document.getElementById('confirmBtn').disabled = true;
+                    
+                    sessionStorage.removeItem('pendingTopUpAmount');
+                    sessionStorage.removeItem('pendingTopUpBaseAmount');
+                    
+                    setTimeout(() => window.location.href = 'index.html', 3000);
+                }
+            }, 1000);
+        }
+
+        // ========== FUNGSI CANCEL PAYMENT ==========
+        function cancelPayment() {
+            // Bersihkan interval dan timeout
+            if (countdownInterval) clearInterval(countdownInterval);
+            if (pollTimeout) clearTimeout(pollTimeout);
+            
+            // Hapus session data
+            sessionStorage.removeItem('pendingTopUpAmount');
+            sessionStorage.removeItem('pendingTopUpBaseAmount');
+            sessionStorage.removeItem('pendingTransactionId');
+            
+            // Redirect ke game
+            window.location.href = 'index.html';
+        }
+
+        // ========== FUNGSI CONFIRM PAYMENT ==========
+        function confirmPayment() {
+            // Prevent double submission
+            if (isProcessing) return;
+            
+            // Cek nominal
+            if (topUpAmount === 0) {
+                document.getElementById('message').textContent = '❌ Tidak ada nominal top up! Silakan kembali ke game.';
+                document.getElementById('message').className = 'message error';
+                setTimeout(() => window.location.href = 'index.html', 2000);
+                return;
+            }
+
+            isProcessing = true;
+
+            const messageEl = document.getElementById('message');
+            const confirmBtn = document.getElementById('confirmBtn');
+            const checkingStatus = document.getElementById('checkingStatus');
+
+            // Cek session
+            if (!currentUserId) {
+                messageEl.textContent = '❌ Anda belum login!';
+                messageEl.className = 'message error';
+                setTimeout(() => window.location.href = 'login.html', 1500);
+                return;
+            }
+
+            // Disable tombol
+            lockButton(confirmBtn);
+            messageEl.textContent = '⏳ Memverifikasi pembayaran...';
+            messageEl.className = 'message';
+
+            // Ambil transaction ID dari sessionStorage
+            const transactionId = sessionStorage.getItem('pendingTransactionId');
+
+            // Buat transaksi pending
+            const transactionRef = db.ref('transactions/' + currentUserId + '/' + transactionId);
+            
+            transactionRef.set({
+                type: 'topup',
+                amount: topUpAmount,
+                baseAmount: baseTopUpAmount,
+                method: 'QRIS',
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                status: 'pending',
+                userId: currentUserId,
+                username: currentUserData.username,
+                transactionId: transactionId,
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            })
+            .then(() => {
+                // Tampilkan status menunggu
+                checkingStatus.style.display = 'block';
+                messageEl.textContent = '';
+                messageEl.className = 'message';
+                
+                // Simpan ID transaksi
+                sessionStorage.setItem('pendingTransactionId', transactionId);
+                
+                // Mulai polling status
+                startPolling(transactionId);
+            })
+            .catch((error) => {
+                console.error('Error membuat transaksi:', error);
+                messageEl.textContent = '❌ Gagal membuat transaksi: ' + error.message;
+                messageEl.className = 'message error';
+                unlockButton(confirmBtn);
+                isProcessing = false;
+            });
+        }
+
+        function startPolling(transactionId) {
+            const checkingStatus = document.getElementById('checkingStatus');
+            const messageEl = document.getElementById('message');
+            
+            checkingStatus.style.display = 'block';
+            
+            // Gunakan on() untuk real-time update
+            const transactionRef = db.ref('transactions/' + currentUserId + '/' + transactionId);
+            
+            // Set timeout untuk polling maksimal 2 menit
+            pollTimeout = setTimeout(() => {
+                transactionRef.off();
+                checkingStatus.style.display = 'none';
+                messageEl.textContent = '⏱️ Waktu verifikasi habis. Hubungi admin.';
+                messageEl.className = 'message error';
+                unlockButton(document.getElementById('confirmBtn'));
+                isProcessing = false;
+            }, 120000); // 2 menit
+
+            transactionRef.on('value', (snapshot) => {
+                const transaction = snapshot.val();
+                
+                if (transaction) {
+                    if (transaction.status === 'approved') {
+                        // Transaksi berhasil
+                        clearTimeout(pollTimeout);
+                        transactionRef.off();
+                        clearInterval(countdownInterval);
+                        
+                        // Update saldo user dengan transaction (atomic)
+                        db.ref('users/' + currentUserId + '/balance').transaction((currentBalance) => {
+                            return (currentBalance || 0) + transaction.amount;
+                        }).then(() => {
+                            // Update saldo di session jika ada
+                            const session = getSession();
+                            if (session) {
+                                session.balance = (session.balance || 0) + transaction.amount;
+                                sessionStorage.setItem('dragonsHunterSession', JSON.stringify(session));
+                                localStorage.setItem('dragonsHunterActiveUser', JSON.stringify(session));
+                            }
+                            
+                            // Tampilkan pesan sukses
+                            checkingStatus.style.display = 'none';
+                            messageEl.textContent = '✅ Pembayaran berhasil! Saldo telah diperbarui.';
+                            messageEl.className = 'message success';
+                            
+                            // Hapus session data
+                            sessionStorage.removeItem('pendingTopUpAmount');
+                            sessionStorage.removeItem('pendingTopUpBaseAmount');
+                            sessionStorage.removeItem('pendingTransactionId');
+                            
+                            setTimeout(() => window.location.href = 'index.html', 2000);
+                        });
+                    } else if (transaction.status === 'rejected') {
+                        // Transaksi gagal
+                        clearTimeout(pollTimeout);
+                        transactionRef.off();
+                        clearInterval(countdownInterval);
+                        
+                        checkingStatus.style.display = 'none';
+                        messageEl.textContent = '❌ Pembayaran gagal. Silakan coba lagi.';
+                        messageEl.className = 'message error';
+                        unlockButton(document.getElementById('confirmBtn'));
+                        isProcessing = false;
+                        
+                        sessionStorage.removeItem('pendingTopUpAmount');
+                        sessionStorage.removeItem('pendingTopUpBaseAmount');
+                        sessionStorage.removeItem('pendingTransactionId');
+                    }
+                }
+            });
+        }
+        
+        // Fungsi lock/unlock button
+        function lockButton(btn) {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+        }
+        
+        function unlockButton(btn) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }
+
+        // ========== BUILD WHATSAPP MESSAGE ==========
+        function buildWhatsAppMessage() {
+            // Ambil data yang diperlukan
+            const session = getSession();
+            const username = session ? session.username : 'Guest';
+            const nominal = topUpAmount ? topUpAmount.toLocaleString('id-ID') : '0';
+            const transactionId = sessionStorage.getItem('pendingTransactionId') || 'N/A';
+            
+            // Bangun pesan WhatsApp
+            const message = `Halo Admin Dragons Hunter! 🐉\n\n` +
+                `Saya sudah melakukan pembayaran top up dengan detail:\n\n` +
+                `👤 Username: ${username}\n` +
+                `💰 Nominal: Rp ${nominal}\n` +
+                `📋 ID Transaksi: ${transactionId}\n` +
+                `📅 Waktu: ${new Date().toLocaleString('id-ID')}\n\n` +
+                `Mohon segera diproses ya. Terima kasih! 🙏`;
+            
+            return encodeURIComponent(message);
+        }
+
+        // ========== UPDATE WHATSAPP LINK ==========
+        function updateWhatsAppLink() {
+            const whatsappBtn = document.getElementById('whatsappBtn');
+            const message = buildWhatsAppMessage();
+            whatsappBtn.href = `https://wa.me/6282145111853?text=${message}`;
+        }
+
+        // ========== INIT ==========
+        async function init() {
+            // Ambil nominal dari sessionStorage (diisi oleh index.html)
+            topUpAmount = parseInt(sessionStorage.getItem('pendingTopUpAmount')) || 0;
+            baseTopUpAmount = parseInt(sessionStorage.getItem('pendingTopUpBaseAmount')) || 0;
+            
+            // Tampilkan nominal
+            document.getElementById('amountDisplay').textContent = formatRupiah(topUpAmount);
+            
+            // Tampilkan info user
+            await displayUserInfo();
+            
+            // Update link WhatsApp
+            updateWhatsAppLink();
+            
+            // Cek apakah ada nominal top up
+            if (topUpAmount === 0) { 
+                document.getElementById('message').textContent = '❌ Tidak ada nominal top up!'; 
+                document.getElementById('message').className = 'message error'; 
+                document.getElementById('confirmBtn').disabled = true; 
+                document.getElementById('countdown').textContent = 'Silakan kembali ke game dan pilih nominal top up.';
+            } else {
+                // Mulai countdown 15 menit
+                startCountdown(15 * 60);
+                
+                // Cek status login
+                checkSession();
+            }
+        }
+        
+        // Bersihkan interval saat halaman ditutup
+        window.addEventListener('beforeunload', () => {
+            if (countdownInterval) clearInterval(countdownInterval);
+            if (pollTimeout) clearTimeout(pollTimeout);
+        });
+
+        // Inisialisasi
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker terdaftar:', registration.scope);
+                        
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('Registrasi Service Worker gagal:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
