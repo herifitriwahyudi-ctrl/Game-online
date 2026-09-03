@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dragons-hunter-v8';
+const CACHE_NAME = 'dragons-hunter-v9';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -8,6 +8,7 @@ const urlsToCache = [
   '/admin.html',
   '/admin-user-history.html',
   '/pembayaran.html',
+  '/payline.html',
   '/firebase-config.js',
   '/background-dragon.png',
   '/header-dragon.png',
@@ -23,9 +24,9 @@ const urlsToCache = [
   '/kelinci.png',
   '/naga.mp4',
   '/harimau.mp4',
+  '/intro-dragon.mp4',
   '/icon-192.png',
   '/icon-512.png',
-  '/intro-dragon.mp4',
   '/screenshot-game.png',
   'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
   'https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js'
@@ -74,7 +75,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Network First untuk halaman penting
-  const importantFiles = ['/login.html', '/admin.html', '/register.html', '/firebase-config.js', '/manifest.json', '/admin-user-history.html'];
+  const importantFiles = ['/login.html', '/admin.html', '/register.html', '/firebase-config.js', '/manifest.json', '/admin-user-history.html', '/payline.html'];
   
   if (importantFiles.some(file => event.request.url.includes(file))) {
     event.respondWith(
