@@ -981,7 +981,10 @@
 
         // ========== FORMAT RUPIAH ==========
         function formatRupiah(number) {
-            return 'Rp ' + (number || 0).toLocaleString('id-ID');
+            return 'Rp ' + (number || 0).toLocaleString('id-ID', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
         }
 
         // ========== FORMAT TANGGAL ==========
@@ -1088,59 +1091,27 @@
             }
         }
 
-        // ========== FORMAT RUPIAH ACCOUNTING ==========
-function formatRupiah(number) {
-    return 'Rp ' + (number || 0).toLocaleString('id-ID', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    });
-}
-
-// ========== TAMPILKAN SALDO ==========
-function displayUserInfo() {
-    const userInfoSection = document.getElementById('userInfoSection');
-    userInfoSection.classList.add('show');
-    
-    // Avatar
-    document.getElementById('userAvatar').textContent = (currentUserData.username || 'U').charAt(0).toUpperCase();
-    
-    // Nama dan username
-    document.getElementById('userName').textContent = currentUserData.nama || '-';
-    document.getElementById('userUsername').textContent = '@' + (currentUserData.username || '-');
-    
-    // Saldo
-    document.getElementById('userBalance').textContent = formatRupiah(currentUserData.balance);
-    
-    // Detail
-    document.getElementById('userWhatsapp').textContent = currentUserData.noWhatsapp || '-';
-    document.getElementById('userWithdrawMethod').textContent = currentUserData.withdrawMethod || '-';
-    document.getElementById('userWithdrawAccount').textContent = currentUserData.withdrawAccount || '-';
-    document.getElementById('userWithdrawName').textContent = currentUserData.withdrawName || '-';
-}
-
-// ========== UPDATE SUMMARY ==========
-function updateSummary() {
-    let totalDeposit = 0;
-    let totalWithdraw = 0;
-    let totalPending = 0;
-    
-    allTransactions.forEach(trans => {
-        if (trans.type === 'topup' && trans.status === 'approved') {
-            totalDeposit += trans.amount || 0;
+        // ========== TAMPILKAN INFO USER ==========
+        function displayUserInfo() {
+            const userInfoSection = document.getElementById('userInfoSection');
+            userInfoSection.classList.add('show');
+            
+            // Avatar
+            document.getElementById('userAvatar').textContent = (currentUserData.username || 'U').charAt(0).toUpperCase();
+            
+            // Nama dan username
+            document.getElementById('userName').textContent = currentUserData.nama || '-';
+            document.getElementById('userUsername').textContent = '@' + (currentUserData.username || '-');
+            
+            // Saldo
+            document.getElementById('userBalance').textContent = formatRupiah(currentUserData.balance);
+            
+            // Detail
+            document.getElementById('userWhatsapp').textContent = currentUserData.noWhatsapp || '-';
+            document.getElementById('userWithdrawMethod').textContent = currentUserData.withdrawMethod || '-';
+            document.getElementById('userWithdrawAccount').textContent = currentUserData.withdrawAccount || '-';
+            document.getElementById('userWithdrawName').textContent = currentUserData.withdrawName || '-';
         }
-        if (trans.type === 'withdraw' && trans.status === 'approved') {
-            totalWithdraw += trans.amount || 0;
-        }
-        if (trans.status === 'pending') {
-            totalPending++;
-        }
-    });
-    
-    document.getElementById('totalDeposit').textContent = formatRupiah(totalDeposit);
-    document.getElementById('totalWithdraw').textContent = formatRupiah(totalWithdraw);
-    document.getElementById('totalPending').textContent = totalPending;
-    document.getElementById('totalTransactions').textContent = allTransactions.length;
-}
 
         // ========== LOAD USER TRANSACTIONS ==========
         async function loadUserTransactions() {
@@ -1413,8 +1384,13 @@ function updateSummary() {
         // ========== APPROVE TRANSACTION ==========
         async function approveTransaction(userId, transId) {
             try {
-                // Update status transaksi
-                await db.ref('transactions/' + userId + '/' + transId + '/status').set('approved');
+                // Cek apakah transaksi sudah diproses
+                const alreadyProcessed = await isTransactionProcessed(userId, transId);
+                
+                if (alreadyProcessed) {
+                    alert('⚠️ Transaksi ini sudah diproses sebelumnya!');
+                    return;
+                }
                 
                 // Ambil data transaksi
                 const transSnapshot = await db.ref('transactions/' + userId + '/' + transId).once('value');
@@ -1425,36 +1401,24 @@ function updateSummary() {
                     return;
                 }
                 
-                // Cek apakah user ada di database
-                const userSnapshot = await db.ref('users/' + userId).once('value');
-                
-                if (!userSnapshot.exists()) {
-                    // Jika user tidak ada, buat user baru dengan saldo default
-                    await db.ref('users/' + userId).set({
-                        username: trans.username || 'guest',
-                        balance: 0,
-                        createdAt: firebase.database.ServerValue.TIMESTAMP
-                    });
-                }
-                
-                // Ambil saldo user saat ini
-                const balanceSnapshot = await db.ref('users/' + userId + '/balance').once('value');
-                const currentBalance = balanceSnapshot.val() || 0;
-                
+                // Proses sesuai jenis transaksi
                 if (trans.type === 'topup') {
-                    // Top up: tambah saldo
-                    const newBalance = currentBalance + trans.amount;
-                    await db.ref('users/' + userId + '/balance').set(newBalance);
-                    alert('✅ Top Up disetujui! Saldo: Rp ' + newBalance.toLocaleString('id-ID'));
-                } else if (trans.type === 'withdraw') {
-                    // Withdraw: kurangi saldo
-                    if (currentBalance >= trans.amount) {
-                        const newBalance = currentBalance - trans.amount;
-                        await db.ref('users/' + userId + '/balance').set(newBalance);
-                        alert('✅ Withdraw disetujui! Saldo: Rp ' + newBalance.toLocaleString('id-ID'));
+                    // Gunakan fungsi aman dari firebase-config.js
+                    const result = await processTopUpApproval(userId, transId, trans.amount);
+                    
+                    if (result.success) {
+                        alert('✅ Top Up disetujui! Saldo berhasil ditambahkan.');
                     } else {
-                        alert('⚠️ Saldo tidak mencukupi untuk withdraw!');
-                        await db.ref('transactions/' + userId + '/' + transId + '/status').set('rejected');
+                        alert('⚠️ ' + result.message);
+                    }
+                } else if (trans.type === 'withdraw') {
+                    // Gunakan fungsi aman dari firebase-config.js
+                    const result = await processWithdrawApproval(userId, transId, trans.amount);
+                    
+                    if (result.success) {
+                        alert('✅ Withdraw disetujui! Saldo berhasil dikurangi.');
+                    } else {
+                        alert('⚠️ ' + result.message);
                     }
                 } else {
                     alert('⚠️ Jenis transaksi tidak dikenal!');
@@ -1472,6 +1436,14 @@ function updateSummary() {
         // ========== REJECT TRANSACTION ==========
         async function rejectTransaction(userId, transId) {
             try {
+                // Cek apakah transaksi sudah diproses
+                const alreadyProcessed = await isTransactionProcessed(userId, transId);
+                
+                if (alreadyProcessed) {
+                    alert('⚠️ Transaksi ini sudah diproses sebelumnya!');
+                    return;
+                }
+                
                 await db.ref('transactions/' + userId + '/' + transId + '/status').set('rejected');
                 alert('❌ Transaksi ditolak!');
                 loadUserTransactions();
@@ -1647,4 +1619,4 @@ function updateSummary() {
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
-</html>
+    </html>
