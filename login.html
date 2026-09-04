@@ -39,6 +39,11 @@
             pointer-events: none; 
         }
         
+        /* Audio Element */
+        .audio-intro {
+            display: none;
+        }
+        
         /* Intro Video */
         .intro-overlay { 
             position: fixed; 
@@ -286,6 +291,9 @@
         <div class="spinner"></div>
     </div>
 
+    <!-- Audio Intro (dragon.wav) -->
+    <audio id="introAudio" src="dragon.wav" preload="auto"></audio>
+
     <!-- Video Intro Overlay -->
     <div class="intro-overlay" id="introOverlay">
         <div class="intro-video-container">
@@ -296,9 +304,6 @@
             <div class="intro-progress" id="introProgress"></div>
         </div>
     </div>
-
-    <!-- Audio Intro (dragon.wav) -->
-    <audio id="introAudio" src="dragon.wav" preload="auto"></audio>
 
     <div class="login-container" id="loginContainer">
         <h2>🐉 Login</h2>
@@ -329,9 +334,149 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     
-    <script src="firebase-config.js"></script>
-    
     <script>
+        // ==================== FIREBASE CONFIG (EMBED) ====================
+        const firebaseConfig = {
+          apiKey: "AIzaSyDyn8s6NtJqOnN_hvWEqoRYbvYbq7TQqO8",
+          authDomain: "dragonhunter-2fdb7.firebaseapp.com",
+          databaseURL: "https://dragonhunter-2fdb7-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "dragonhunter-2fdb7",
+          storageBucket: "dragonhunter-2fdb7.firebasestorage.app",
+          messagingSenderId: "138293020401",
+          appId: "1:138293020401:web:90502b724d0c30aabf4b50"
+        };
+
+        // Inisialisasi Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // ========== UTILITAS ==========
+        const PASSWORD_SALT = 'dragons_hunter_salt_2024';
+
+        async function hashPassword(password) {
+          try {
+            if (window.crypto && window.crypto.subtle) {
+              const encoder = new TextEncoder();
+              const data = encoder.encode(password + PASSWORD_SALT);
+              const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+              const hashArray = Array.from(new Uint8Array(hashBuffer));
+              return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+            
+            let hash = 0;
+            const saltedPassword = password + PASSWORD_SALT;
+            for (let i = 0; i < saltedPassword.length; i++) {
+              const char = saltedPassword.charCodeAt(i);
+              hash = ((hash << 5) - hash) + char;
+              hash = hash & hash;
+            }
+            return hash.toString(16);
+          } catch (error) {
+            console.error('Hash error:', error);
+            throw error;
+          }
+        }
+
+        function generateId(prefix = '') {
+          return prefix + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // ========== FORMAT RUPIAH ==========
+        function formatRupiah(amount) {
+          return 'Rp ' + (amount || 0).toLocaleString('id-ID', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+          });
+        }
+
+        // ========== SESSION MANAGEMENT ==========
+        function saveSession(sessionData) {
+          const session = {
+            userId: sessionData.userId,
+            username: sessionData.username,
+            nama: sessionData.nama,
+            balance: sessionData.balance,
+            role: sessionData.role || 'user',
+            loginTime: Date.now(),
+            sessionId: generateId('sess_')
+          };
+          sessionStorage.setItem('dragonsHunterSession', JSON.stringify(session));
+          localStorage.setItem('dragonsHunterActiveUser', JSON.stringify(session));
+          return session;
+        }
+
+        function getSession() {
+          try {
+            const session = sessionStorage.getItem('dragonsHunterSession');
+            if (session) return JSON.parse(session);
+            const localSession = localStorage.getItem('dragonsHunterActiveUser');
+            return localSession ? JSON.parse(localSession) : null;
+          } catch (error) {
+            console.error('Error parsing session:', error);
+            return null;
+          }
+        }
+
+        function clearSession() {
+          sessionStorage.removeItem('dragonsHunterSession');
+          localStorage.removeItem('dragonsHunterActiveUser');
+          localStorage.removeItem('dragonsHunterSession');
+          sessionStorage.removeItem('dragonsHunterActiveUser');
+        }
+
+        async function verifySession() {
+          const session = getSession();
+          if (!session || !session.userId) return null;
+          try {
+            const snapshot = await db.ref('users/' + session.userId).once('value');
+            if (snapshot.exists()) {
+              const userData = snapshot.val();
+              if (userData.status === 'banned' || userData.status === 'deleted') {
+                clearSession();
+                return null;
+              }
+              session.balance = userData.balance;
+              session.role = userData.role || 'user';
+              sessionStorage.setItem('dragonsHunterSession', JSON.stringify(session));
+              localStorage.setItem('dragonsHunterActiveUser', JSON.stringify(session));
+              return session;
+            }
+            return null;
+          } catch (error) {
+            console.error('Error verifying session:', error);
+            return null;
+          }
+        }
+
+        // ========== SETUP DEFAULT CONFIG ==========
+        async function setupDefaultConfig() {
+          try {
+            const rtpConfig = { global: 50, hewan: 50, naga: 50, harimau: 50, mode: 'normal', maxWin: 500000 };
+            await db.ref('config/rtp').set(rtpConfig);
+            const serverConfig = { maintenance: false, announcement: 'Selamat datang di Dragons Hunter!' };
+            await db.ref('config/server').set(serverConfig);
+            const adminConfigRef = db.ref('adminConfig');
+            const adminSnapshot = await adminConfigRef.once('value');
+            if (!adminSnapshot.exists() || !adminSnapshot.val().passwordHash) {
+              const defaultHash = await hashPassword('admin123');
+              await adminConfigRef.child('passwordHash').set(defaultHash);
+              console.log('✅ Password admin default dibuat: admin123');
+            }
+            console.log('✅ Konfigurasi default berhasil dibuat!');
+            return true;
+          } catch (error) {
+            console.error('❌ Gagal setup config:', error);
+            return false;
+          }
+        }
+
+        db.ref('config').once('value').then(snapshot => {
+          if (!snapshot.exists()) {
+            setupDefaultConfig();
+          }
+        });
+        // ==================== AKHIR FIREBASE CONFIG ====================
+
         // State untuk mencegah double submit
         let isSubmitting = false;
         let loginAttempts = 0;
@@ -346,7 +491,7 @@
         let introProgress = document.getElementById('introProgress');
         let introPlayed = sessionStorage.getItem('introPlayed');
         let introAudio = document.getElementById('introAudio');
-        const INTRO_DURATION = 10; // Batasi intro 10 detik
+        const INTRO_DURATION = 10;
 
         function updateProgress() {
             if (introVideo.duration > 0) {
@@ -497,7 +642,7 @@
             messageEl.className = 'message';
 
             try {
-                // Gunakan hashPassword dari firebase-config.js
+                // Gunakan hashPassword yang sudah di-embed
                 const hashedPassword = await hashPassword(password);
 
                 const snapshot = await db.ref('users').orderByChild('username').equalTo(username).once('value');
