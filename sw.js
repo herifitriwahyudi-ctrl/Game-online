@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dragons-hunter-v10';
+const CACHE_NAME = 'dragons-hunter-v11';
 const urlsToCache = [
   '/',
   '/manifest.json',
